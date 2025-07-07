@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS - Contact Center Attendance</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <h2>AMS Login</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" placeholder="your.email@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" placeholder="********" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <p id="loginError" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="appContainer" class="app-container">
+        <aside class="sidebar">
+            <div class="logo">AMS</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" data-page="home">Home</a></li>
+                    <li><a href="#" data-page="attendance">Attendance Marking</a></li>
+                    <li><a href="#" data-page="dashboard">Dashboard</a></li>
+                    <li><a href="#" data-page="reports">Reports</a></li>
+                </ul>
+            </nav>
+            <button id="logoutBtn" class="btn btn-secondary logout-btn">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <header class="app-header">
+                <h1>Welcome to Attendance Management System</h1>
+                <div class="user-info">
+                    <span>Hello, <strong id="loggedInUserName">Agent Name</strong></span>
+                    <span class="user-role" id="loggedInUserRole">Agent</span>
+                </div>
+            </header>
+
+            <div id="homePage" class="content-module active">
+                <h2>Today's Statistics</h2>
+                <hr>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Clocked In</h3>
+                        <p id="statClockedIn" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Scheduled Shifts</h3>
+                        <p id="statScheduledShifts" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Agents on Break</h3>
+                        <p id="statOnBreak" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending Leave</h3>
+                        <p id="statPendingLeave" class="stat-value">0</p>
+                    </div>
+                </div>
+
+                <h3>Notifications</h3>
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <span class="notification-icon success">&#10003;</span>
+                        <p>Your leave request for July 15th has been **approved**.</p>
+                    </div>
+                    <div class="notification-item">
+                        <span class="notification-icon info">&#9432;</span>
+                        <p>Reminder: Your shift starts in 30 minutes (09:00 AM).</p>
+                    </div>
+                    <div class="notification-item">
+                        <span class="notification-icon warning">&#9888;</span>
+                        <p>Alert: Team Delta has 2 late logins today.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="attendancePage" class="content-module">
+                <h2>Attendance Marking</h2>
+                <hr>
+                <div class="attendance-card">
+                    <p id="attendanceStatusText">You are currently: **Clocked Out**</p>
+                    <div class="attendance-actions">
+                        <button id="btnClockIn" class="btn btn-success">Clock In</button>
+                        <button id="btnStartBreak" class="btn btn-info" disabled>Start Break</button>
+                        <button id="btnEndBreak" class="btn btn-info" disabled>End Break</button>
+                        <button id="btnClockOut" class="btn btn-danger" disabled>Clock Out</button>
+                    </div>
+                    <div class="last-record-info">
+                        <h3>Today's Last Record:</h3>
+                        <p><strong>Clock In:</strong> <span id="lastClockIn">N/A</span></p>
+                        <p><strong>Clock Out:</strong> <span id="lastClockOut">N/A</span></p>
+                        <p><strong>Break Start:</strong> <span id="lastBreakStart">N/A</span></p>
+                        <p><strong>Break End:</strong> <span id="lastBreakEnd">N/A</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboardPage" class="content-module">
+                <h2>Dashboard</h2>
+                <hr>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card team-status">
+                        <h3>Team Alpha Status (Real-time)</h3>
+                        <ul class="agent-status-list">
+                            <li>
+                                <span class="status-indicator online"></span>
+                                John Doe <span class="status-label">Clocked In</span>
+                            </li>
+                            <li>
+                                <span class="status-indicator break"></span>
+                                Jane Smith <span class="status-label">On Break</span>
+                            </li>
+                            <li>
+                                <span class="status-indicator offline"></span>
+                                Peter Jones <span class="status-label">Clocked Out</span>
+                            </li>
+                            <li>
+                                <span class="status-indicator late"></span>
+                                Mary Lee <span class="status-label">Late</span>
+                            </li>
+                            <li>
+                                <span class="status-indicator absent"></span>
+                                David Kim <span class="status-label">Absent</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card pending-actions">
+                        <h3>Pending Actions</h3>
+                        <ul>
+                            <li>Leave Request: Sarah Brown (July 20-22) - <a href="#">Review</a></li>
+                            <li>Shift Swap: Mike Green (from 9-5 to 11-7) - <a href="#">Approve</a></li>
+                            <li>Late Login: Emily White (09:15 AM) - <a href="#">Acknowledge</a></li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card shift-overview">
+                        <h3>Shift Overview (Today)</h3>
+                        <p>Morning Shift (09:00 - 17:00): 10/12 Agents</p>
+                        <p>Afternoon Shift (13:00 - 21:00): 7/8 Agents</p>
+                        <p>Night Shift (21:00 - 05:00): 4/5 Agents</p>
+                        <button class="btn btn-sm btn-primary">Manage Schedules</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reportsPage" class="content-module">
+                <h2>Attendance Reports & Analytics</h2>
+                <hr>
+                <div class="report-filters">
+                    <div class="input-group">
+                        <label for="reportType">Report Type:</label>
+                        <select id="reportType">
+                            <option value="daily">Daily Summary</option>
+                            <option value="weekly">Weekly Summary</option>
+                            <option value="monthly">Monthly Summary</option>
+                            <option value="tardiness">Tardiness Report</option>
+                            <option value="absenteeism">Absenteeism Report</option>
+                            <option value="overtime">Overtime Report</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="input-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <button class="btn btn-primary">Generate Report</button>
+                    <button class="btn btn-secondary">Export to CSV</button>
+                </div>
+
+                <div class="report-results">
+                    <h3>Generated Report (Example)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Agent</th>
+                                <th>Clock In</th>
+                                <th>Clock Out</th>
+                                <th>Total Hours</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-07-07</td>
+                                <td>John Doe</td>
+                                <td>08:58 AM</td>
+                                <td>05:02 PM</td>
+                                <td>8.06</td>
+                                <td class="status-good">On Time</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-07</td>
+                                <td>Jane Smith</td>
+                                <td>09:10 AM</td>
+                                <td>05:00 PM</td>
+                                <td>7.83</td>
+                                <td class="status-warning">Late</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-07</td>
+                                <td>Peter Jones</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>0.00</td>
+                                <td class="status-danger">Absent</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Simple JavaScript for UI navigation (no Firebase logic here)
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginPage = document.getElementById('loginPage');
+            const appContainer = document.getElementById('appContainer');
+            const navLinks = document.querySelectorAll('.main-nav a');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginForm = document.getElementById('loginForm');
+
+            // --- UI Simulation (replace with actual Firebase logic) ---
+            let isLoggedIn = false; // Simulate login state
+
+            function showPage(pageId) {
+                document.querySelectorAll('.content-module').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(pageId).classList.add('active');
+
+                // Update active state in nav
+                navLinks.forEach(link => {
+                    if (link.dataset.page === pageId.replace('Page', '')) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            function setLoggedInState(loggedIn) {
+                isLoggedIn = loggedIn;
+                if (isLoggedIn) {
+                    loginPage.classList.remove('active');
+                    appContainer.classList.add('active');
+                    showPage('homePage'); // Default to home after login
+                    document.getElementById('loggedInUserName').textContent = 'Demo User'; // Replace with actual user name
+                    document.getElementById('loggedInUserRole').textContent = 'Manager'; // Replace with actual user role
+                } else {
+                    loginPage.classList.add('active');
+                    appContainer.classList.remove('active');
+                }
+            }
+
+            // Simulate Login
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // In a real app: Call Firebase signInWithEmailAndPassword
+                // On success: setLoggedInState(true);
+                // On failure: document.getElementById('loginError').textContent = 'Invalid credentials.';
+                document.getElementById('loginError').textContent = ''; // Clear error
+                setLoggedInState(true); // For demo purposes, just log in
+            });
+
+            // Simulate Logout
+            logoutBtn.addEventListener('click', () => {
+                // In a real app: Call Firebase signOut
+                setLoggedInState(false);
+            });
+
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showPage(e.target.dataset.page + 'Page');
+                });
+            });
+
+            // --- Attendance Marking Button Logic (UI only) ---
+            const btnClockIn = document.getElementById('btnClockIn');
+            const btnStartBreak = document.getElementById('btnStartBreak');
+            const btnEndBreak = document.getElementById('btnEndBreak');
+            const btnClockOut = document.getElementById('btnClockOut');
+            const attendanceStatusText = document.getElementById('attendanceStatusText');
+            const lastClockIn = document.getElementById('lastClockIn');
+            const lastClockOut = document.getElementById('lastClockOut');
+            const lastBreakStart = document.getElementById('lastBreakStart');
+            const lastBreakEnd = document.getElementById('lastBreakEnd');
+
+            let currentAttendanceStatus = 'clocked_out'; // Initial state
+
+            function updateAttendanceUI(status) {
+                currentAttendanceStatus = status;
+                const now = new Date().toLocaleTimeString();
+
+                btnClockIn.disabled = true;
+                btnStartBreak.disabled = true;
+                btnEndBreak.disabled = true;
+                btnClockOut.disabled = true;
+
+                if (status === 'clocked_out') {
+                    attendanceStatusText.innerHTML = 'You are currently: <strong>Clocked Out</strong>';
+                    btnClockIn.disabled = false;
+                    lastClockOut.textContent = now;
+                } else if (status === 'clocked_in') {
+                    attendanceStatusText.innerHTML = 'You are currently: <strong>Clocked In</strong>';
+                    btnStartBreak.disabled = false;
+                    btnClockOut.disabled = false;
+                    lastClockIn.textContent = lastClockIn.textContent === 'N/A' ? now : lastClockIn.textContent; // Set only once on clock-in
+                } else if (status === 'on_break') {
+                    attendanceStatusText.innerHTML = 'You are currently: <strong>On Break</strong>';
+                    btnEndBreak.disabled = false;
+                    lastBreakStart.textContent = lastBreakStart.textContent === 'N/A' || lastBreakEnd.textContent !== 'N/A' ? now : lastBreakStart.textContent;
+                    lastBreakEnd.textContent = 'N/A'; // Clear previous break end if new break starts
+                }
+            }
+
+            btnClockIn.addEventListener('click', () => updateAttendanceUI('clocked_in'));
+            btnStartBreak.addEventListener('click', () => updateAttendanceUI('on_break'));
+            btnEndBreak.addEventListener('click', () => {
+                lastBreakEnd.textContent = new Date().toLocaleTimeString();
+                updateAttendanceUI('clocked_in'); // Go back to clocked-in after break
+            });
+            btnClockOut.addEventListener('click', () => {
+                lastClockOut.textContent = new Date().toLocaleTimeString();
+                updateAttendanceUI('clocked_out');
+            });
+
+            // Initialize UI state
+            updateAttendanceUI('clocked_out'); // Set initial state
+            setLoggedInState(false); // Start on login page
+        });
+    </script>
+</body>
+</html>
