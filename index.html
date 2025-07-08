@@ -6,6 +6,7 @@
     <title>AMS - Contact Center Attendance</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
@@ -32,13 +33,13 @@
             <div class="logo">AMS</div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#" data-page="home">Home</a></li>
-                    <li><a href="#" data-page="attendance">Attendance Marking</a></li>
-                    <li><a href="#" data-page="dashboard">Dashboard</a></li>
-                    <li><a href="#" data-page="reports">Reports</a></li>
+                    <li><a href="#" data-page="home"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#" data-page="attendance"><i class="fas fa-user-check"></i> Attendance Marking</a></li>
+                    <li><a href="#" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#" data-page="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
                 </ul>
             </nav>
-            <button id="logoutBtn" class="btn btn-secondary logout-btn">Logout</button>
+            <button id="logoutBtn" class="btn btn-secondary logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </aside>
 
         <main class="main-content">
@@ -74,16 +75,16 @@
 
                 <h3>Notifications</h3>
                 <div class="notifications-list">
-                    <div class="notification-item">
-                        <span class="notification-icon success">&#10003;</span>
+                    <div class="notification-item success">
+                        <span class="notification-icon"><i class="fas fa-check-circle"></i></span>
                         <p>Your leave request for July 15th has been **approved**.</p>
                     </div>
-                    <div class="notification-item">
-                        <span class="notification-icon info">&#9432;</span>
+                    <div class="notification-item info">
+                        <span class="notification-icon"><i class="fas fa-info-circle"></i></span>
                         <p>Reminder: Your shift starts in 30 minutes (09:00 AM).</p>
                     </div>
-                    <div class="notification-item">
-                        <span class="notification-icon warning">&#9888;</span>
+                    <div class="notification-item warning">
+                        <span class="notification-icon"><i class="fas fa-exclamation-triangle"></i></span>
                         <p>Alert: Team Delta has 2 late logins today.</p>
                     </div>
                 </div>
@@ -93,12 +94,12 @@
                 <h2>Attendance Marking</h2>
                 <hr>
                 <div class="attendance-card">
-                    <p id="attendanceStatusText">You are currently: **Clocked Out**</p>
+                    <p id="attendanceStatusText">You are currently: <strong>Clocked Out</strong></p>
                     <div class="attendance-actions">
-                        <button id="btnClockIn" class="btn btn-success">Clock In</button>
-                        <button id="btnStartBreak" class="btn btn-info" disabled>Start Break</button>
-                        <button id="btnEndBreak" class="btn btn-info" disabled>End Break</button>
-                        <button id="btnClockOut" class="btn btn-danger" disabled>Clock Out</button>
+                        <button id="btnClockIn" class="btn btn-success"><i class="fas fa-clock"></i> Clock In</button>
+                        <button id="btnStartBreak" class="btn btn-info" disabled><i class="fas fa-mug-hot"></i> Start Break</button>
+                        <button id="btnEndBreak" class="btn btn-info" disabled><i class="fas fa-play-circle"></i> End Break</button>
+                        <button id="btnClockOut" class="btn btn-danger" disabled><i class="fas fa-sign-out-alt"></i> Clock Out</button>
                     </div>
                     <div class="last-record-info">
                         <h3>Today's Last Record:</h3>
@@ -142,17 +143,17 @@
                     <div class="dashboard-card pending-actions">
                         <h3>Pending Actions</h3>
                         <ul>
-                            <li>Leave Request: Sarah Brown (July 20-22) - <a href="#">Review</a></li>
-                            <li>Shift Swap: Mike Green (from 9-5 to 11-7) - <a href="#">Approve</a></li>
-                            <li>Late Login: Emily White (09:15 AM) - <a href="#">Acknowledge</a></li>
+                            <li>Leave Request: Sarah Brown (July 20-22) - <a href="#" class="action-link">Review</a></li>
+                            <li>Shift Swap: Mike Green (from 9-5 to 11-7) - <a href="#" class="action-link">Approve</a></li>
+                            <li>Late Login: Emily White (09:15 AM) - <a href="#" class="action-link">Acknowledge</a></li>
                         </ul>
                     </div>
                     <div class="dashboard-card shift-overview">
                         <h3>Shift Overview (Today)</h3>
-                        <p>Morning Shift (09:00 - 17:00): 10/12 Agents</p>
-                        <p>Afternoon Shift (13:00 - 21:00): 7/8 Agents</p>
-                        <p>Night Shift (21:00 - 05:00): 4/5 Agents</p>
-                        <button class="btn btn-sm btn-primary">Manage Schedules</button>
+                        <p>Morning Shift (09:00 - 17:00): <strong>10/12 Agents</strong></p>
+                        <p>Afternoon Shift (13:00 - 21:00): <strong>7/8 Agents</strong></p>
+                        <p>Night Shift (21:00 - 05:00): <strong>4/5 Agents</strong></p>
+                        <button class="btn btn-sm btn-primary mt-2">Manage Schedules</button>
                     </div>
                 </div>
             </div>
@@ -180,8 +181,8 @@
                         <label for="endDate">End Date:</label>
                         <input type="date" id="endDate">
                     </div>
-                    <button class="btn btn-primary">Generate Report</button>
-                    <button class="btn btn-secondary">Export to CSV</button>
+                    <button class="btn btn-primary"><i class="fas fa-chart-bar"></i> Generate Report</button>
+                    <button class="btn btn-secondary"><i class="fas fa-download"></i> Export to CSV</button>
                 </div>
 
                 <div class="report-results">
@@ -268,6 +269,9 @@
                 } else {
                     loginPage.classList.add('active');
                     appContainer.classList.remove('active');
+                    // Optionally clear fields on logout
+                    loginForm.reset();
+                    document.getElementById('loginError').textContent = '';
                 }
             }
 
@@ -310,7 +314,7 @@
 
             function updateAttendanceUI(status) {
                 currentAttendanceStatus = status;
-                const now = new Date().toLocaleTimeString();
+                const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
                 btnClockIn.disabled = true;
                 btnStartBreak.disabled = true;
@@ -321,15 +325,27 @@
                     attendanceStatusText.innerHTML = 'You are currently: <strong>Clocked Out</strong>';
                     btnClockIn.disabled = false;
                     lastClockOut.textContent = now;
+                    // Reset other times when truly clocked out for a new day, or adjust logic
+                    if(lastClockIn.textContent !== 'N/A' && lastClockOut.textContent !== 'N/A') {
+                       // This means a full cycle was completed, ready for next clock in
+                    } else {
+                        lastClockIn.textContent = 'N/A';
+                        lastBreakStart.textContent = 'N/A';
+                        lastBreakEnd.textContent = 'N/A';
+                    }
+
                 } else if (status === 'clocked_in') {
                     attendanceStatusText.innerHTML = 'You are currently: <strong>Clocked In</strong>';
                     btnStartBreak.disabled = false;
                     btnClockOut.disabled = false;
-                    lastClockIn.textContent = lastClockIn.textContent === 'N/A' ? now : lastClockIn.textContent; // Set only once on clock-in
+                    if(lastClockIn.textContent === 'N/A' || (lastClockIn.textContent !== 'N/A' && lastClockOut.textContent !== 'N/A')) {
+                         lastClockIn.textContent = now; // Set only once on first clock-in for the day
+                    }
+                    lastClockOut.textContent = 'N/A'; // Clear clock-out time if clocked back in
                 } else if (status === 'on_break') {
                     attendanceStatusText.innerHTML = 'You are currently: <strong>On Break</strong>';
                     btnEndBreak.disabled = false;
-                    lastBreakStart.textContent = lastBreakStart.textContent === 'N/A' || lastBreakEnd.textContent !== 'N/A' ? now : lastBreakStart.textContent;
+                    lastBreakStart.textContent = now;
                     lastBreakEnd.textContent = 'N/A'; // Clear previous break end if new break starts
                 }
             }
@@ -337,11 +353,11 @@
             btnClockIn.addEventListener('click', () => updateAttendanceUI('clocked_in'));
             btnStartBreak.addEventListener('click', () => updateAttendanceUI('on_break'));
             btnEndBreak.addEventListener('click', () => {
-                lastBreakEnd.textContent = new Date().toLocaleTimeString();
+                lastBreakEnd.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
                 updateAttendanceUI('clocked_in'); // Go back to clocked-in after break
             });
             btnClockOut.addEventListener('click', () => {
-                lastClockOut.textContent = new Date().toLocaleTimeString();
+                lastClockOut.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
                 updateAttendanceUI('clocked_out');
             });
 
