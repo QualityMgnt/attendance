@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div id="appContainer" class="app-container">
+    <div id="appContainer" class="page">
         <aside class="sidebar">
             <div class="logo">AMS</div>
             <nav class="main-nav">
@@ -264,14 +264,14 @@
             function setLoggedInState(loggedIn) {
                 isLoggedIn = loggedIn;
                 if (isLoggedIn) {
-                    loginPage.classList.remove('active');
-                    appContainer.classList.add('active');
+                    loginPage.classList.remove('active'); // This hides the login page
+                    appContainer.classList.add('active');  // This shows the app container
                     showPage('homePage'); // Default to home after login
                     document.getElementById('loggedInUserName').textContent = 'Demo User'; // Replace with actual user name
                     document.getElementById('loggedInUserRole').textContent = 'Manager'; // Replace with actual user role
                 } else {
-                    loginPage.classList.add('active');
-                    appContainer.classList.remove('active');
+                    loginPage.classList.add('active');    // This shows the login page
+                    appContainer.classList.remove('active'); // This hides the app container
                     // Optionally clear fields on logout
                     loginForm.reset();
                     document.getElementById('loginError').textContent = '';
