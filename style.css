@@ -7,6 +7,8 @@
     --background-light: #f4f7f6;
     --card-background: #ffffff;
     --border-light: #e0e0e0;
+    --header-height: 60px; /* Height of the top system bar */
+    --sidebar-width: 250px; /* Width of the sidebar */
 }
 
 
@@ -16,28 +18,29 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--background-light);
     color: #333;
-    display: flex;
+    display: flex; /* Using flexbox for the main page switching */
     justify-content: center;
     align-items: center;
     min-height: 100vh; /* Ensure full viewport height */
-    overflow: hidden; /* Hide overflow initially, especially for login page */
+    overflow: hidden; /* Hide body overflow */
 }
 
 /* Page Management */
 .page {
-    display: none;
     width: 100%;
     height: 100vh;
+    display: none; /* Hide all pages by default */
 }
 
 .page.active {
-    display: flex;
+    display: flex; /* Show active page */
+    /* If the active page is loginPage, it will be flex for centering.
+       If the active page is appContainer, its internal display: grid will take over. */
 }
 
 /* --- Login Page Styles --- */
 #loginPage {
     background: linear-gradient(to right, var(--primary-blue), #7aaee2); /* Blue gradient */
-    display: flex;
     justify-content: center;
     align-items: center;
 }
@@ -169,19 +172,16 @@ body {
 }
 
 /* --- App Container (Main Layout) --- */
-.app-container {
-    display: none; /* Hidden by default until logged in */
-    grid-template-columns: 250px 1fr; /* Sidebar width + content */
+#appContainer {
+    display: grid; /* Always a grid */
+    grid-template-columns: var(--sidebar-width) 1fr; /* Sidebar width + content */
     height: 100vh;
     width: 100vw;
     background-color: var(--background-light);
     overflow: hidden; /* Prevent body scroll, content will scroll */
+    /* This is hidden/shown by the .page.active rule */
 }
 
-.app-container.active {
-    display: grid;
-    animation: fadeIn 0.8s ease-out;
-}
 
 /* --- Sidebar Navigation --- */
 .sidebar {
@@ -250,7 +250,7 @@ body {
 .main-content {
     flex-grow: 1;
     padding: 30px;
-    padding-top: 80px; /* Adjusted to make space for the fixed top bar */
+    padding-top: calc(30px + var(--header-height)); /* Adjusted to make space for the fixed top bar */
     overflow-y: auto; /* Enable scrolling for content if it overflows */
     background-color: var(--background-light);
     position: relative; /* For positioning the fixed top bar */
@@ -260,9 +260,9 @@ body {
 .top-system-bar {
     position: fixed; /* Fixed position */
     top: 0;
-    left: 250px; /* Aligned with the start of main content */
+    left: var(--sidebar-width); /* Aligned with the start of main content */
     right: 0;
-    height: 60px; /* Height of the bar */
+    height: var(--header-height); /* Height of the bar */
     background-color: var(--dark-purple); /* Purple background */
     color: #ffffff;
     display: flex;
@@ -629,7 +629,7 @@ body {
 
 /* --- Responsive Design --- */
 @media (max-width: 992px) {
-    .app-container {
+    #appContainer {
         grid-template-columns: 200px 1fr; /* Slightly smaller sidebar on tablets */
     }
 
@@ -661,13 +661,13 @@ body {
     }
 
     .main-content {
-        padding-top: 70px; /* Adjust padding for smaller top bar */
+        padding-top: calc(20px + 50px); /* Adjust padding for smaller top bar */
     }
 }
 
 @media (max-width: 768px) {
     /* For smaller screens, hide sidebar and use a toggle (JS would be needed for toggle) */
-    .app-container {
+    #appContainer {
         grid-template-columns: 1fr; /* Full width content */
     }
 
@@ -679,7 +679,7 @@ body {
 
     .main-content {
         padding: 20px;
-        padding-top: 70px; /* Keep padding for the top bar */
+        padding-top: calc(20px + 50px); /* Keep padding for the top bar */
     }
 
     .app-header {
