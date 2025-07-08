@@ -18,33 +18,44 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--background-light);
     color: #333;
-    display: flex; /* Using flexbox for the main page switching */
-    justify-content: center;
-    align-items: center;
     min-height: 100vh; /* Ensure full viewport height */
     overflow: hidden; /* Hide body overflow */
 }
 
 /* Page Management */
-.page {
+/* Both main page containers are hidden by default */
+#loginPage {
+    display: none;
     width: 100%;
     height: 100vh;
-    display: none; /* Hide all pages by default */
 }
 
-.page.active {
-    display: flex; /* Show active page */
-    /* If the active page is loginPage, it will be flex for centering.
-       If the active page is appContainer, its internal display: grid will take over. */
+#appContainer {
+    display: none;
+    width: 100%;
+    height: 100vh;
 }
 
-/* --- Login Page Styles --- */
-#loginPage {
-    background: linear-gradient(to right, var(--primary-blue), #7aaee2); /* Blue gradient */
+/* When active, apply the specific display properties and animations */
+#loginPage.active {
+    display: flex; /* Make it a flex container to center its content */
     justify-content: center;
     align-items: center;
+    background: linear-gradient(to right, var(--primary-blue), #7aaee2); /* Blue gradient background */
+    animation: fadeIn 0.8s ease-out; /* Fade in animation */
 }
 
+#appContainer.active {
+    display: grid; /* Make it a grid container to define sidebar and main content */
+    grid-template-columns: var(--sidebar-width) 1fr; /* Sidebar width + content */
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--background-light);
+    overflow: hidden; /* Prevent body scroll, content will scroll */
+    animation: fadeIn 0.8s ease-out; /* Fade in animation */
+}
+
+/* --- Login Page Specific Styles (for when it's active) --- */
 .login-container {
     background-color: var(--card-background);
     padding: 40px;
@@ -53,7 +64,6 @@ body {
     text-align: center;
     width: 100%;
     max-width: 400px;
-    animation: fadeIn 0.8s ease-out;
 }
 
 .login-container h2 {
@@ -171,24 +181,13 @@ body {
     font-size: 14px;
 }
 
-/* --- App Container (Main Layout) --- */
-#appContainer {
-    display: grid; /* Always a grid */
-    grid-template-columns: var(--sidebar-width) 1fr; /* Sidebar width + content */
-    height: 100vh;
-    width: 100vw;
-    background-color: var(--background-light);
-    overflow: hidden; /* Prevent body scroll, content will scroll */
-    /* This is hidden/shown by the .page.active rule */
-}
-
 
 /* --- Sidebar Navigation --- */
 .sidebar {
     background-color: var(--dark-purple); /* Changed to purple */
     color: var(--text-light); /* Light text */
     padding: 20px 0;
-    display: flex;
+    display: flex; /* Ensure flex for internal layout of sidebar */
     flex-direction: column;
     justify-content: space-between; /* Pushes logout to bottom */
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
@@ -253,10 +252,10 @@ body {
     padding-top: calc(30px + var(--header-height)); /* Adjusted to make space for the fixed top bar */
     overflow-y: auto; /* Enable scrolling for content if it overflows */
     background-color: var(--background-light);
-    position: relative; /* For positioning the fixed top bar */
+    position: relative; /* For positioning the fixed top bar within this area */
 }
 
-/* NEW: Top System Bar */
+/* Top System Bar */
 .top-system-bar {
     position: fixed; /* Fixed position */
     top: 0;
@@ -629,7 +628,7 @@ body {
 
 /* --- Responsive Design --- */
 @media (max-width: 992px) {
-    #appContainer {
+    #appContainer.active {
         grid-template-columns: 200px 1fr; /* Slightly smaller sidebar on tablets */
     }
 
@@ -667,7 +666,7 @@ body {
 
 @media (max-width: 768px) {
     /* For smaller screens, hide sidebar and use a toggle (JS would be needed for toggle) */
-    #appContainer {
+    #appContainer.active {
         grid-template-columns: 1fr; /* Full width content */
     }
 
