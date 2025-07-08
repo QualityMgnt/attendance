@@ -1,193 +1,62 @@
-/* Basic Resets & Global Styles */
+/* CSS Variables for easier color management */
 :root {
-    --primary-color: #007bff; /* Blue */
-    --secondary-color: #6c757d; /* Grey */
-    --success-color: #28a745; /* Green */
-    --danger-color: #dc3545; /* Red */
-    --info-color: #17a2b8;   /* Teal */
-    --warning-color: #ffc107; /* Yellow */
-    --light-bg: #f8f9fa;
-    --dark-bg: #343a40;
-    --text-color: #333;
-    --border-color: #dee2e6;
-    --card-bg: #ffffff;
-    --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --primary-blue: #4a90e2;
+    --dark-purple: #5c187a; /* A nice, deep purple */
+    --light-blue: #007bff; /* A standard Bootstrap blue, good for active states */
+    --text-light: #ecf0f1;
+    --background-light: #f4f7f6;
+    --card-background: #ffffff;
+    --border-light: #e0e0e0;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
 
+/* General Body and Font Styles */
 body {
+    margin: 0;
     font-family: 'Poppins', sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    background-color: var(--light-bg);
+    background-color: var(--background-light);
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure full viewport height */
+    overflow: hidden; /* Hide overflow initially, especially for login page */
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: #222;
-    margin-bottom: 0.5em;
-}
-
-hr {
-    border: none;
-    border-top: 1px solid var(--border-color);
-    margin: 1.5rem 0;
-}
-
-/* --- Layout & Core App Container --- */
+/* Page Management */
 .page {
     display: none;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
 }
 
 .page.active {
+    display: flex;
+}
+
+/* --- Login Page Styles --- */
+#loginPage {
+    background: linear-gradient(to right, var(--primary-blue), #7aaee2); /* Blue gradient */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.app-container {
-    display: none;
-    grid-template-columns: 250px 1fr; /* Sidebar and main content */
-    min-height: 100vh;
-    width: 100%;
-}
-
-.app-container.active {
-    display: grid;
-}
-
-/* --- Sidebar (Navigation) --- */
-.sidebar {
-    background-color: var(--dark-bg);
-    color: #fff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: var(--shadow);
-}
-
-.sidebar .logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 30px;
-    color: var(--primary-color);
-}
-
-.main-nav ul {
-    list-style: none;
-    padding: 0;
-}
-
-.main-nav li {
-    margin-bottom: 10px;
-}
-
-.main-nav a {
-    display: block;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    padding: 12px 15px;
-    border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.main-nav a:hover,
-.main-nav a.active {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-.logout-btn {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    background-color: var(--secondary-color);
-    color: #fff;
-    font-size: 1rem;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-}
-
-.logout-btn:hover {
-    background-color: #5a6268;
-}
-
-/* --- Main Content Area --- */
-.main-content {
-    padding: 30px;
-    background-color: var(--light-bg);
-    overflow-y: auto; /* Enable scrolling for content */
-}
-
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.app-header h1 {
-    font-size: 1.8rem;
-    color: #222;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.95rem;
-    color: #555;
-}
-
-.user-role {
-    background-color: var(--primary-color);
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-/* --- Content Modules --- */
-.content-module {
-    display: none; /* Hidden by default */
-    background-color: var(--card-bg);
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.content-module.active {
-    display: block; /* Shown when active */
-}
-
-/* --- Login Page Styles --- */
 .login-container {
-    background-color: var(--card-bg);
+    background-color: var(--card-background);
     padding: 40px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
     width: 100%;
     max-width: 400px;
-    text-align: center;
+    animation: fadeIn 0.8s ease-out;
 }
 
 .login-container h2 {
-    margin-bottom: 25px;
-    color: var(--primary-color);
+    margin-bottom: 30px;
+    color: var(--primary-blue);
+    font-weight: 600;
 }
 
 .input-group {
@@ -199,125 +68,314 @@ hr {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #444;
+    color: #555;
 }
 
 .input-group input[type="email"],
 .input-group input[type="password"],
-.input-group input[type="date"],
-.input-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
+.input-group select,
+.input-group input[type="date"] {
+    width: calc(100% - 20px);
+    padding: 12px 10px;
+    border: 1px solid var(--border-light);
     border-radius: 5px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
 }
 
 .input-group input:focus,
-.input-group select:focus {
-    border-color: var(--primary-color);
+.input-group select:focus,
+.input-group input[type="date"]:focus {
+    border-color: var(--primary-blue);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 15px;
+    font-weight: 500;
 }
 
 /* --- Buttons --- */
 .btn {
-    padding: 12px 20px;
+    padding: 12px 25px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
-    transition: background-color 0.3s, transform 0.2s;
-    text-decoration: none; /* For nav links that might use btn class */
-    display: inline-block;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+}
+
+.btn i {
+    font-size: 1.1em;
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--primary-blue); /* Blue */
+    color: #ffffff;
+    margin-top: 20px;
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
-    transform: translateY(-1px);
+    background-color: #357ABD;
+    transform: translateY(-2px);
 }
 
 .btn-secondary {
-    background-color: var(--secondary-color);
-    color: #fff;
+    background-color: #6c757d; /* Gray */
+    color: #ffffff;
 }
 
 .btn-secondary:hover {
     background-color: #5a6268;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
 .btn-success {
-    background-color: var(--success-color);
-    color: #fff;
+    background-color: #28a745; /* Green */
+    color: #ffffff;
 }
 
 .btn-success:hover {
     background-color: #218838;
 }
 
-.btn-danger {
-    background-color: var(--danger-color);
-    color: #fff;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
 .btn-info {
-    background-color: var(--info-color);
-    color: #fff;
+    background-color: #17a2b8; /* Cyan */
+    color: #ffffff;
 }
 
 .btn-info:hover {
     background-color: #138496;
 }
 
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.btn-danger {
+    background-color: #dc3545; /* Red */
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
 }
 
 .btn-sm {
     padding: 8px 15px;
-    font-size: 0.9rem;
+    font-size: 14px;
 }
 
-/* --- Home Page Styles --- */
+/* --- App Container (Main Layout) --- */
+.app-container {
+    display: none; /* Hidden by default until logged in */
+    grid-template-columns: 250px 1fr; /* Sidebar width + content */
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--background-light);
+    overflow: hidden; /* Prevent body scroll, content will scroll */
+}
+
+.app-container.active {
+    display: grid;
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* --- Sidebar Navigation --- */
+.sidebar {
+    background-color: var(--dark-purple); /* Changed to purple */
+    color: var(--text-light); /* Light text */
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes logout to bottom */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* For the logout button positioning */
+}
+
+.sidebar .logo {
+    font-size: 2.2em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--primary-blue); /* Accent color for logo */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.main-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.main-nav li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-left: 5px solid transparent; /* For active indicator */
+}
+
+.main-nav li a i {
+    margin-right: 15px;
+    font-size: 1.2em;
+}
+
+.main-nav li a:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter on hover */
+    color: #ffffff;
+}
+
+.main-nav li a.active {
+    background-color: var(--light-blue); /* Active item background - BLUE */
+    border-left-color: #ffffff; /* White line for active */
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.logout-btn {
+    align-self: center; /* Center the button in the column */
+    margin-top: auto; /* Pushes it to the bottom */
+    margin-bottom: 20px;
+    width: calc(100% - 50px); /* Adjust width with padding */
+}
+
+/* --- Main Content Area --- */
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+    padding-top: 80px; /* Adjusted to make space for the fixed top bar */
+    overflow-y: auto; /* Enable scrolling for content if it overflows */
+    background-color: var(--background-light);
+    position: relative; /* For positioning the fixed top bar */
+}
+
+/* NEW: Top System Bar */
+.top-system-bar {
+    position: fixed; /* Fixed position */
+    top: 0;
+    left: 250px; /* Aligned with the start of main content */
+    right: 0;
+    height: 60px; /* Height of the bar */
+    background-color: var(--dark-purple); /* Purple background */
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    font-size: 1.5em;
+    font-weight: 600;
+    z-index: 1000; /* Ensure it stays on top */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    justify-content: center; /* Center text horizontally */
+}
+
+/* Adjust main content header to account for fixed top bar */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0; /* No margin-top needed now as it's below the fixed bar */
+    margin-bottom: 30px;
+    background-color: var(--card-background);
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.app-header h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.user-info strong {
+    color: var(--primary-blue);
+}
+
+.user-role {
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+/* --- Content Modules --- */
+.content-module {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    display: none; /* Managed by JS */
+    animation: fadeIn 0.6s ease-out;
+}
+
+.content-module.active {
+    display: block;
+}
+
+.content-module h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.content-module hr {
+    border: 0;
+    height: 1px;
+    background-color: #eee;
+    margin-bottom: 25px;
+}
+
+/* --- Home Page Specifics (Stats Grid, Notifications) --- */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
 
 .stat-card {
-    background-color: var(--light-bg);
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     padding: 20px;
     text-align: center;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
 }
 
 .stat-card h3 {
-    font-size: 1.1rem;
-    color: var(--primary-color);
-    margin-bottom: 10px;
+    margin-top: 0;
+    color: #555;
+    font-size: 1.2em;
 }
 
 .stat-value {
-    font-size: 2.5rem;
+    font-size: 2.5em;
     font-weight: 700;
-    color: var(--text-color);
+    color: var(--primary-blue); /* Primary accent */
+    margin-top: 10px;
 }
 
 .notifications-list {
@@ -327,276 +385,332 @@ hr {
 .notification-item {
     display: flex;
     align-items: center;
-    background-color: var(--light-bg);
-    padding: 15px;
-    border-radius: 5px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px 20px;
     margin-bottom: 10px;
-    border: 1px solid var(--border-color);
+    border-left: 5px solid;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+.notification-item.success { border-color: #28a745; }
+.notification-item.info { border-color: #17a2b8; }
+.notification-item.warning { border-color: #ffc107; }
+
 .notification-icon {
-    font-size: 1.5rem;
+    font-size: 1.5em;
     margin-right: 15px;
 }
 
-.notification-icon.success { color: var(--success-color); }
-.notification-icon.info { color: var(--info-color); }
-.notification-icon.warning { color: var(--warning-color); }
+.notification-item.success .notification-icon { color: #28a745; }
+.notification-item.info .notification-icon { color: #17a2b8; }
+.notification-item.warning .notification-icon { color: #ffc107; }
 
 .notification-item p {
-    flex-grow: 1;
-    color: #555;
+    margin: 0;
+    line-height: 1.5;
 }
 
-/* --- Attendance Marking Styles --- */
+/* --- Attendance Page Specifics --- */
 .attendance-card {
     text-align: center;
     padding: 30px;
-    background-color: var(--light-bg);
+    background-color: #f8f9fa;
     border-radius: 8px;
-    box-shadow: var(--shadow);
-    max-width: 600px;
-    margin: 0 auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
 #attendanceStatusText {
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-size: 1.8em;
     margin-bottom: 25px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+#attendanceStatusText strong {
+    color: var(--primary-blue);
 }
 
 .attendance-actions button {
-    margin: 8px;
+    margin: 0 10px 15px 10px;
+    min-width: 150px;
 }
 
 .last-record-info {
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px dashed var(--border-color);
+    border-top: 1px solid #eee;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
     text-align: left;
 }
 
 .last-record-info h3 {
-    text-align: center;
-    color: var(--primary-color);
+    grid-column: 1 / -1; /* Span across all columns */
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.4em;
     margin-bottom: 15px;
 }
 
 .last-record-info p {
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-    color: #666;
+    margin: 5px 0;
+    font-size: 1.1em;
+    color: #555;
 }
 
-.last-record-info strong {
+.last-record-info p strong {
     color: #333;
 }
 
-/* --- Dashboard Styles --- */
+/* --- Dashboard Page Specifics --- */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 25px;
 }
 
 .dashboard-card {
-    background-color: var(--light-bg);
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border-color);
+    padding: 25px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
 .dashboard-card h3 {
-    color: var(--primary-color);
-    margin-bottom: 15px;
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    margin-bottom: 20px;
 }
 
 .agent-status-list {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .agent-status-list li {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-    color: #444;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    color: #333;
 }
 
 .status-indicator {
+    display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 50%;
     margin-right: 10px;
 }
 
-.status-indicator.online { background-color: var(--success-color); }
-.status-indicator.break { background-color: var(--warning-color); }
-.status-indicator.offline { background-color: var(--secondary-color); }
-.status-indicator.late { background-color: var(--danger-color); }
-.status-indicator.absent { background-color: #8B0000; /* Dark Red */ }
+.status-indicator.online { background-color: #28a745; } /* Green */
+.status-indicator.break { background-color: #ffc107; } /* Yellow */
+.status-indicator.offline { background-color: #6c757d; } /* Gray */
+.status-indicator.late { background-color: #fd7e14; } /* Orange */
+.status-indicator.absent { background-color: #dc3545; } /* Red */
 
 .status-label {
-    font-weight: 500;
-    margin-left: auto;
+    font-weight: 600;
+    margin-left: auto; /* Push status to the right */
+    color: #555;
 }
 
 .pending-actions ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .pending-actions li {
-    background-color: #f0f2f5;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #555;
+    margin-bottom: 10px;
+    font-size: 1.05em;
+    color: #333;
 }
 
-.pending-actions li a {
-    color: var(--primary-color);
+.action-link {
+    color: var(--primary-blue);
     text-decoration: none;
     font-weight: 500;
 }
 
-.shift-overview p {
-    margin-bottom: 8px;
-    color: #555;
+.action-link:hover {
+    text-decoration: underline;
 }
 
-/* --- Reports Styles --- */
+.shift-overview p {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.shift-overview strong {
+    color: var(--primary-blue);
+}
+
+.mt-2 {
+    margin-top: 20px;
+}
+
+/* --- Reports Page Specifics (Filters, Table) --- */
 .report-filters {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
     gap: 20px;
     margin-bottom: 30px;
-    align-items: flex-end;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    align-items: flex-end; /* Align inputs and buttons at the bottom */
 }
 
 .report-filters .input-group {
     margin-bottom: 0; /* Override default input-group margin */
     flex: 1; /* Allow items to grow */
-    min-width: 180px; /* Minimum width for each filter */
+    min-width: 180px; /* Minimum width for inputs before wrapping */
 }
 
 .report-filters button {
-    margin-bottom: 0;
-}
-
-.report-results {
-    overflow-x: auto; /* Enable horizontal scrolling for tables on small screens */
+    flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 .report-results table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: var(--card-bg);
 }
 
 .report-results th,
 .report-results td {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-light);
     padding: 12px 15px;
     text-align: left;
-    font-size: 0.9rem;
 }
 
 .report-results th {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: #e9ecef;
+    color: #333;
     font-weight: 600;
-    white-space: nowrap; /* Prevent headers from wrapping */
+    text-transform: uppercase;
+    font-size: 0.9em;
 }
 
-.report-results tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+.report-results tr:nth-child(even) {
+    background-color: #f8f8f8;
 }
 
-.report-results tbody tr:hover {
-    background-color: #f1f1f1;
+.report-results tr:hover {
+    background-color: #f0f0f0;
 }
 
-.status-good {
-    color: var(--success-color);
-    font-weight: 500;
-}
-.status-warning {
-    color: var(--warning-color);
-    font-weight: 500;
-}
-.status-danger {
-    color: var(--danger-color);
-    font-weight: 500;
-}
+.report-results .status-good { color: #28a745; font-weight: 600; }
+.report-results .status-warning { color: #ffc107; font-weight: 600; }
+.report-results .status-danger { color: #dc3545; font-weight: 600; }
 
 /* --- Utility Classes --- */
-.error-message {
-    color: var(--danger-color);
-    font-size: 0.9rem;
-    margin-top: 10px;
+.mt-2 { margin-top: 20px; }
+
+/* --- Animations --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .app-container {
-        grid-template-columns: 1fr; /* Stack sidebar and main content */
-    }
-
-    .sidebar {
-        width: 100%;
-        padding: 15px;
-        flex-direction: row; /* Horizontal for mobile */
-        justify-content: space-between;
-        align-items: center;
-        position: sticky; /* Keep sidebar at top */
-        top: 0;
-        z-index: 1000;
+        grid-template-columns: 200px 1fr; /* Slightly smaller sidebar on tablets */
     }
 
     .sidebar .logo {
-        margin-bottom: 0;
-        font-size: 1.5rem;
+        font-size: 1.8em;
     }
 
-    .main-nav {
-        display: none; /* Hide main nav on small screens, consider a hamburger menu */
+    .main-nav li a {
+        font-size: 1em;
+        padding: 12px 20px;
     }
 
-    .logout-btn {
-        margin-top: 0;
-        width: auto;
-        font-size: 0.85rem;
-        padding: 8px 12px;
+    .app-header h1 {
+        font-size: 1.7em;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Stack dashboard cards on smaller screens */
+    }
+
+    .top-system-bar {
+        left: 200px; /* Adjust for smaller sidebar */
+        font-size: 1.2em;
+        height: 50px;
+    }
+
+    .main-content {
+        padding-top: 70px; /* Adjust padding for smaller top bar */
+    }
+}
+
+@media (max-width: 768px) {
+    /* For smaller screens, hide sidebar and use a toggle (JS would be needed for toggle) */
+    .app-container {
+        grid-template-columns: 1fr; /* Full width content */
+    }
+
+    .sidebar {
+        display: none; /* Hide sidebar by default on mobile */
+        /* For a real mobile menu, you'd add JS to toggle a class like .sidebar.open */
+        /* position: absolute; top: 0; left: 0; height: 100%; z-index: 100; */
+    }
+
+    .main-content {
+        padding: 20px;
+        padding-top: 70px; /* Keep padding for the top bar */
     }
 
     .app-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 15px;
     }
 
     .app-header h1 {
-        font-size: 1.5rem;
+        font-size: 1.5em;
     }
 
-    .main-content {
+    .user-info {
+        font-size: 1em;
+    }
+
+    .content-module {
         padding: 20px;
     }
 
-    .login-container {
-        padding: 30px;
+    .stat-card {
+        padding: 15px;
     }
 
-    .stats-grid, .dashboard-grid {
-        grid-template-columns: 1fr; /* Stack cards vertically */
+    .stat-value {
+        font-size: 2em;
+    }
+
+    .attendance-actions button {
+        width: 100%;
+        margin: 5px 0;
     }
 
     .report-filters {
@@ -606,10 +720,23 @@ hr {
 
     .report-filters .input-group {
         width: 100%;
+        min-width: unset;
     }
 
-    .attendance-actions button {
+    .report-filters button {
         width: 100%;
-        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    .report-results table {
+        display: block;
+        overflow-x: auto; /* Make table horizontally scrollable */
+        white-space: nowrap; /* Prevent content wrapping */
+    }
+
+    .top-system-bar {
+        left: 0; /* Extends full width on mobile */
+        font-size: 1em;
+        height: 50px;
     }
 }
