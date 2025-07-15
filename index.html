@@ -678,6 +678,7 @@
         .status-NCNS { background-color: #ffc107; color: #333; }
         .status-CL { background-color: #fd7e14; color: white; }
         .status-danger { background-color: #dc3545; color: white; }
+        .status-info { background-color: #17a2b8; color: white; } /* For WFH */
 
 
         /* Dashboard Styles (New) */
@@ -1098,7 +1099,8 @@
                 </div>
                 <div class="attendance-status-guide">
                     <h3>Status Key:</h3>
-                    <p><span class="status-indicator-guide status-P"></span> P: Present</p>
+                    <p><span class="status-indicator-guide status-P"></span> WFO: Work From Office</p>
+                    <p><span class="status-indicator-guide status-info"></span> WFH: Work From Home</p>
                     <p><span class="status-indicator-guide status-SO"></span> SO: Signed Off</p>
                     <p><span class="status-indicator-guide status-L"></span> L: Leave</p>
                     <p><span class="status-indicator-guide status-DO"></span> DO: Day Off</p>
@@ -1318,60 +1320,43 @@
                         <label for="endDate">End Date:</label>
                         <input type="date" id="endDate">
                     </div>
-                    <button class="btn btn-primary"><i class="fas fa-chart-bar"></i> Generate Report</button>
-                    <button class="btn btn-secondary"><i class="fas fa-download"></i> Export to CSV</button>
+                    <button id="generateReportBtn" class="btn btn-primary"><i class="fas fa-chart-bar"></i> Generate Report</button>
+                    <button id="exportReportCsvBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Export to CSV</button>
                 </div>
 
                 <div class="report-results">
-                    <h3>Generated Report (Example)</h3>
+                    <h3>Generated Report</h3>
                     <table>
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Agent</th>
-                                <th>Clock In</th>
-                                <th>Clock Out</th>
-                                <th>Total Hours</th>
-                                <th>Status</th>
+                                <th>Present (WFO/WFH)</th>
+                                <th>On Leave</th>
+                                <th>On Sick Off</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>2025-07-07</td>
-                                <td>John Doe</td>
-                                <td>08:58 AM</td>
-                                <td>05:02 PM</td>
-                                <td>8.06</td>
-                                <td class="status-good">On Time</td>
-                            </tr>
-                            <tr>
-                                <td>2025-07-07</td>
-                                <td>Jane Smith</td>
-                                <td>09:10 AM</td>
-                                <td>05:00 PM</td>
-                                <td>7.83</td>
-                                <td class="status-warning">Late</td>
-                            </tr>
-                            <tr>
-                                <td>2025-07-07</td>
-                                <td>Peter Jones</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>0.00</td>
-                                <td class="status-danger">Absent</td>
-                            </tr>
+                        <tbody id="reportsTableBody">
+                            <!-- Report data will be generated here -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div id="adminPage" class="content-module">
-                <h2>Add New Member</h2>
+                <h2>Add New User</h2>
                 <hr>
                 <form id="addMemberForm">
                     <div class="input-group">
-                        <label for="memberName">Employee Name:</label>
-                        <input type="text" id="memberName" placeholder="e.g., Alice Johnson" required>
+                        <label for="fullName">Full Name:</label>
+                        <input type="text" id="fullName" placeholder="e.g., Alice Johnson" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="newEmail">Email:</label>
+                        <input type="email" id="newEmail" placeholder="e.g., alice@example.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="newPassword">Password:</label>
+                        <input type="password" id="newPassword" placeholder="********" required>
                     </div>
                     <div class="input-group">
                         <label for="memberRole">Role:</label>
@@ -1383,7 +1368,7 @@
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Member</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New User</button>
                     <p id="addMemberMessage" class="success-message" style="display:none; margin-top:15px;"></p>
                 </form>
             </div>
@@ -1480,32 +1465,53 @@
             const deleteAttendanceDataBtn = document.getElementById('deleteAttendanceDataBtn');
             const exportAttendanceDataBtn = document.getElementById('exportAttendanceDataBtn');
 
+            // Reports Elements
+            const reportsTableBody = document.getElementById('reportsTableBody');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const exportReportCsvBtn = document.getElementById('exportReportCsvBtn');
+            const reportTypeSelect = document.getElementById('reportType');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+
             // Dashboard Elements
             const employeeSelect = document.getElementById('employeeSelect');
 
+            // Admin Elements
+            const addMemberForm = document.getElementById('addMemberForm');
+            const fullNameInput = document.getElementById('fullName');
+            const newEmailInput = document.getElementById('newEmail');
+            const newPasswordInput = document.getElementById('newPassword');
+            const memberRoleSelect = document.getElementById('memberRole');
+            const addMemberMessage = document.getElementById('addMemberMessage');
 
-            // Agent data (static for this demo)
+
+            // Agent data (static for this demo, will be updated by admin)
             const agents = [
                 'John Doe', 'Jane Smith', 'Peter Jones', 'Mary Lee', 'David Kim',
                 'Sarah Brown', 'Michael Green', 'Emily White', 'Chris Evans', 'Jessica Day',
                 'Robert Johnson', 'Patricia Williams', 'Linda Brown', 'James Davis', 'Jennifer Miller'
             ];
 
+            // Simulated user data (for admin page)
+            const usersData = {}; // Stores { email: { fullName, password, role } }
+
             // Attendance Status Options
             const attendanceStatuses = [
                 { value: '', text: 'Select Status', colorClass: '' },
-                { value: 'P', text: 'Present', colorClass: 'status-P' },
+                { value: 'WFO', text: 'Work From Office', colorClass: 'status-P' }, // Green for WFO
+                { value: 'WFH', text: 'Work From Home', colorClass: 'status-info' }, // Blue for WFH
                 { value: 'SO', text: 'Signed Off', colorClass: 'status-SO' },
                 { value: 'L', text: 'Leave', colorClass: 'status-L' },
                 { value: 'DO', text: 'Day Off', colorClass: 'status-DO' },
                 { value: 'UL', text: 'Unpaid Leave', colorClass: 'status-UL' },
                 { value: 'NCNS', text: 'No Call No Show', colorClass: 'status-NCNS' },
                 { value: 'CL', text: 'Compassionate Leave', colorClass: 'status-CL' },
-                { value: 'SOF', text: 'Sick Off', colorClass: 'status-danger' } // Added Sick Off with danger color
+                { value: 'SOF', text: 'Sick Off', colorClass: 'status-danger' }
             ];
 
             // --- Simulated Data Storage (replace with Firebase/Backend) ---
-            // Stores attendance data like: { 'YYYY-MM-DD': { 'Agent Name': 'P', 'Another Agent': 'L' }, ... }
+            // Stores attendance data like: { 'YYYY-MM-DD': { 'Agent Name': 'WFO', 'Another Agent': 'L' }, ... }
             const attendanceData = {};
             // Stores dates that have been marked: Set<'YYYY-MM-DD'>
             const markedDates = new Set();
@@ -1533,6 +1539,8 @@
 
                 if (pageId === 'attendancePage') {
                     generateAttendanceOverviewTable(); // Always regenerate/update the overview table
+                } else if (pageId === 'dashboardPage') {
+                    populateEmployeeSelect(); // Ensure dropdown is populated when dashboard is viewed
                 }
             }
 
@@ -1929,6 +1937,179 @@
                     });
                 }
             }
+
+            // --- Reports Generation Logic ---
+            generateReportBtn.addEventListener('click', () => {
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+                const reportType = reportTypeSelect.value; // Not used for this specific report type, but good to keep
+
+                if (!startDate || !endDate) {
+                    alert("Please select both start and end dates for the report.");
+                    return;
+                }
+
+                generateReportData(startDate, endDate);
+            });
+
+            function generateReportData(startDate, endDate) {
+                reportsTableBody.innerHTML = ''; // Clear previous report data
+
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+
+                if (start > end) {
+                    alert("Start date cannot be after end date.");
+                    return;
+                }
+
+                let currentDate = new Date(start);
+                while (currentDate <= end) {
+                    const dateKey = currentDate.toISOString().split('T')[0];
+                    const dailyAttendance = attendanceData[dateKey];
+
+                    let presentCount = 0;
+                    let onLeaveCount = 0;
+                    let onSickOffCount = 0;
+
+                    if (dailyAttendance) {
+                        for (const agent in dailyAttendance) {
+                            const status = dailyAttendance[agent];
+                            if (status === 'WFO' || status === 'WFH') {
+                                presentCount++;
+                            } else if (status === 'L') {
+                                onLeaveCount++;
+                            } else if (status === 'SOF') {
+                                onSickOffCount++;
+                            }
+                        }
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${dateKey}</td>
+                        <td>${presentCount}</td>
+                        <td>${onLeaveCount}</td>
+                        <td>${onSickOffCount}</td>
+                    `;
+                    reportsTableBody.appendChild(tr);
+
+                    currentDate.setDate(currentDate.getDate() + 1); // Move to next day
+                }
+
+                if (reportsTableBody.children.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="4" style="text-align: center;">No data available for the selected date range.</td>`;
+                    reportsTableBody.appendChild(tr);
+                }
+            }
+
+            exportReportCsvBtn.addEventListener('click', () => {
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+
+                if (!startDate || !endDate) {
+                    alert("Please select both start and end dates for the report.");
+                    return;
+                }
+
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+
+                if (start > end) {
+                    alert("Start date cannot be after end date.");
+                    return;
+                }
+
+                let csvContent = "Date,Present (WFO/WFH),On Leave,On Sick Off\n";
+
+                let currentDate = new Date(start);
+                while (currentDate <= end) {
+                    const dateKey = currentDate.toISOString().split('T')[0];
+                    const dailyAttendance = attendanceData[dateKey];
+
+                    let presentCount = 0;
+                    let onLeaveCount = 0;
+                    let onSickOffCount = 0;
+
+                    if (dailyAttendance) {
+                        for (const agent in dailyAttendance) {
+                            const status = dailyAttendance[agent];
+                            if (status === 'WFO' || status === 'WFH') {
+                                presentCount++;
+                            } else if (status === 'L') {
+                                onLeaveCount++;
+                            } else if (status === 'SOF') {
+                                onSickOffCount++;
+                            }
+                        }
+                    }
+                    csvContent += `${dateKey},${presentCount},${onLeaveCount},${onSickOffCount}\n`;
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `attendance_summary_${startDate}_to_${endDate}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert("Your browser does not support HTML5 download. Please copy the data manually.");
+                }
+                alert("Report exported to CSV!");
+            });
+
+
+            // --- Admin Add New User Logic ---
+            addMemberForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fullName = fullNameInput.value;
+                const email = newEmailInput.value;
+                const password = newPasswordInput.value;
+                const role = memberRoleSelect.value;
+
+                if (!fullName || !email || !password || !role) {
+                    addMemberMessage.textContent = "All fields are required.";
+                    addMemberMessage.style.display = 'block';
+                    addMemberMessage.style.color = '#dc3545';
+                    return;
+                }
+
+                if (usersData[email]) {
+                    addMemberMessage.textContent = "User with this email already exists.";
+                    addMemberMessage.style.display = 'block';
+                    addMemberMessage.style.color = '#dc3545';
+                    return;
+                }
+
+                // Simulate adding a user
+                usersData[email] = { fullName, password, role };
+                agents.push(fullName); // Add new user to agents list for attendance marking and dashboard dropdown
+
+                console.log(`New user added: Name=${fullName}, Email=${email}, Role=${role}`);
+
+                addMemberMessage.textContent = `Successfully added ${fullName} as ${role}!`;
+                addMemberMessage.style.display = 'block';
+                addMemberMessage.style.color = '#28a745';
+
+                addMemberForm.reset(); // Clear the form
+
+                // Re-populate employee select in dashboard if it's visible
+                if (document.getElementById('dashboardPage').classList.contains('active')) {
+                    populateEmployeeSelect();
+                }
+
+                setTimeout(() => {
+                    addMemberMessage.style.display = 'none';
+                }, 3000);
+
+                // In a real application, you would send this data to a backend (e.g., Firebase Authentication and Firestore)
+            });
 
 
             // Initialize UI state
