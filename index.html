@@ -132,7 +132,7 @@
 
         .sidebar {
             width: 250px;
-            background-color: #2c3e50;
+            background-color: #800080; /* Changed to purple */
             color: white;
             padding: 25px 0;
             display: flex;
@@ -176,7 +176,7 @@
 
         .main-nav a:hover,
         .main-nav a.active {
-            background-color: #34495e;
+            background-color: #9932CC; /* Darker purple on hover/active */
             color: #ffffff;
             border-left: 5px solid #007bff;
             padding-left: 25px; /* Adjust for border */
@@ -744,14 +744,14 @@
             font-size: 16px;
             cursor: pointer;
             outline: none;
-            appearance: none; /* Remove default arrow */
+            appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             flex-grow: 1;
         }
 
         .dashboard-header-card select option {
-            background-color: #28a745; /* Background for options */
+            background-color: #28a745;
             color: white;
         }
 
@@ -990,6 +990,254 @@
         .employee-bar-fill.p75 { width: 75%; }
         .employee-bar-fill.p70 { width: 70%; }
 
+        /* Leave Tracker Specific Styles */
+        .leave-tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .leave-tracker-header h3 {
+            margin: 0;
+            font-size: 22px;
+            color: #2c3e50;
+        }
+
+        .leave-tracker-table-container {
+            overflow-x: auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+        }
+
+        .leave-planner-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1200px; /* Ensure enough width for all days */
+        }
+
+        .leave-planner-table th,
+        .leave-planner-table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 5px;
+            text-align: center;
+            white-space: nowrap; /* Prevent wrapping in date cells */
+        }
+
+        .leave-planner-table thead th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .leave-planner-table tbody td {
+            background-color: #fff;
+            color: #555;
+        }
+
+        .leave-planner-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .leave-planner-table td:first-child, /* No. column */
+        .leave-planner-table td:nth-child(2), /* Name column */
+        .leave-planner-table td:nth-child(3), /* Opening Balance */
+        .leave-planner-table td:nth-child(4) { /* Leave Balance */
+            text-align: left;
+            padding-left: 10px;
+            font-weight: 500;
+            background-color: #e9f5ff; /* Light blue for fixed columns */
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        .leave-planner-table th:first-child,
+        .leave-planner-table th:nth-child(2),
+        .leave-planner-table th:nth-child(3),
+        .leave-planner-table th:nth-child(4) {
+            text-align: left;
+            padding-left: 10px;
+            background-color: #d0e7ff; /* Darker blue for fixed headers */
+            position: sticky;
+            left: 0;
+            z-index: 3; /* Higher z-index to stay on top of scrolling content */
+        }
+
+        /* Specific styling for 'L' cells */
+        .leave-planner-table td.leave-cell {
+            background-color: #d4edda; /* Light green for leave */
+            font-weight: bold;
+            color: #155724;
+        }
+        /* Styling for total leaves row */
+        .leave-planner-table tfoot td {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+            border-top: 2px solid #ccc;
+        }
+        .leave-planner-table tfoot td:nth-child(-n+4) {
+            background-color: #d0e7ff; /* Match fixed header background */
+        }
+
+        /* Admin Staff Management */
+        .staff-management-section {
+            margin-top: 40px;
+        }
+
+        .staff-list-table-container {
+            overflow-x: auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+        }
+
+        .staff-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .staff-list-table th,
+        .staff-list-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .staff-list-table th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+        }
+
+        .staff-list-table td select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .staff-list-table td .btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        .staff-status-active { color: #28a745; font-weight: 600;}
+        .staff-status-inactive { color: #dc3545; font-weight: 600;}
+
+        /* Individual Summary Page */
+        .individual-summary-controls {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .individual-summary-controls .input-group {
+            margin-bottom: 0;
+            flex-grow: 1;
+        }
+
+        .summary-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-stat-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        .summary-stat-card h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #555;
+        }
+        .summary-stat-card .count {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+
+        .individual-summary-chart-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .individual-summary-chart-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 20px;
+        }
+        .monthly-bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            width: 100%;
+            height: 200px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            gap: 10px;
+        }
+        .monthly-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            flex: 1;
+        }
+        .monthly-bar {
+            width: 25px;
+            margin-bottom: 2px;
+            transition: height 0.3s ease-out;
+        }
+        .monthly-bar.wfo { background-color: #007bff; }
+        .monthly-bar.wfh { background-color: #28a745; }
+        .monthly-bar-label {
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+            text-align: center;
+        }
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
 
     </style>
 </head>
@@ -1020,6 +1268,8 @@
                 <ul>
                     <li><a href="#" data-page="home"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#" data-page="attendance"><i class="fas fa-user-check"></i> Attendance Marking</a></li>
+                    <li><a href="#" data-page="leaveTracker"><i class="fas fa-calendar-alt"></i> Leave Tracker</a></li> <!-- New Leave Tracker Tab -->
+                    <li><a href="#" data-page="individualSummary"><i class="fas fa-user"></i> Individual Summary</a></li> <!-- New Individual Summary Tab -->
                     <li><a href="#" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                     <li><a href="#" data-page="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
                     <li><a href="#" data-page="admin"><i class="fas fa-user-plus"></i> Admin</a></li>
@@ -1111,6 +1361,89 @@
                 </div>
             </div>
 
+            <!-- New Leave Tracker Page -->
+            <div id="leaveTrackerPage" class="content-module">
+                <div class="leave-tracker-header">
+                    <h2>Leave Tracker</h2>
+                    <div>
+                        <button id="prevMonthLeaveBtn" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i></button>
+                        <h3 style="display:inline-block; margin: 0 15px;" id="currentLeaveMonthYear"></h3>
+                        <button id="nextMonthLeaveBtn" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <hr>
+                <div class="leave-tracker-table-container">
+                    <!-- Leave planner table will be generated here by JS -->
+                </div>
+            </div>
+
+            <!-- New Individual Summary Page -->
+            <div id="individualSummaryPage" class="content-module">
+                <h2>Individual Attendance Summary</h2>
+                <hr>
+                <div class="individual-summary-controls">
+                    <div class="input-group">
+                        <label for="individualSelectSummary">Select Team Member:</label>
+                        <select id="individualSelectSummary">
+                            <option value="">Select Employee</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="summary-stats-grid">
+                    <div class="summary-stat-card">
+                        <h4>Work From Office</h4>
+                        <p class="count" id="summaryWFO">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>Work From Home</h4>
+                        <p class="count" id="summaryWFH">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>On Leave</h4>
+                        <p class="count" id="summaryLeave">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>On Sick Off</h4>
+                        <p class="count" id="summarySickOff">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>Signed Off</h4>
+                        <p class="count" id="summarySignedOff">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>Day Off</h4>
+                        <p class="count" id="summaryDayOff">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>Unpaid Leave</h4>
+                        <p class="count" id="summaryUnpaidLeave">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>No Call No Show</h4>
+                        <p class="count" id="summaryNCNS">0</p>
+                    </div>
+                    <div class="summary-stat-card">
+                        <h4>Compassionate Leave</h4>
+                        <p class="count" id="summaryCompassionateLeave">0</p>
+                    </div>
+                </div>
+
+                <div class="individual-summary-chart-container">
+                    <h3>WFH vs WFO (Monthly Trend)</h3>
+                    <div class="monthly-bar-chart" id="monthlyWFHWFOChart">
+                        <!-- Chart bars will be dynamically generated here -->
+                        <p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>
+                    </div>
+                     <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-color-box" style="background-color: #007bff;"></span> WFO</div>
+                        <div class="legend-item"><span class="legend-color-box" style="background-color: #28a745;"></span> WFH</div>
+                    </div>
+                </div>
+            </div>
+
+
             <div id="dashboardPage" class="content-module">
                 <h2 style="margin-bottom: 20px;">HR Employees Attendance Dashboard</h2>
                 <div class="dashboard-container">
@@ -1157,7 +1490,7 @@
                     </div>
 
                     <!-- Main Dashboard Grid -->
-                    <div class="dashboard-card-new">
+                    <div class="dashboard-card-new" style="grid-column: span 2;">
                         <h3>Overall Attendance Percentage</h3>
                         <div class="gauge-container gauge-overall">
                             <div class="gauge">
@@ -1371,6 +1704,27 @@
                     <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New User</button>
                     <p id="addMemberMessage" class="success-message" style="display:none; margin-top:15px;"></p>
                 </form>
+
+                <div class="staff-management-section">
+                    <h2>Manage Staff</h2>
+                    <hr>
+                    <div class="staff-list-table-container">
+                        <table class="staff-list-table">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffListTableBody">
+                                <!-- Staff list will be rendered here by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             </main>
     </div>
@@ -1473,6 +1827,13 @@
             const startDateInput = document.getElementById('startDate');
             const endDateInput = document.getElementById('endDate');
 
+            // Leave Tracker Elements
+            const leaveTrackerTableContainer = document.querySelector('.leave-tracker-table-container');
+            const prevMonthLeaveBtn = document.getElementById('prevMonthLeaveBtn');
+            const nextMonthLeaveBtn = document.getElementById('nextMonthLeaveBtn');
+            const currentLeaveMonthYear = document.getElementById('currentLeaveMonthYear');
+            let currentLeaveTrackerDate = new Date(); // Tracks the month/year for leave tracker
+
 
             // Dashboard Elements
             const employeeSelect = document.getElementById('employeeSelect');
@@ -1484,17 +1845,43 @@
             const newPasswordInput = document.getElementById('newPassword');
             const memberRoleSelect = document.getElementById('memberRole');
             const addMemberMessage = document.getElementById('addMemberMessage');
+            const staffListTableBody = document.getElementById('staffListTableBody');
+
+            // Individual Summary Elements
+            const individualSelectSummary = document.getElementById('individualSelectSummary');
+            const summaryWFO = document.getElementById('summaryWFO');
+            const summaryWFH = document.getElementById('summaryWFH');
+            const summaryLeave = document.getElementById('summaryLeave');
+            const summarySickOff = document.getElementById('summarySickOff');
+            const summarySignedOff = document.getElementById('summarySignedOff');
+            const summaryDayOff = document.getElementById('summaryDayOff');
+            const summaryUnpaidLeave = document.getElementById('summaryUnpaidLeave');
+            const summaryNCNS = document.getElementById('summaryNCNS');
+            const summaryCompassionateLeave = document.getElementById('summaryCompassionateLeave');
+            const monthlyWFHWFOChart = document.getElementById('monthlyWFHWFOChart');
 
 
-            // Agent data (static for this demo, will be updated by admin)
-            const agents = [
-                'John Doe', 'Jane Smith', 'Peter Jones', 'Mary Lee', 'David Kim',
-                'Sarah Brown', 'Michael Green', 'Emily White', 'Chris Evans', 'Jessica Day',
-                'Robert Johnson', 'Patricia Williams', 'Linda Brown', 'James Davis', 'Jennifer Miller'
-            ];
+            // --- Simulated User Data & Agents List (now dynamic) ---
+            // Stores user data: { email: { fullName, password, role, isActive } }
+            const usersData = {
+                'john.doe@example.com': { fullName: 'John Doe', password: 'password123', role: 'Agent', isActive: true },
+                'jane.smith@example.com': { fullName: 'Jane Smith', password: 'password123', role: 'Agent', isActive: true },
+                'peter.jones@example.com': { fullName: 'Peter Jones', password: 'password123', role: 'Agent', isActive: false }, // Example inactive
+                'mary.lee@example.com': { fullName: 'Mary Lee', password: 'password123', role: 'Supervisor', isActive: true },
+            };
 
-            // Simulated user data (for admin page)
-            const usersData = {}; // Stores { email: { fullName, password, role } }
+            // This array will now be dynamically generated from usersData
+            let activeAgents = [];
+
+            function updateActiveAgentsList() {
+                activeAgents = Object.values(usersData)
+                               .filter(user => user.isActive)
+                               .map(user => user.fullName);
+            }
+
+            // Call initially to populate
+            updateActiveAgentsList();
+
 
             // Attendance Status Options
             const attendanceStatuses = [
@@ -1541,6 +1928,23 @@
                     generateAttendanceOverviewTable(); // Always regenerate/update the overview table
                 } else if (pageId === 'dashboardPage') {
                     populateEmployeeSelect(); // Ensure dropdown is populated when dashboard is viewed
+                } else if (pageId === 'leaveTrackerPage') {
+                    renderLeaveTrackerTable(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+                } else if (pageId === 'adminPage') {
+                    renderStaffList(); // Render staff list when admin page is active
+                } else if (pageId === 'individualSummaryPage') {
+                    populateIndividualSummarySelect();
+                    // Clear previous summary data
+                    summaryWFO.textContent = '0';
+                    summaryWFH.textContent = '0';
+                    summaryLeave.textContent = '0';
+                    summarySickOff.textContent = '0';
+                    summarySignedOff.textContent = '0';
+                    summaryDayOff.textContent = '0';
+                    summaryUnpaidLeave.textContent = '0';
+                    summaryNCNS.textContent = '0';
+                    summaryCompassionateLeave.textContent = '0';
+                    monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>';
                 }
             }
 
@@ -1583,31 +1987,30 @@
 
             // --- Home Page Statistics Update (Simulated) ---
             function updateHomeStatistics() {
-                document.getElementById('statTotalPresent').textContent = Math.floor(Math.random() * agents.length);
-                document.getElementById('statTotalStaff').textContent = agents.length;
+                document.getElementById('statTotalPresent').textContent = activeAgents.length; // Total active agents
+                document.getElementById('statTotalStaff').textContent = Object.keys(usersData).length; // Total registered users
 
-                const numAgentsOnLeave = Math.floor(Math.random() * 3);
+                // Simulate based on active agents
+                const numAgentsOnLeave = Math.floor(Math.random() * Math.min(3, activeAgents.length));
                 document.getElementById('statAgentsOnLeaveWeek').textContent = numAgentsOnLeave;
                 const onLeaveNames = [];
                 if (numAgentsOnLeave > 0) {
-                    const shuffledAgents = [...agents].sort(() => 0.5 - Math.random());
+                    const shuffledActiveAgents = [...activeAgents].sort(() => 0.5 - Math.random());
                     for (let i = 0; i < numAgentsOnLeave; i++) {
-                        onLeaveNames.push(shuffledAgents[i]);
+                        if (shuffledActiveAgents[i]) onLeaveNames.push(shuffledActiveAgents[i]);
                     }
                 }
                 document.getElementById('staffOnLeaveNames').textContent = onLeaveNames.length > 0 ? onLeaveNames.join(', ') : 'No agents on leave.';
 
 
-                const numAgentsOnSickOff = Math.floor(Math.random() * 2);
+                const numAgentsOnSickOff = Math.floor(Math.random() * Math.min(2, activeAgents.length - numAgentsOnLeave)); // Ensure not more than active agents
                 document.getElementById('statAgentsOnSickOffWeek').textContent = numAgentsOnSickOff;
                 const onSickOffNames = [];
                 if (numAgentsOnSickOff > 0) {
-                    const availableAgents = agents.filter(agent => !onLeaveNames.includes(agent));
-                    const shuffledAvailableAgents = [...availableAgents].sort(() => 0.5 - Math.random());
+                    const availableForSickOff = activeAgents.filter(agent => !onLeaveNames.includes(agent));
+                    const shuffledAvailableForSickOff = [...availableForSickOff].sort(() => 0.5 - Math.random());
                     for (let i = 0; i < numAgentsOnSickOff; i++) {
-                        if (shuffledAvailableAgents[i]) {
-                            onSickOffNames.push(shuffledAvailableAgents[i]);
-                        }
+                        if (shuffledAvailableForSickOff[i]) onSickOffNames.push(shuffledAvailableForSickOff[i]);
                     }
                 }
                 document.getElementById('agentsOnSickOffNames').textContent = onSickOffNames.length > 0 ? onSickOffNames.join(', ') : 'No agents on sick off.';
@@ -1728,7 +2131,7 @@
             function populateModalAttendanceTable() {
                 modalAttendanceTableBody.innerHTML = ''; // Clear previous rows
 
-                agents.forEach(agentName => {
+                activeAgents.forEach(agentName => { // Use activeAgents here
                     const tr = document.createElement('tr');
                     const nameTd = document.createElement('td');
                     nameTd.textContent = agentName;
@@ -1840,7 +2243,7 @@
                 thead.appendChild(headerRow);
                 table.appendChild(thead);
 
-                agents.forEach(agentName => {
+                activeAgents.forEach(agentName => { // Use activeAgents here
                     const tr = document.createElement('tr');
                     const nameTd = document.createElement('td');
                     nameTd.textContent = agentName;
@@ -1893,7 +2296,7 @@
                 // Simple CSV export for the data currently in attendanceData object
                 let csvContent = "Agent Name," + Object.keys(attendanceData).sort().join(',') + "\n"; // Header row
 
-                agents.forEach(agentName => {
+                activeAgents.forEach(agentName => { // Use activeAgents here
                     let row = `"${agentName}"`;
                     Object.keys(attendanceData).sort().forEach(dateKey => {
                         const status = attendanceData[dateKey] && attendanceData[dateKey][agentName] ? attendanceData[dateKey][agentName] : '';
@@ -1922,7 +2325,7 @@
             function populateEmployeeSelect() {
                 if (employeeSelect) { // Ensure the element exists
                     employeeSelect.innerHTML = '<option value="">Select Employee</option>'; // Clear existing options and add default
-                    agents.forEach(agent => {
+                    activeAgents.forEach(agent => { // Use activeAgents here
                         const option = document.createElement('option');
                         option.value = agent;
                         option.textContent = agent;
@@ -2065,7 +2468,7 @@
             });
 
 
-            // --- Admin Add New User Logic ---
+            // --- Admin Add/Manage User Logic ---
             addMemberForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const fullName = fullNameInput.value;
@@ -2088,8 +2491,9 @@
                 }
 
                 // Simulate adding a user
-                usersData[email] = { fullName, password, role };
-                agents.push(fullName); // Add new user to agents list for attendance marking and dashboard dropdown
+                usersData[email] = { fullName, password, role, isActive: true }; // New users are active by default
+                updateActiveAgentsList(); // Refresh the active agents list
+                renderStaffList(); // Refresh the staff management table
 
                 console.log(`New user added: Name=${fullName}, Email=${email}, Role=${role}`);
 
@@ -2103,6 +2507,9 @@
                 if (document.getElementById('dashboardPage').classList.contains('active')) {
                     populateEmployeeSelect();
                 }
+                if (document.getElementById('individualSummaryPage').classList.contains('active')) {
+                    populateIndividualSummarySelect();
+                }
 
                 setTimeout(() => {
                     addMemberMessage.style.display = 'none';
@@ -2111,6 +2518,328 @@
                 // In a real application, you would send this data to a backend (e.g., Firebase Authentication and Firestore)
             });
 
+            function renderStaffList() {
+                staffListTableBody.innerHTML = ''; // Clear existing rows
+
+                for (const email in usersData) {
+                    const user = usersData[email];
+                    const tr = document.createElement('tr');
+
+                    const statusSelect = document.createElement('select');
+                    statusSelect.innerHTML = `
+                        <option value="true" ${user.isActive ? 'selected' : ''}>Active</option>
+                        <option value="false" ${!user.isActive ? 'selected' : ''}>Inactive</option>
+                    `;
+                    statusSelect.addEventListener('change', (e) => {
+                        toggleUserStatus(email, e.target.value === 'true');
+                    });
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.addEventListener('click', () => {
+                        deleteUser(email);
+                    });
+
+                    tr.innerHTML = `
+                        <td>${user.fullName}</td>
+                        <td>${email}</td>
+                        <td>${user.role}</td>
+                        <td></td> <!-- Placeholder for select -->
+                        <td></td> <!-- Placeholder for buttons -->
+                    `;
+                    tr.children[3].appendChild(statusSelect);
+                    tr.children[4].appendChild(deleteButton);
+
+                    // Add class to status text for styling
+                    const statusTextSpan = document.createElement('span');
+                    statusTextSpan.textContent = user.isActive ? 'Active' : 'Inactive';
+                    statusTextSpan.classList.add(user.isActive ? 'staff-status-active' : 'staff-status-inactive');
+                    // We can choose to display the text or the select, for now, select is more interactive.
+                    // If you want text only, replace statusSelect with statusTextSpan.
+
+                    staffListTableBody.appendChild(tr);
+                }
+            }
+
+            function toggleUserStatus(email, isActive) {
+                if (usersData[email]) {
+                    usersData[email].isActive = isActive;
+                    updateActiveAgentsList();
+                    renderStaffList(); // Re-render staff list
+                    generateAttendanceOverviewTable(); // Update attendance table
+                    populateEmployeeSelect(); // Update dashboard dropdown
+                    populateIndividualSummarySelect(); // Update individual summary dropdown
+                    alert(`${usersData[email].fullName} status changed to ${isActive ? 'Active' : 'Inactive'}.`);
+                }
+            }
+
+            function deleteUser(email) {
+                const confirmDelete = confirm(`Are you sure you want to delete user ${usersData[email].fullName}? This action cannot be undone.`);
+                if (confirmDelete) {
+                    delete usersData[email];
+                    updateActiveAgentsList();
+                    renderStaffList(); // Re-render staff list
+                    generateAttendanceOverviewTable(); // Update attendance table
+                    populateEmployeeSelect(); // Update dashboard dropdown
+                    populateIndividualSummarySelect(); // Update individual summary dropdown
+                    alert(`User ${email} deleted.`);
+                }
+            }
+
+            // --- Leave Tracker Table Generation (Simulated Data) ---
+            const leavePlannerData = {
+                // This data structure simulates a single month's sheet.
+                // In a real app, you'd fetch this from Google Sheets based on the selected month/year.
+                // Example data for July 2025, mimicking the provided image structure.
+                'July 2025': [
+                    { 'No': 1, 'Name': 'Margaret Mukulu', 'Opening Balance': 2, 'Leave Balance': 2, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': 'L', '9-Jul': 'L', '10-Jul': 'L', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 2, 'Name': 'Patricia Mumbi', 'Opening Balance': 8, 'Leave Balance': 10, '1-Jul': '', '2-Jul': 'L', '3-Jul': 'L', '4-Jul': 'L', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 3, 'Name': 'Eunice Muzembi', 'Opening Balance': 8, 'Leave Balance': 8, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 4, 'Name': 'Rebecca Nduta', 'Opening Balance': 13, 'Leave Balance': 15, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 5, 'Name': 'Phina Owiti', 'Opening Balance': 8, 'Leave Balance': 9.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 6, 'Name': 'Phily Dokeah', 'Opening Balance': 5.5, 'Leave Balance': 8.25, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 7, 'Name': 'Phelix Otieno', 'Opening Balance': 10, 'Leave Balance': 11.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 8, 'Name': 'Oliver Akinyi', 'Opening Balance': 9, 'Leave Balance': 10.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 9, 'Name': 'Nancy Wanjiku', 'Opening Balance': '', 'Leave Balance': 1.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 10, 'Name': 'Mellinda Omballa', 'Opening Balance': '', 'Leave Balance': 1.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 11, 'Name': 'Maureen Ongila', 'Opening Balance': 1, 'Leave Balance': 2.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 12, 'Name': 'Marion Wanja', 'Opening Balance': '', 'Leave Balance': 2.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 13, 'Name': 'Linnete Chege', 'Opening Balance': 3.5, 'Leave Balance': 5.25, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 14, 'Name': 'Lawrence Ochola', 'Opening Balance': '', 'Leave Balance': 11.5, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 15, 'Name': 'Faith Irungu', 'Opening Balance': '', 'Leave Balance': 1.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 16, 'Name': 'Edith Wairahi', 'Opening Balance': '', 'Leave Balance': 1.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 17, 'Name': 'Cliff Otwori', 'Opening Balance': '', 'Leave Balance': 1.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 18, 'Name': 'Boniface Maisaga', 'Opening Balance': 13.5, 'Leave Balance': 13.25, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 19, 'Name': 'Ann Nyokabi', 'Opening Balance': '', 'Leave Balance': 1.75, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 20, 'Name': 'Victor Kibet', 'Opening Balance': '', 'Leave Balance': 13.5, '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                    { 'No': 21, 'Name': 'Douglas Lagat', 'Opening Balance': '', 'Leave Balance': '', '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
+                ],
+                // You would add data for other months here if you were fetching from a real source
+                // 'August 2025': [...]
+            };
+
+            // --- Leave Tracker Navigation ---
+            prevMonthLeaveBtn.addEventListener('click', () => {
+                currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() - 1);
+                renderLeaveTrackerTable(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+            });
+
+            nextMonthLeaveBtn.addEventListener('click', () => {
+                currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() + 1);
+                renderLeaveTrackerTable(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+            });
+
+            function renderLeaveTrackerTable(year, month) {
+                leaveTrackerTableContainer.innerHTML = ''; // Clear previous table
+
+                const monthYearKey = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                currentLeaveMonthYear.textContent = monthYearKey;
+
+                const monthData = leavePlannerData[monthYearKey];
+
+                if (!monthData) {
+                    leaveTrackerTableContainer.innerHTML = `<p style="text-align: center; padding: 20px;">No leave data available for ${monthYearKey}.</p>`;
+                    return;
+                }
+
+                const table = document.createElement('table');
+                table.classList.add('leave-planner-table');
+
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+                const tfoot = document.createElement('tfoot');
+
+                // Generate Header Row
+                const headerRow1 = document.createElement('tr');
+                // Fixed Headers
+                headerRow1.innerHTML = `
+                    <th rowspan="2">No.</th>
+                    <th rowspan="2">Name</th>
+                    <th rowspan="2">Opening Balance</th>
+                    <th rowspan="2">Leave Balance</th>
+                `;
+
+                // Generate Date Headers for the month
+                const numDaysInMonth = new Date(year, month + 1, 0).getDate();
+                const totalLeavesPerDay = new Array(numDaysInMonth).fill(0); // For footer totals
+
+                for (let day = 1; day <= numDaysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }); // Mon, Tue
+                    const dayOfMonth = date.getDate(); // 1, 2, 3
+                    const monthShort = date.toLocaleString('en-US', { month: 'short' }); // Jan, Feb
+
+                    const headerCell = document.createElement('th');
+                    headerCell.textContent = `${dayOfWeek} ${dayOfMonth}-${monthShort}`;
+                    headerRow1.appendChild(headerCell);
+                }
+                thead.appendChild(headerRow1);
+                table.appendChild(thead);
+
+                // Generate Table Body Rows
+                monthData.forEach(rowData => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${rowData['No']}</td>
+                        <td>${rowData['Name']}</td>
+                        <td>${rowData['Opening Balance']}</td>
+                        <td>${rowData['Leave Balance']}</td>
+                    `;
+                    for (let day = 1; day <= numDaysInMonth; day++) {
+                        // Dynamically create date key based on current month being rendered
+                        const dateObjForColumn = new Date(year, month, day);
+                        const dateKey = `${day}-${dateObjForColumn.toLocaleString('en-US', { month: 'short' })}`; // e.g., "1-Jul"
+                        const cellValue = rowData[dateKey] || '';
+                        const td = document.createElement('td');
+                        td.textContent = cellValue;
+                        if (cellValue === 'L') {
+                            td.classList.add('leave-cell');
+                            totalLeavesPerDay[day - 1]++;
+                        }
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+
+                // Generate Table Footer (Total Leaves)
+                const footerRow = document.createElement('tr');
+                footerRow.innerHTML = `
+                    <td colspan="4" style="text-align: right; padding-right: 10px;">Total Leaves:</td>
+                `;
+                totalLeavesPerDay.forEach(total => {
+                    const td = document.createElement('td');
+                    td.textContent = total;
+                    footerRow.appendChild(td);
+                });
+                tfoot.appendChild(footerRow);
+                table.appendChild(tfoot);
+
+
+                leaveTrackerTableContainer.appendChild(table);
+            }
+
+            // --- Individual Summary Logic ---
+            function populateIndividualSummarySelect() {
+                if (individualSelectSummary) {
+                    individualSelectSummary.innerHTML = '<option value="">Select Employee</option>';
+                    activeAgents.forEach(agent => {
+                        const option = document.createElement('option');
+                        option.value = agent;
+                        option.textContent = agent;
+                        individualSelectSummary.appendChild(option);
+                    });
+                }
+            }
+
+            individualSelectSummary.addEventListener('change', (event) => {
+                const selectedAgent = event.target.value;
+                if (selectedAgent) {
+                    renderIndividualSummary(selectedAgent);
+                } else {
+                    // Clear summary if no agent selected
+                    summaryWFO.textContent = '0';
+                    summaryWFH.textContent = '0';
+                    summaryLeave.textContent = '0';
+                    summarySickOff.textContent = '0';
+                    summarySignedOff.textContent = '0';
+                    summaryDayOff.textContent = '0';
+                    summaryUnpaidLeave.textContent = '0';
+                    summaryNCNS.textContent = '0';
+                    summaryCompassionateLeave.textContent = '0';
+                    monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>';
+                }
+            });
+
+            function renderIndividualSummary(agentName) {
+                let wfoCount = 0;
+                let wfhCount = 0;
+                let leaveCount = 0;
+                let sickOffCount = 0;
+                let signedOffCount = 0;
+                let dayOffCount = 0;
+                let unpaidLeaveCount = 0;
+                let ncnsCount = 0;
+                let compassionateLeaveCount = 0;
+
+                const monthlyData = {}; // { 'YYYY-MM': { WFO: 0, WFH: 0 } }
+
+                for (const dateKey in attendanceData) {
+                    const dailyAttendance = attendanceData[dateKey];
+                    if (dailyAttendance && dailyAttendance[agentName]) {
+                        const status = dailyAttendance[agentName];
+
+                        // Update total counts
+                        if (status === 'WFO') wfoCount++;
+                        else if (status === 'WFH') wfhCount++;
+                        else if (status === 'L') leaveCount++;
+                        else if (status === 'SOF') sickOffCount++;
+                        else if (status === 'SO') signedOffCount++;
+                        else if (status === 'DO') dayOffCount++;
+                        else if (status === 'UL') unpaidLeaveCount++;
+                        else if (status === 'NCNS') ncnsCount++;
+                        else if (status === 'CL') compassionateLeaveCount++;
+
+                        // Update monthly data for chart
+                        const monthYear = dateKey.substring(0, 7); // YYYY-MM
+                        if (!monthlyData[monthYear]) {
+                            monthlyData[monthYear] = { WFO: 0, WFH: 0 };
+                        }
+                        if (status === 'WFO') monthlyData[monthYear].WFO++;
+                        else if (status === 'WFH') monthlyData[monthYear].WFH++;
+                    }
+                }
+
+                // Update summary counts in UI
+                summaryWFO.textContent = wfoCount;
+                summaryWFH.textContent = wfhCount;
+                summaryLeave.textContent = leaveCount;
+                summarySickOff.textContent = sickOffCount;
+                summarySignedOff.textContent = signedOffCount;
+                summaryDayOff.textContent = dayOffCount;
+                summaryUnpaidLeave.textContent = unpaidLeaveCount;
+                summaryNCNS.textContent = ncnsCount;
+                summaryCompassionateLeave.textContent = compassionateLeaveCount;
+
+                // Render monthly WFH/WFO chart
+                renderMonthlyWFHWFOChart(monthlyData);
+            }
+
+            function renderMonthlyWFHWFOChart(monthlyData) {
+                monthlyWFHWFOChart.innerHTML = ''; // Clear previous chart
+
+                const months = Object.keys(monthlyData).sort();
+                if (months.length === 0) {
+                    monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No WFH/WFO data for this employee.</p>';
+                    return;
+                }
+
+                // Find max count for scaling bars
+                let maxCount = 0;
+                months.forEach(month => {
+                    maxCount = Math.max(maxCount, monthlyData[month].WFO, monthlyData[month].WFH);
+                });
+                const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Max height 180px for bars
+
+                months.forEach(monthKey => {
+                    const monthName = new Date(monthKey).toLocaleString('en-US', { month: 'short' });
+                    const wfoHeight = monthlyData[monthKey].WFO * scaleFactor;
+                    const wfhHeight = monthlyData[monthKey].WFH * scaleFactor;
+
+                    const barGroup = document.createElement('div');
+                    barGroup.classList.add('monthly-bar-group');
+
+                    barGroup.innerHTML = `
+                        <div style="display:flex; align-items:flex-end; height:100%; width: 100%; justify-content: center;">
+                            <div class="monthly-bar wfo" style="height: ${wfoHeight}px;" title="WFO: ${monthlyData[monthKey].WFO}"></div>
+                            <div class="monthly-bar wfh" style="height: ${wfhHeight}px;" title="WFH: ${monthlyData[monthKey].WFH}"></div>
+                        </div>
+                        <div class="monthly-bar-label">${monthName}</div>
+                    `;
+                    monthlyWFHWFOChart.appendChild(barGroup);
+                });
+            }
 
             // Initialize UI state
             setLoggedInState(false);
