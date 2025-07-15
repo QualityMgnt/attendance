@@ -368,7 +368,7 @@
             flex-grow: 1; /* Allow input group to take available space */
         }
 
-        /* Modal Styles */
+        /* Modal Styles (General for both attendance and calendar) */
         .modal {
             display: none; /* Hidden by default */
             position: fixed; /* Stay in place */
@@ -467,19 +467,93 @@
             margin-left: 10px;
         }
 
-        /* Datepicker (using jQuery UI or a custom one) */
-        /* Basic styling for if you integrate a datepicker library */
-        .ui-datepicker {
-            background: #fff;
+        /* Calendar Modal Specific Styles */
+        #calendarModal .modal-content {
+            max-width: 400px; /* Smaller for calendar */
+            padding: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-header button {
+            background: none;
             border: 1px solid #ccc;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            padding: 10px;
-        }
-        /* Placeholder for datepicker input */
-        #attendanceDateInput {
+            padding: 8px 12px;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
         }
+        .calendar-header button:hover {
+            background-color: #e9ecef;
+        }
+
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .calendar-weekdays div {
+            padding: 8px 0;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .calendar-day {
+            padding: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .calendar-day:hover:not(.empty):not(.disabled):not(.selected) {
+            background-color: #e9ecef;
+        }
+
+        .calendar-day.empty {
+            visibility: hidden; /* Hide days from previous/next month */
+        }
+
+        .calendar-day.today {
+            background-color: #007bff;
+            color: white;
+            font-weight: 700;
+        }
+
+        .calendar-day.selected {
+            background-color: #28a745;
+            color: white;
+            font-weight: 700;
+        }
+
+        .calendar-day.disabled {
+            background-color: #f0f0f0;
+            color: #a0a0a0;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
 
         /* Toolbar for Attendance Table */
         .attendance-table-toolbar {
@@ -1081,6 +1155,34 @@
         </div>
     </div>
 
+    <!-- Calendar Modal Structure -->
+    <div id="calendarModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeCalendarModal">&times;</span>
+            <div class="calendar-header">
+                <button id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
+                <h3 id="currentMonthYear"></h3>
+                <button id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-weekdays">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+            <div class="calendar-days" id="calendarDaysGrid">
+                <!-- Days will be dynamically generated here -->
+            </div>
+            <div class="modal-buttons">
+                <button id="cancelCalendarSelection" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loginPage = document.getElementById('loginPage');
@@ -1102,6 +1204,15 @@
             const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
             const cancelAttendanceBtn = document.getElementById('cancelAttendanceBtn');
             const modalErrorMessage = document.getElementById('modalErrorMessage');
+
+            // Calendar Modal Elements
+            const calendarModal = document.getElementById('calendarModal');
+            const closeCalendarModal = document.getElementById('closeCalendarModal');
+            const prevMonthBtn = document.getElementById('prevMonthBtn');
+            const nextMonthBtn = document.getElementById('nextMonthBtn');
+            const currentMonthYear = document.getElementById('currentMonthYear');
+            const calendarDaysGrid = document.getElementById('calendarDaysGrid');
+            const cancelCalendarSelection = document.getElementById('cancelCalendarSelection');
 
             // Attendance Overview Table Elements
             const attendanceOverviewTableContainer = document.querySelector('.attendance-table-container');
@@ -1135,6 +1246,9 @@
             // Stores dates that have been marked: Set<'YYYY-MM-DD'>
             const markedDates = new Set();
             let selectedMarkingDate = null; // Date chosen in the input for marking
+
+            // Calendar state
+            let currentCalendarDate = new Date(); // Tracks the month/year currently displayed in the calendar
 
             // --- UI State Management ---
             let isLoggedIn = false;
@@ -1210,6 +1324,7 @@
                 }
                 document.getElementById('staffOnLeaveNames').textContent = onLeaveNames.length > 0 ? onLeaveNames.join(', ') : 'No agents on leave.';
 
+
                 const numAgentsOnSickOff = Math.floor(Math.random() * 2);
                 document.getElementById('statAgentsOnSickOffWeek').textContent = numAgentsOnSickOff;
                 const onSickOffNames = [];
@@ -1225,26 +1340,88 @@
                 document.getElementById('agentsOnSickOffNames').textContent = onSickOffNames.length > 0 ? onSickOffNames.join(', ') : 'No agents on sick off.';
             }
 
-            // --- Date Picker Integration (using a simple custom one for demo) ---
-            // In a real app, you'd use a library like jQuery UI Datepicker, Flatpickr, or a custom one.
-            // This is a minimal example to simulate.
+            // --- Calendar Modal Logic ---
             attendanceDateInput.addEventListener('click', () => {
-                const date = prompt("Enter date for attendance (YYYY-MM-DD), e.g., 2025-07-15:");
-                if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                    selectedMarkingDate = date;
-                    attendanceDateInput.value = date;
-                    openAttendanceModalBtn.disabled = false; // Enable the button once a date is selected
-                } else if (date !== null) { // User didn't cancel, but input was invalid
-                    alert("Invalid date format. Please use YYYY-MM-DD.");
-                    openAttendanceModalBtn.disabled = true;
-                    attendanceDateInput.value = '';
-                    selectedMarkingDate = null;
-                } else { // User cancelled
-                    openAttendanceModalBtn.disabled = true;
-                    attendanceDateInput.value = '';
-                    selectedMarkingDate = null;
-                }
+                // Reset calendar to current month/year
+                currentCalendarDate = new Date();
+                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+                calendarModal.style.display = 'flex'; // Show calendar modal
             });
+
+            closeCalendarModal.addEventListener('click', () => {
+                calendarModal.style.display = 'none';
+            });
+
+            cancelCalendarSelection.addEventListener('click', () => {
+                calendarModal.style.display = 'none';
+            });
+
+            prevMonthBtn.addEventListener('click', () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+            });
+
+            function renderCalendar(year, month) {
+                calendarDaysGrid.innerHTML = ''; // Clear previous days
+                currentMonthYear.textContent = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0);
+                const numDaysInMonth = lastDayOfMonth.getDate();
+                const firstWeekday = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday...
+
+                const today = new Date();
+                const todayFormatted = today.toISOString().split('T')[0];
+
+                // Add empty divs for days before the 1st of the month
+                for (let i = 0; i < firstWeekday; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.classList.add('calendar-day', 'empty');
+                    calendarDaysGrid.appendChild(emptyDay);
+                }
+
+                // Add days of the month
+                for (let day = 1; day <= numDaysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.classList.add('calendar-day');
+                    dayElement.textContent = day;
+
+                    const fullDate = new Date(year, month, day);
+                    const dateKey = fullDate.toISOString().split('T')[0]; // YYYY-MM-DD
+
+                    // Mark today's date
+                    if (dateKey === todayFormatted) {
+                        dayElement.classList.add('today');
+                    }
+
+                    // Disable if already marked
+                    if (markedDates.has(dateKey)) {
+                        dayElement.classList.add('disabled');
+                        dayElement.title = "Attendance already marked for this date.";
+                    } else {
+                        dayElement.addEventListener('click', () => {
+                            // Remove selected class from previously selected day
+                            const previouslySelected = calendarDaysGrid.querySelector('.calendar-day.selected');
+                            if (previouslySelected) {
+                                previouslySelected.classList.remove('selected');
+                            }
+
+                            dayElement.classList.add('selected'); // Mark current selection
+                            selectedMarkingDate = dateKey; // Store the selected date
+                            attendanceDateInput.value = dateKey; // Update the input field
+                            openAttendanceModalBtn.disabled = false; // Enable the "Mark Attendance" button
+                            calendarModal.style.display = 'none'; // Hide calendar modal
+                        });
+                    }
+                    calendarDaysGrid.appendChild(dayElement);
+                }
+            }
+
 
             // Disable the mark attendance button initially
             openAttendanceModalBtn.disabled = true;
@@ -1340,15 +1517,15 @@
 
                 // Grey out the date input for the marked date
                 attendanceDateInput.value = selectedMarkingDate + " (Marked)";
-                attendanceDateInput.disabled = true; // Visually disable it
+                // attendanceDateInput.disabled = true; // No longer disable the input, just mark it as done
                 openAttendanceModalBtn.disabled = true; // Disable the button after marking
 
                 generateAttendanceOverviewTable(); // Refresh the main overview table
 
                 // Reset selected date for next marking
                 selectedMarkingDate = null;
-                attendanceDateInput.value = '';
-                attendanceDateInput.disabled = false; // Re-enable for new date selection
+                // attendanceDateInput.value = ''; // Keep the "Marked" text
+                // attendanceDateInput.disabled = false; // Re-enable for new date selection
             });
 
             // --- Team Attendance Overview Table Generation ---
