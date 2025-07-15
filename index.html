@@ -680,193 +680,295 @@
         .status-danger { background-color: #dc3545; color: white; } /* Used for Sick Off */
 
 
-        /* Dashboard */
-        .dashboard-grid {
+        /* Dashboard Styles (New) */
+        .dashboard-container {
+            padding: 20px;
+            background-color: #f4f7f6;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+            align-items: start; /* Align items to the start of their grid area */
         }
 
-        .dashboard-card {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .dashboard-card h3 {
-            color: #2c3e50;
-            font-size: 20px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .agent-status-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .agent-status-list li {
+        .dashboard-header-row {
+            grid-column: 1 / -1; /* Spans all columns */
             display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 16px;
-            color: #495057;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: inline-block;
-        }
-
-        .status-indicator.online { background-color: #28a745; }
-        .status-indicator.break { background-color: #ffc107; }
-        .status-indicator.offline { background-color: #6c757d; }
-        .status-indicator.late { background-color: #fd7e14; }
-        .status-indicator.absent { background-color: #dc3545; }
-
-        .status-label {
-            font-weight: 500;
-            margin-left: auto; /* Pushes label to the right */
-            background-color: #eef;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        .status-indicator.late + .status-label { color: #dc3545; }
-        .status-indicator.absent + .status-label { color: #dc3545; }
-
-
-        .pending-actions ul, .shift-overview p {
-            list-style: none;
-            padding: 0;
+            flex-wrap: wrap;
+            gap: 15px;
             margin-bottom: 15px;
         }
 
-        .pending-actions li {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #495057;
+        .dashboard-header-card {
+            background-color: #007bff; /* Blue background */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
+            flex: 1; /* Allows cards to grow */
+            min-width: 200px; /* Minimum width for responsiveness */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .action-link {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
+        .dashboard-header-card.employee-name {
+            background-color: #28a745; /* Green for employee name */
         }
 
-        .action-link:hover {
-            color: #0056b3;
-            text-decoration: underline;
+        .dashboard-header-card i {
+            font-size: 30px;
         }
 
-        .shift-overview p {
-            font-size: 16px;
-            margin-bottom: 8px;
-            color: #495057;
-        }
-
-        .shift-overview strong {
-            color: #2c3e50;
-        }
-
-        .btn-sm {
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-        .mt-2 { margin-top: 15px; }
-
-        /* Reports Page */
-        .report-filters {
-            background-color: #ffffff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
+        .dashboard-header-card div {
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: flex-end;
+            flex-direction: column;
         }
 
-        .report-filters .input-group {
-            margin-bottom: 0; /* Override default margin */
-            flex: 1;
-            min-width: 180px; /* Ensure inputs don't get too small */
+        .dashboard-header-card .label {
+            font-size: 14px;
+            opacity: 0.8;
         }
 
-        .report-results {
-            background-color: #ffffff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            overflow-x: auto; /* Enable horizontal scroll for table */
-        }
-
-        .report-results h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-
-        .report-results table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px; /* Ensure table is readable */
-        }
-
-        .report-results th,
-        .report-results td {
-            padding: 12px 15px;
-            border: 1px solid #eee;
-            text-align: left;
-            font-size: 15px;
-        }
-
-        .report-results th {
-            background-color: #e9ecef;
-            color: #343a40;
+        .dashboard-header-card .value {
+            font-size: 22px;
             font-weight: 600;
         }
 
-        .report-results tbody tr:nth-child(even) {
-            background-color: #f6f6f6;
+        .dashboard-section-title {
+            grid-column: 1 / -1; /* Spans all columns */
+            font-size: 22px;
+            color: #2c3e50;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
-        .report-results tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .status-good { color: #28a745; font-weight: 500; }
-        .status-warning { color: #ffc107; font-weight: 500; }
-        .status-danger { color: #dc3545; font-weight: 500; }
-
-        /* Admin Page */
-        #addMemberForm {
+        .dashboard-card-new {
             background-color: #ffffff;
-            padding: 25px;
             border-radius: 10px;
+            padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        #addMemberForm .input-group {
-            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .success-message {
-            color: #28a745;
-            font-size: 16px;
-            margin-top: 15px;
+        .dashboard-card-new h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* Gauge styles (simplified static representation) */
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .gauge {
+            width: 100px;
+            height: 50px; /* Half circle */
+            border-radius: 100px 100px 0 0;
+            border: 5px solid #e0e0e0;
+            border-bottom: none;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: bottom center;
+            transition: transform 0.5s ease-in-out;
+            background-color: #007bff; /* Default blue */
+            border-radius: 100px 100px 0 0;
+        }
+
+        .gauge-label {
+            font-size: 14px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        /* Specific gauge colors */
+        .gauge-overall .gauge-fill { background-color: #007bff; transform: rotate(117deg); /* 65% of 180deg */ }
+        .gauge-today .gauge-fill { background-color: #fd7e14; transform: rotate(90deg); /* 50% of 180deg */ }
+        .gauge-month .gauge-fill { background-color: #17a2b8; transform: rotate(81deg); /* 45% of 180deg */ }
+
+
+        /* Bar Chart styles (simplified static representation) */
+        .bar-chart-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 5px;
+            height: 200px; /* Fixed height for chart area */
+            padding-top: 10px;
+            position: relative;
+        }
+
+        .bar-chart-month-labels {
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+        }
+
+        .bar-chart-month-labels > div {
+            flex: 1;
             text-align: center;
         }
+
+        .bar-group {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            border-left: 1px solid #eee;
+            padding-left: 5px;
+        }
+
+        .bar {
+            width: 15px; /* Width of each bar */
+            background-color: #007bff;
+            margin: 0 2px;
+            transition: height 0.3s ease;
+            position: relative;
+        }
+
+        .bar.late { background-color: #dc3545; }
+        .bar.absent { background-color: #ffc107; }
+        .bar.early { background-color: #28a745; }
+        .bar.overtime { background-color: #17a2b8; } /* Example for breaks/overtime */
+        .bar.break { background-color: #6f42c1; } /* Example for breaks/overtime */
+
+
+        /* Specific chart layouts */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .chart-grid > div {
+            text-align: center;
+        }
+        .chart-grid .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .chart-grid .label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Donut Chart (simplified static representation) */
+        .donut-chart-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#007bff 0% 50.25%, #28a745 50.25% 100%); /* Example split */
+            margin: 0 auto 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .donut-chart-center {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+        .donut-chart-label {
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+        }
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .donut-legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .donut-legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        /* Top Employees Bar Chart */
+        .top-employees-chart {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding-top: 10px;
+        }
+        .employee-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #495057;
+        }
+        .employee-name-label {
+            width: 100px; /* Fixed width for names */
+            text-align: right;
+            margin-right: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .employee-bar-track {
+            flex-grow: 1;
+            height: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            position: relative;
+        }
+        .employee-bar-fill {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 8px;
+            width: 0%; /* Will be set by JS/static value */
+            transition: width 0.5s ease-out;
+        }
+        .employee-bar-value {
+            margin-left: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 30px; /* Ensure space for value */
+        }
+        .employee-bar-fill.p90 { width: 90%; }
+        .employee-bar-fill.p85 { width: 85%; }
+        .employee-bar-fill.p80 { width: 80%; }
+        .employee-bar-fill.p75 { width: 75%; }
+        .employee-bar-fill.p70 { width: 70%; }
+
 
     </style>
 </head>
@@ -988,48 +1090,242 @@
             </div>
 
             <div id="dashboardPage" class="content-module">
-                <h2>Dashboard</h2>
-                <hr>
-                <div class="dashboard-grid">
-                    <div class="dashboard-card team-status">
-                        <h3>Team Alpha Status (Real-time)</h3>
-                        <ul class="agent-status-list">
-                            <li>
-                                <span class="status-indicator online"></span>
-                                John Doe <span class="status-label">Clocked In</span>
-                            </li>
-                            <li>
-                                <span class="status-indicator break"></span>
-                                Jane Smith <span class="status-label">On Break</span>
-                            </li>
-                            <li>
-                                <span class="status-indicator offline"></span>
-                                Peter Jones <span class="status-label">Clocked Out</span>
-                            </li>
-                            <li>
-                                <span class="status-indicator late"></span>
-                                Mary Lee <span class="status-label">Late</span>
-                            </li>
-                            <li>
-                                <span class="status-indicator absent"></span>
-                                David Kim <span class="status-label">Absent</span>
-                            </li>
-                        </ul>
+                <h2 style="margin-bottom: 20px;">HR Employees Attendance Dashboard</h2>
+                <div class="dashboard-container">
+                    <!-- Top Header Row Cards -->
+                    <div class="dashboard-header-row">
+                        <div class="dashboard-header-card">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <div class="label">Start Date</div>
+                                <div class="value">Jan 11, 24</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-header-card employee-name">
+                            <i class="fas fa-user"></i>
+                            <div>
+                                <div class="label">Employee Name</div>
+                                <div class="value">John William</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-header-card">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <div class="label">Total Employees</div>
+                                <div class="value">35</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-header-card">
+                            <i class="fas fa-times-circle"></i>
+                            <div>
+                                <div class="label">Absences Days</div>
+                                <div class="value">120</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-header-card">
+                            <i class="fas fa-calendar-times"></i>
+                            <div>
+                                <div class="label">Unapproved Leave</div>
+                                <div class="value">10</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="dashboard-card pending-actions">
-                        <h3>Pending Actions</h3>
-                        <ul>
-                            <li>Leave Request: Sarah Brown (July 20-22) - <a href="#" class="action-link">Review</a></li>
-                            <li>Shift Swap: Mike Green (from 9-5 to 11-7) - <a href="#" class="action-link">Approve</a></li>
-                            <li>Late Login: Emily White (09:15 AM) - <a href="#" class="action-link">Acknowledge</a></li>
-                        </ul>
+
+                    <!-- Main Dashboard Grid -->
+                    <div class="dashboard-card-new">
+                        <h3>Overall Attendance Percentage</h3>
+                        <div class="gauge-container gauge-overall">
+                            <div class="gauge">
+                                <div class="gauge-fill"></div>
+                            </div>
+                            <div class="gauge-label">65%</div>
+                        </div>
                     </div>
-                    <div class="dashboard-card shift-overview">
-                        <h3>Shift Overview (Today)</h3>
-                        <p>Morning Shift (09:00 - 17:00): <strong>10/12 Agents</strong></p>
-                        <p>Afternoon Shift (13:00 - 21:00): <strong>7/8 Agents</strong></p>
-                        <p>Night Shift (21:00 - 05:00): <strong>4/5 Agents</strong></p>
-                        <button class="btn btn-sm btn-primary mt-2">Manage Schedules</button>
+
+                    <div class="dashboard-card-new">
+                        <h3>Attendance Statistics</h3>
+                        <div class="bar-chart-container">
+                            <div style="display:flex; justify-content:space-around; align-items:flex-end; height:100%;">
+                                <!-- Jan -->
+                                <div class="bar-group">
+                                    <div class="bar" style="height: 60%; background-color: #007bff;" title="On Time: 6"></div>
+                                    <div class="bar late" style="height: 30%;" title="Late: 3"></div>
+                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
+                                </div>
+                                <!-- Feb -->
+                                <div class="bar-group">
+                                    <div class="bar" style="height: 70%; background-color: #007bff;" title="On Time: 7"></div>
+                                    <div class="bar late" style="height: 20%;" title="Late: 2"></div>
+                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
+                                </div>
+                                <!-- Mar -->
+                                <div class="bar-group">
+                                    <div class="bar" style="height: 50%; background-color: #007bff;" title="On Time: 5"></div>
+                                    <div class="bar late" style="height: 40%;" title="Late: 4"></div>
+                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
+                                </div>
+                                <!-- Apr -->
+                                <div class="bar-group">
+                                    <div class="bar" style="height: 65%; background-color: #007bff;" title="On Time: 6.5"></div>
+                                    <div class="bar late" style="height: 25%;" title="Late: 2.5"></div>
+                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
+                                </div>
+                                <!-- May -->
+                                <div class="bar-group">
+                                    <div class="bar" style="height: 55%; background-color: #007bff;" title="On Time: 5.5"></div>
+                                    <div class="bar late" style="height: 35%;" title="Late: 3.5"></div>
+                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
+                                </div>
+                                <!-- Jun -->
+                                <div class="bar-group">
+                                    <div class="bar" style="height: 75%; background-color: #007bff;" title="On Time: 7.5"></div>
+                                    <div class="bar late" style="height: 15%;" title="Late: 1.5"></div>
+                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
+                                </div>
+                            </div>
+                            <div class="bar-chart-month-labels">
+                                <div>Jan</div>
+                                <div>Feb</div>
+                                <div>Mar</div>
+                                <div>Apr</div>
+                                <div>May</div>
+                                <div>Jun</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-size:13px; color:#555;">
+                            <span style="display:flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background-color:#007bff; border-radius:2px; margin-right:5px;"></span> On Time</span>
+                            <span style="display:flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background-color:#dc3545; border-radius:2px; margin-right:5px;"></span> Late</span>
+                            <span style="display:flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background-color:#ffc107; border-radius:2px; margin-right:5px;"></span> Absent</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Early Vs Late Login</h3>
+                        <div class="chart-grid">
+                            <div>
+                                <div class="value">50</div>
+                                <div class="label">Early</div>
+                            </div>
+                            <div>
+                                <div class="value">60</div>
+                                <div class="label">Late</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Paid Time Off</h3>
+                        <div class="chart-grid">
+                            <div>
+                                <div class="value">101.50 Hrs.</div>
+                                <div class="label">Used</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Today's Worked Hours</h3>
+                        <div class="gauge-container gauge-today">
+                            <div class="gauge">
+                                <div class="gauge-fill"></div>
+                            </div>
+                            <div class="gauge-label">50%</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Leave Taken</h3>
+                        <div class="chart-grid">
+                            <div>
+                                <div class="value">25</div>
+                                <div class="label">Sick</div>
+                            </div>
+                            <div>
+                                <div class="value">50</div>
+                                <div class="label">Casual</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Breaks Vs Overtime</h3>
+                        <div class="chart-grid">
+                            <div>
+                                <div class="value">85.60 Hrs.</div>
+                                <div class="label">Break</div>
+                            </div>
+                            <div>
+                                <div class="value">265 Hrs.</div>
+                                <div class="label">Overtime</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Current Month's Worked Hours</h3>
+                        <div class="gauge-container gauge-month">
+                            <div class="gauge">
+                                <div class="gauge-fill"></div>
+                            </div>
+                            <div class="gauge-label">45%</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Working Location</h3>
+                        <div class="donut-chart-container">
+                            <div class="donut-chart-center"></div>
+                        </div>
+                        <div class="donut-chart-label">50.25% Working From Office</div>
+                        <div class="donut-legend">
+                            <div class="donut-legend-item">
+                                <span class="donut-legend-color" style="background-color: #007bff;"></span> Working From Office
+                            </div>
+                            <div class="donut-legend-item">
+                                <span class="donut-legend-color" style="background-color: #28a745;"></span> Working From Home
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new">
+                        <h3>Top 5 Employees by Attendance</h3>
+                        <div class="top-employees-chart">
+                            <div class="employee-bar-item">
+                                <span class="employee-name-label">Employee 05</span>
+                                <div class="employee-bar-track">
+                                    <div class="employee-bar-fill p90"></div>
+                                </div>
+                                <span class="employee-bar-value">90%</span>
+                            </div>
+                            <div class="employee-bar-item">
+                                <span class="employee-name-label">Employee 04</span>
+                                <div class="employee-bar-track">
+                                    <div class="employee-bar-fill p85"></div>
+                                </div>
+                                <span class="employee-bar-value">85%</span>
+                            </div>
+                            <div class="employee-bar-item">
+                                <span class="employee-name-label">Employee 03</span>
+                                <div class="employee-bar-track">
+                                    <div class="employee-bar-fill p80"></div>
+                                </div>
+                                <span class="employee-bar-value">80%</span>
+                            </div>
+                            <div class="employee-bar-item">
+                                <span class="employee-name-label">Employee 02</span>
+                                <div class="employee-bar-track">
+                                    <div class="employee-bar-fill p75"></div>
+                                </div>
+                                <span class="employee-bar-value">75%</span>
+                            </div>
+                            <div class="employee-bar-item">
+                                <span class="employee-name-label">Employee 01</span>
+                                <div class="employee-bar-track">
+                                    <div class="employee-bar-fill p70"></div>
+                                </div>
+                                <span class="employee-bar-value">70%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
