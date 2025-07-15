@@ -351,6 +351,143 @@
             line-height: 1.4;
         }
 
+        /* Styles for Attendance Marking Section */
+        .mark-attendance-section {
+            display: flex;
+            align-items: flex-end; /* Align button to bottom of input */
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .mark-attendance-section .input-group {
+            margin-bottom: 0; /* Remove default margin from input group */
+            flex-grow: 1; /* Allow input group to take available space */
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px; /* Space from top */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 600px; /* Max width for the modal */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh; /* Limit height of modal */
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 22px;
+        }
+
+        .modal-table-container {
+            overflow-y: auto; /* Make table scrollable if many agents */
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            flex-grow: 1; /* Allows table to fill available space */
+        }
+
+        #modalAttendanceTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #modalAttendanceTable th,
+        #modalAttendanceTable td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        #modalAttendanceTable th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        #modalAttendanceTable td:last-child select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .modal-buttons .btn {
+            margin-left: 10px;
+        }
+
+        /* Datepicker (using jQuery UI or a custom one) */
+        /* Basic styling for if you integrate a datepicker library */
+        .ui-datepicker {
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        /* Placeholder for datepicker input */
+        #attendanceDateInput {
+            cursor: pointer;
+        }
+
+        /* Toolbar for Attendance Table */
+        .attendance-table-toolbar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
         /* Attendance Table */
         .attendance-table-container {
             overflow-x: auto;
@@ -420,19 +557,6 @@
             outline: none; /* Remove outline on focus */
         }
 
-        /* Custom dropdown arrow if needed, but not strictly necessary with transparent background */
-        /* .attendance-cell::after {
-            content: '\f078';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: #666;
-        } */
-
 
         /* Status Guide */
         .attendance-status-guide {
@@ -479,6 +603,8 @@
         .status-UL { background-color: #dc3545; color: white; } /* Unpaid Leave */
         .status-NCNS { background-color: #ffc107; color: #333; } /* No Call No Show */
         .status-CL { background-color: #fd7e14; color: white; } /* Compassionate Leave */
+        .status-danger { background-color: #dc3545; color: white; } /* Used for Sick Off */
+
 
         /* Dashboard */
         .dashboard-grid {
@@ -753,10 +879,27 @@
             </div>
 
             <div id="attendancePage" class="content-module">
-                <h2>Team Attendance Overview</h2>
+                <h2>Mark Attendance</h2>
                 <hr>
-                <div class="attendance-table-container">
+                <div class="mark-attendance-section">
+                    <div class="input-group">
+                        <label for="attendanceDateInput">Select Date:</label>
+                        <input type="text" id="attendanceDateInput" placeholder="Click to select date" readonly required>
+                        <!-- Using type="text" and a JS date picker for custom behavior -->
                     </div>
+                    <button id="openAttendanceModalBtn" class="btn btn-primary"><i class="fas fa-edit"></i> Mark Attendance</button>
+                    <p id="attendanceMarkingMessage" class="success-message" style="display:none; margin-top:10px;"></p>
+                </div>
+
+                <h2 style="margin-top: 40px;">Team Attendance Overview</h2>
+                <hr>
+                <div class="attendance-table-toolbar">
+                    <button id="deleteAttendanceDataBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete Data</button>
+                    <button id="exportAttendanceDataBtn" class="btn btn-secondary"><i class="fas fa-file-export"></i> Export Data</button>
+                </div>
+                <div class="attendance-table-container">
+                    <!-- Attendance table will be generated here by JS -->
+                </div>
                 <div class="attendance-status-guide">
                     <h3>Status Key:</h3>
                     <p><span class="status-indicator-guide status-P"></span> P: Present</p>
@@ -766,6 +909,7 @@
                     <p><span class="status-indicator-guide status-UL"></span> UL: Unpaid Leave</p>
                     <p><span class="status-indicator-guide status-NCNS"></span> NCNS: No Call No Show</p>
                     <p><span class="status-indicator-guide status-CL"></span> CL: Compassionate Leave</p>
+                    <p><span class="status-indicator-guide status-danger"></span> SOF: Sick Off</p>
                 </div>
             </div>
 
@@ -911,6 +1055,32 @@
             </main>
     </div>
 
+    <!-- Attendance Marking Modal Structure -->
+    <div id="attendanceMarkingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Mark Attendance for <span id="modalDateDisplay"></span></h2>
+            <div class="modal-table-container">
+                <table id="modalAttendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Staff Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-buttons">
+                <button id="saveAttendanceBtn" class="btn btn-primary">Save Attendance</button>
+                <button id="cancelAttendanceBtn" class="btn btn-secondary">Cancel</button>
+                <p id="modalErrorMessage" class="error-message"></p>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loginPage = document.getElementById('loginPage');
@@ -919,10 +1089,31 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const loginForm = document.getElementById('loginForm');
 
-            // Agent data for attendance table (can be populated dynamically later)
+            // Attendance Marking Elements
+            const attendanceDateInput = document.getElementById('attendanceDateInput');
+            const openAttendanceModalBtn = document.getElementById('openAttendanceModalBtn');
+            const attendanceMarkingMessage = document.getElementById('attendanceMarkingMessage');
+
+            // Modal Elements
+            const attendanceMarkingModal = document.getElementById('attendanceMarkingModal');
+            const closeButton = attendanceMarkingModal.querySelector('.close-button');
+            const modalDateDisplay = document.getElementById('modalDateDisplay');
+            const modalAttendanceTableBody = document.querySelector('#modalAttendanceTable tbody');
+            const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
+            const cancelAttendanceBtn = document.getElementById('cancelAttendanceBtn');
+            const modalErrorMessage = document.getElementById('modalErrorMessage');
+
+            // Attendance Overview Table Elements
+            const attendanceOverviewTableContainer = document.querySelector('.attendance-table-container');
+            const deleteAttendanceDataBtn = document.getElementById('deleteAttendanceDataBtn');
+            const exportAttendanceDataBtn = document.getElementById('exportAttendanceDataBtn');
+
+
+            // Agent data (static for this demo)
             const agents = [
                 'John Doe', 'Jane Smith', 'Peter Jones', 'Mary Lee', 'David Kim',
-                'Sarah Brown', 'Michael Green', 'Emily White', 'Chris Evans', 'Jessica Day'
+                'Sarah Brown', 'Michael Green', 'Emily White', 'Chris Evans', 'Jessica Day',
+                'Robert Johnson', 'Patricia Williams', 'Linda Brown', 'James Davis', 'Jennifer Miller'
             ];
 
             // Attendance Status Options
@@ -934,12 +1125,19 @@
                 { value: 'DO', text: 'Day Off', colorClass: 'status-DO' },
                 { value: 'UL', text: 'Unpaid Leave', colorClass: 'status-UL' },
                 { value: 'NCNS', text: 'No Call No Show', colorClass: 'status-NCNS' },
-                { value: 'CL', text: 'Compassionate Leave', colorClass: 'status-CL' }
+                { value: 'CL', text: 'Compassionate Leave', colorClass: 'status-CL' },
+                { value: 'SOF', text: 'Sick Off', colorClass: 'status-danger' } // Added Sick Off with danger color
             ];
 
+            // --- Simulated Data Storage (replace with Firebase/Backend) ---
+            // Stores attendance data like: { 'YYYY-MM-DD': { 'Agent Name': 'P', 'Another Agent': 'L' }, ... }
+            const attendanceData = {};
+            // Stores dates that have been marked: Set<'YYYY-MM-DD'>
+            const markedDates = new Set();
+            let selectedMarkingDate = null; // Date chosen in the input for marking
 
-            // --- UI Simulation (replace with actual Firebase logic) ---
-            let isLoggedIn = false; // Simulate login state
+            // --- UI State Management ---
+            let isLoggedIn = false;
 
             function showPage(pageId) {
                 document.querySelectorAll('.content-module').forEach(page => {
@@ -947,7 +1145,6 @@
                 });
                 document.getElementById(pageId).classList.add('active');
 
-                // Update active state in nav
                 navLinks.forEach(link => {
                     if (link.dataset.page === pageId.replace('Page', '')) {
                         link.classList.add('active');
@@ -956,9 +1153,8 @@
                     }
                 });
 
-                // Generate attendance table if on attendance page
                 if (pageId === 'attendancePage') {
-                    generateAttendanceTable();
+                    generateAttendanceOverviewTable(); // Always regenerate/update the overview table
                 }
             }
 
@@ -967,10 +1163,10 @@
                 if (isLoggedIn) {
                     loginPage.classList.remove('active');
                     appContainer.classList.add('active');
-                    showPage('homePage'); // Default to home after login
-                    document.getElementById('loggedInUserName').textContent = 'Demo User'; // Replace with actual user name
-                    document.getElementById('loggedInUserRole').textContent = 'Manager'; // Replace with actual user role
-                    updateHomeStatistics(); // Update statistics on login/page load
+                    showPage('homePage');
+                    document.getElementById('loggedInUserName').textContent = 'Demo User';
+                    document.getElementById('loggedInUserRole').textContent = 'Manager';
+                    updateHomeStatistics();
                 } else {
                     loginPage.classList.add('active');
                     appContainer.classList.remove('active');
@@ -979,23 +1175,18 @@
                 }
             }
 
-            // Simulate Login
+            // --- Login/Logout Logic ---
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 document.getElementById('loginError').textContent = '';
-                // In a real app: Authenticate with Firebase
-                // On success: setLoggedInState(true);
-                // On failure: document.getElementById('loginError').textContent = 'Invalid credentials.';
-                setLoggedInState(true); // For demo purposes, just log in
+                // Simulate authentication
+                setLoggedInState(true);
             });
 
-            // Simulate Logout
             logoutBtn.addEventListener('click', () => {
-                // In a real app: Call Firebase signOut
                 setLoggedInState(false);
             });
 
-            // Navigation
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1005,16 +1196,13 @@
 
             // --- Home Page Statistics Update (Simulated) ---
             function updateHomeStatistics() {
-                // These values would come from your backend/Firebase in a real app
-                document.getElementById('statTotalPresent').textContent = Math.floor(Math.random() * agents.length); // Random present agents
-                document.getElementById('statTotalStaff').textContent = agents.length; // Total number of agents
+                document.getElementById('statTotalPresent').textContent = Math.floor(Math.random() * agents.length);
+                document.getElementById('statTotalStaff').textContent = agents.length;
 
-                // Simulate agents on leave
                 const numAgentsOnLeave = Math.floor(Math.random() * 3);
                 document.getElementById('statAgentsOnLeaveWeek').textContent = numAgentsOnLeave;
                 const onLeaveNames = [];
                 if (numAgentsOnLeave > 0) {
-                     // Pick a few random names from the agents list
                     const shuffledAgents = [...agents].sort(() => 0.5 - Math.random());
                     for (let i = 0; i < numAgentsOnLeave; i++) {
                         onLeaveNames.push(shuffledAgents[i]);
@@ -1022,17 +1210,14 @@
                 }
                 document.getElementById('staffOnLeaveNames').textContent = onLeaveNames.length > 0 ? onLeaveNames.join(', ') : 'No agents on leave.';
 
-
-                // Simulate agents on sick off
                 const numAgentsOnSickOff = Math.floor(Math.random() * 2);
                 document.getElementById('statAgentsOnSickOffWeek').textContent = numAgentsOnSickOff;
                 const onSickOffNames = [];
                 if (numAgentsOnSickOff > 0) {
-                    // Ensure sick off names are different from leave names for a better simulation
                     const availableAgents = agents.filter(agent => !onLeaveNames.includes(agent));
                     const shuffledAvailableAgents = [...availableAgents].sort(() => 0.5 - Math.random());
                     for (let i = 0; i < numAgentsOnSickOff; i++) {
-                        if (shuffledAvailableAgents[i]) { // Check if agent exists to prevent undefined
+                        if (shuffledAvailableAgents[i]) {
                             onSickOffNames.push(shuffledAvailableAgents[i]);
                         }
                     }
@@ -1040,11 +1225,135 @@
                 document.getElementById('agentsOnSickOffNames').textContent = onSickOffNames.length > 0 ? onSickOffNames.join(', ') : 'No agents on sick off.';
             }
 
+            // --- Date Picker Integration (using a simple custom one for demo) ---
+            // In a real app, you'd use a library like jQuery UI Datepicker, Flatpickr, or a custom one.
+            // This is a minimal example to simulate.
+            attendanceDateInput.addEventListener('click', () => {
+                const date = prompt("Enter date for attendance (YYYY-MM-DD), e.g., 2025-07-15:");
+                if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                    selectedMarkingDate = date;
+                    attendanceDateInput.value = date;
+                    openAttendanceModalBtn.disabled = false; // Enable the button once a date is selected
+                } else if (date !== null) { // User didn't cancel, but input was invalid
+                    alert("Invalid date format. Please use YYYY-MM-DD.");
+                    openAttendanceModalBtn.disabled = true;
+                    attendanceDateInput.value = '';
+                    selectedMarkingDate = null;
+                } else { // User cancelled
+                    openAttendanceModalBtn.disabled = true;
+                    attendanceDateInput.value = '';
+                    selectedMarkingDate = null;
+                }
+            });
 
-            // --- NEW: Dynamic Attendance Table Generation ---
-            function generateAttendanceTable() {
-                const tableContainer = document.querySelector('.attendance-table-container');
-                tableContainer.innerHTML = ''; // Clear previous table if any
+            // Disable the mark attendance button initially
+            openAttendanceModalBtn.disabled = true;
+
+            // --- Attendance Marking Modal Logic ---
+            openAttendanceModalBtn.addEventListener('click', () => {
+                if (!selectedMarkingDate) {
+                    modalErrorMessage.textContent = "Please select a date first.";
+                    return;
+                }
+                if (markedDates.has(selectedMarkingDate)) {
+                    modalErrorMessage.textContent = `Attendance for ${selectedMarkingDate} has already been marked.`;
+                    return;
+                }
+
+                modalDateDisplay.textContent = selectedMarkingDate;
+                populateModalAttendanceTable();
+                attendanceMarkingModal.style.display = 'flex'; // Show modal
+                modalErrorMessage.textContent = ''; // Clear previous error
+            });
+
+            closeButton.addEventListener('click', () => {
+                attendanceMarkingModal.style.display = 'none'; // Hide modal
+            });
+
+            cancelAttendanceBtn.addEventListener('click', () => {
+                attendanceMarkingModal.style.display = 'none'; // Hide modal
+            });
+
+            // Populate the table inside the modal with agent names and status dropdowns
+            function populateModalAttendanceTable() {
+                modalAttendanceTableBody.innerHTML = ''; // Clear previous rows
+
+                agents.forEach(agentName => {
+                    const tr = document.createElement('tr');
+                    const nameTd = document.createElement('td');
+                    nameTd.textContent = agentName;
+                    tr.appendChild(nameTd);
+
+                    const statusTd = document.createElement('td');
+                    const select = document.createElement('select');
+                    select.classList.add('attendance-status-select');
+                    select.dataset.agent = agentName; // Store agent name for easy access
+
+                    attendanceStatuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status.value;
+                        option.textContent = status.text;
+                        select.appendChild(option);
+                    });
+
+                    statusTd.appendChild(select);
+                    tr.appendChild(statusTd);
+                    modalAttendanceTableBody.appendChild(tr);
+                });
+            }
+
+            // Save attendance from modal
+            saveAttendanceBtn.addEventListener('click', () => {
+                modalErrorMessage.textContent = '';
+                const currentDayAttendance = {};
+                let allStatusSelected = true;
+
+                modalAttendanceTableBody.querySelectorAll('tr').forEach(row => {
+                    const agentName = row.querySelector('td:first-child').textContent;
+                    const statusSelect = row.querySelector('.attendance-status-select');
+                    const selectedStatus = statusSelect.value;
+
+                    if (selectedStatus === '') {
+                        allStatusSelected = false;
+                    }
+                    currentDayAttendance[agentName] = selectedStatus;
+                });
+
+                if (!allStatusSelected) {
+                    modalErrorMessage.textContent = "Please select a status for all agents.";
+                    return;
+                }
+
+                // --- Simulate saving to database ---
+                // In a real application, send currentDayAttendance and selectedMarkingDate to Firebase/backend
+                attendanceData[selectedMarkingDate] = currentDayAttendance;
+                markedDates.add(selectedMarkingDate); // Mark date as done
+
+                // Display success message
+                attendanceMarkingMessage.textContent = `Attendance for ${selectedMarkingDate} saved successfully!`;
+                attendanceMarkingMessage.style.display = 'block';
+                setTimeout(() => {
+                    attendanceMarkingMessage.style.display = 'none';
+                }, 3000);
+
+                attendanceMarkingModal.style.display = 'none'; // Hide modal
+
+                // Grey out the date input for the marked date
+                attendanceDateInput.value = selectedMarkingDate + " (Marked)";
+                attendanceDateInput.disabled = true; // Visually disable it
+                openAttendanceModalBtn.disabled = true; // Disable the button after marking
+
+                generateAttendanceOverviewTable(); // Refresh the main overview table
+
+                // Reset selected date for next marking
+                selectedMarkingDate = null;
+                attendanceDateInput.value = '';
+                attendanceDateInput.disabled = false; // Re-enable for new date selection
+            });
+
+            // --- Team Attendance Overview Table Generation ---
+            function generateAttendanceOverviewTable() {
+                attendanceOverviewTableContainer.innerHTML = ''; // Clear previous table if any
 
                 const table = document.createElement('table');
                 table.classList.add('attendance-overview-table');
@@ -1053,30 +1362,38 @@
                 const headerRow = document.createElement('tr');
                 const tbody = document.createElement('tbody');
 
-                // Generate Dates (last 7 days + next 7 days)
                 const dates = [];
+                const today = new Date();
+                // Generate Dates (last 7 days + next 7 days)
                 for (let i = -7; i <= 7; i++) {
-                    const date = new Date();
-                    date.setDate(date.getDate() + i);
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + i);
                     dates.push(date);
                 }
 
-                // Add "Agent Name" header
                 const agentHeader = document.createElement('th');
                 agentHeader.textContent = 'Agent Name';
                 headerRow.appendChild(agentHeader);
 
-                // Add Date headers
                 dates.forEach(date => {
                     const th = document.createElement('th');
-                    th.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    th.title = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); // Full date on hover
+                    const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                    const displayDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    th.textContent = displayDate;
+                    th.title = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                    // Add a class if the date has been marked
+                    if (markedDates.has(dateString)) {
+                        th.classList.add('marked-date-header'); // Add a class for styling marked dates
+                        th.style.backgroundColor = '#dcdcdc'; // Example: grey out header
+                        th.style.color = '#777';
+                    }
+
                     headerRow.appendChild(th);
                 });
                 thead.appendChild(headerRow);
                 table.appendChild(thead);
 
-                // Add Agent Rows
                 agents.forEach(agentName => {
                     const tr = document.createElement('tr');
                     const nameTd = document.createElement('td');
@@ -1086,82 +1403,78 @@
 
                     dates.forEach(date => {
                         const td = document.createElement('td');
-                        const select = document.createElement('select');
-                        select.classList.add('attendance-status-select');
-
-                        // Add status options
-                        attendanceStatuses.forEach(status => {
-                            const option = document.createElement('option');
-                            option.value = status.value;
-                            option.textContent = status.text;
-                            select.appendChild(option);
-                        });
-
-                        // Add change listener to dropdown
-                        select.addEventListener('change', (event) => {
-                            const selectedValue = event.target.value;
-                            // Find the color class for the selected value
-                            const selectedStatus = attendanceStatuses.find(s => s.value === selectedValue);
-
-                            // Clear previous classes starting with 'status-'
-                            td.className = 'attendance-cell'; // Reset to base class
-                            if (selectedStatus && selectedStatus.colorClass) {
-                                td.classList.add(selectedStatus.colorClass); // Add new color class
-                            }
-                            // Set text content based on selected value, or keep dropdown visible
-                            td.textContent = selectedValue === '' ? '' : selectedValue;
-                            td.appendChild(select); // Re-append the select element to keep it visible
-                            select.value = selectedValue; // Ensure the select shows the chosen value
-
-                            // In a real application, you would save this change to your database here
-                            console.log(`Agent: ${agentName}, Date: ${date.toDateString()}, Status: ${selectedValue}`);
-                        });
-
-                        // Initialize cell state (e.g., set default or load saved status)
-                        // For this example, we'll initialize with 'Select Status' but you could
-                        // set a default like 'DO' for weekends or 'P' for weekdays etc.
                         td.classList.add('attendance-cell');
-                        td.appendChild(select); // Add the select dropdown to the cell
+                        const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+                        const status = attendanceData[dateKey] ? attendanceData[dateKey][agentName] : '';
+                        td.textContent = status || ''; // Display status or empty
+
+                        // Add color class if status exists
+                        const statusObj = attendanceStatuses.find(s => s.value === status);
+                        if (statusObj && statusObj.colorClass) {
+                            td.classList.add(statusObj.colorClass);
+                        }
+
                         tr.appendChild(td);
                     });
                     tbody.appendChild(tr);
                 });
                 table.appendChild(tbody);
-                tableContainer.appendChild(table);
+                attendanceOverviewTableContainer.appendChild(table);
             }
 
-            // --- NEW: Admin Page Logic ---
-            const addMemberForm = document.getElementById('addMemberForm');
-            const addMemberMessage = document.getElementById('addMemberMessage');
+            // --- Delete and Export Functionality ---
+            deleteAttendanceDataBtn.addEventListener('click', () => {
+                // Using a custom modal for confirmation instead of alert/confirm
+                const confirmDelete = confirm("Are you sure you want to delete ALL attendance data? This action cannot be undone.");
+                if (confirmDelete) {
+                    // In a real app: Send request to backend to delete data
+                    // For demo: Clear local simulated data
+                    for (const key in attendanceData) {
+                        delete attendanceData[key];
+                    }
+                    markedDates.clear();
+                    generateAttendanceOverviewTable(); // Refresh table to show empty state
+                    alert("All attendance data deleted."); // Use alert for simplicity in demo, replace with custom modal
+                    // Re-enable attendance date input if it was disabled
+                    attendanceDateInput.disabled = false;
+                    attendanceDateInput.value = '';
+                    openAttendanceModalBtn.disabled = true;
+                }
+            });
 
-            if (addMemberForm) { // Ensure the form exists before adding listener
-                addMemberForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const memberName = document.getElementById('memberName').value;
-                    const memberRole = document.getElementById('memberRole').value;
+            exportAttendanceDataBtn.addEventListener('click', () => {
+                // Simple CSV export for the data currently in attendanceData object
+                let csvContent = "Agent Name," + Object.keys(attendanceData).sort().join(',') + "\n"; // Header row
 
-                    // Simulate adding a member
-                    console.log(`Adding new member: Name=${memberName}, Role=${memberRole}`);
-
-                    addMemberMessage.textContent = `Successfully added ${memberName} as ${memberRole}!`;
-                    addMemberMessage.style.display = 'block';
-                    addMemberMessage.style.color = '#28a745'; // Green for success
-
-                    addMemberForm.reset(); // Clear the form
-
-                    setTimeout(() => {
-                        addMemberMessage.style.display = 'none';
-                    }, 3000); // Hide message after 3 seconds
-
-                    // In a real application, you would send this data to a backend (e.g., Firebase)
-                    // and then ideally refresh the agents array and regenerate the attendance table
-                    // if you wanted them to appear immediately without a full page reload.
-                    // For this demo, agents array is static.
+                agents.forEach(agentName => {
+                    let row = `"${agentName}"`;
+                    Object.keys(attendanceData).sort().forEach(dateKey => {
+                        const status = attendanceData[dateKey] && attendanceData[dateKey][agentName] ? attendanceData[dateKey][agentName] : '';
+                        row += `,"${status}"`;
+                    });
+                    csvContent += row + "\n";
                 });
-            }
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) { // Feature detection for HTML5 download attribute
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', 'attendance_report.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert("Your browser does not support HTML5 download. Please copy the data manually.");
+                }
+                alert("Attendance data exported to CSV!"); // Use alert for simplicity in demo, replace with custom modal
+            });
+
 
             // Initialize UI state
-            setLoggedInState(false); // Start on login page
+            setLoggedInState(false);
         });
     </script>
 </body>
