@@ -1025,6 +1025,7 @@
             padding: 8px 5px;
             text-align: center;
             white-space: nowrap; /* Prevent wrapping in date cells */
+            position: relative; /* For overlay */
         }
 
         .leave-planner-table thead th {
@@ -1085,6 +1086,60 @@
         .leave-planner-table tfoot td:nth-child(-n+4) {
             background-color: #d0e7ff; /* Match fixed header background */
         }
+
+        /* Leave Approval Overlay */
+        .leave-approval-overlay {
+            position: absolute;
+            top: -35px; /* Position above the cell */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 10; /* Above table content */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .leave-approval-overlay button {
+            background: none;
+            border: 1px solid white;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .leave-approval-overlay button:hover {
+            background-color: white;
+            color: #000;
+        }
+        .leave-approval-overlay .approve-btn { border-color: #28a745; color: #28a745; }
+        .leave-approval-overlay .approve-btn:hover { background-color: #28a745; color: white; }
+        .leave-approval-overlay .decline-btn { border-color: #dc3545; color: #dc3545; }
+        .leave-approval-overlay .decline-btn:hover { background-color: #dc3545; color: white; }
+
+        .leave-planner-table td.approved-leave {
+            background-color: #c3e6cb; /* Lighter green for approved */
+            color: #155724;
+            font-weight: bold;
+            cursor: not-allowed;
+        }
+        .leave-planner-table td.declined-leave {
+            background-color: #f8d7da; /* Light red for declined */
+            color: #721c24;
+            font-weight: bold;
+            cursor: not-allowed;
+        }
+        .leave-planner-table td.pending-leave {
+            background-color: #ffeeba; /* Light yellow for pending */
+            color: #856404;
+            font-weight: bold;
+        }
+
 
         /* Admin Staff Management */
         .staff-management-section {
@@ -2690,13 +2745,34 @@
                         // Dynamically create date key based on current month being rendered
                         const dateObjForColumn = new Date(year, month, day);
                         const dateKey = `${day}-${dateObjForColumn.toLocaleString('en-US', { month: 'short' })}`; // e.g., "1-Jul"
+                        const fullDateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`; // YYYY-MM-DD format
+
                         const cellValue = rowData[dateKey] || '';
                         const td = document.createElement('td');
                         td.textContent = cellValue;
+
+                        // Add class based on status
                         if (cellValue === 'L') {
-                            td.classList.add('leave-cell');
+                            td.classList.add('pending-leave'); // Initially pending
                             totalLeavesPerDay[day - 1]++;
+
+                            // Add event listener for 'L' input to trigger approval overlay
+                            td.addEventListener('input', (event) => {
+                                if (event.target.textContent.toUpperCase() === 'L') {
+                                    showLeaveApprovalOverlay(td, rowData['Name'], fullDateString);
+                                }
+                            });
+                        } else if (cellValue === 'Approved') { // Assuming 'Approved' is set after approval
+                            td.classList.add('approved-leave');
+                        } else if (cellValue === 'Declined') { // Assuming 'Declined' is set after decline
+                            td.classList.add('declined-leave');
                         }
+
+                        // Make cells editable for 'L' input
+                        td.contentEditable = 'true';
+                        td.setAttribute('data-name', rowData['Name']);
+                        td.setAttribute('data-date', fullDateString); // Store full date for attendance marking
+
                         tr.appendChild(td);
                     }
                     tbody.appendChild(tr);
@@ -2720,14 +2796,87 @@
                 leaveTrackerTableContainer.appendChild(table);
             }
 
+            // Function to show leave approval overlay
+            function showLeaveApprovalOverlay(cell, agentName, dateString) {
+                // Remove any existing overlays
+                document.querySelectorAll('.leave-approval-overlay').forEach(overlay => overlay.remove());
+
+                const overlay = document.createElement('div');
+                overlay.classList.add('leave-approval-overlay');
+                overlay.innerHTML = `
+                    <button class="approve-btn">Approve</button>
+                    <button class="decline-btn">Decline</button>
+                `;
+
+                cell.appendChild(overlay);
+
+                // Position the overlay relative to the cell
+                const cellRect = cell.getBoundingClientRect();
+                const tableContainerRect = leaveTrackerTableContainer.getBoundingClientRect();
+
+                overlay.style.top = `${cell.offsetTop - overlay.offsetHeight - 5}px`; // 5px padding
+                overlay.style.left = `${cell.offsetLeft + (cell.offsetWidth / 2) - (overlay.offsetWidth / 2)}px`;
+
+                // Handle Approve/Decline clicks
+                overlay.querySelector('.approve-btn').addEventListener('click', () => {
+                    handleLeaveApproval(agentName, dateString, 'Approve');
+                    overlay.remove();
+                });
+
+                overlay.querySelector('.decline-btn').addEventListener('click', () => {
+                    handleLeaveApproval(agentName, dateString, 'Decline');
+                    overlay.remove();
+                });
+
+                // Remove overlay if clicking outside (optional, but good UX)
+                document.addEventListener('click', function hideOverlay(event) {
+                    if (!overlay.contains(event.target) && event.target !== cell) {
+                        overlay.remove();
+                        document.removeEventListener('click', hideOverlay);
+                    }
+                });
+            }
+
+            // Function to handle leave approval/decline
+            function handleLeaveApproval(agentName, dateString, action) {
+                // Update simulated leavePlannerData
+                const dateParts = dateString.split('-'); // YYYY-MM-DD
+                const monthName = new Date(dateParts[0], dateParts[1] - 1).toLocaleString('en-US', { month: 'long' });
+                const monthYearKey = `${monthName} ${dateParts[0]}`;
+                const dayKey = `${parseInt(dateParts[2])}-${new Date(dateParts[0], dateParts[1] - 1).toLocaleString('en-US', { month: 'short' })}`;
+
+                if (leavePlannerData[monthYearKey]) {
+                    const rowIndex = leavePlannerData[monthYearKey].findIndex(row => row.Name === agentName);
+                    if (rowIndex !== -1) {
+                        if (action === 'Approve') {
+                            leavePlannerData[monthYearKey][rowIndex][dayKey] = 'Approved'; // Mark as approved
+                            // Automatically mark attendance in attendanceData
+                            if (!attendanceData[dateString]) {
+                                attendanceData[dateString] = {};
+                            }
+                            attendanceData[dateString][agentName] = 'L'; // Mark as Leave in attendance
+                            markedDates.add(dateString); // Mark this date as having attendance recorded
+                            alert(`Leave for ${agentName} on ${dateString} Approved and attendance marked!`);
+                        } else if (action === 'Decline') {
+                            leavePlannerData[monthYearKey][rowIndex][dayKey] = ''; // Clear the 'L'
+                            alert(`Leave for ${agentName} on ${dateString} Declined. Please select another period.`);
+                        }
+                    }
+                }
+                renderLeaveTrackerTable(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth()); // Re-render table
+                generateAttendanceOverviewTable(); // Refresh main attendance table
+            }
+
+
             // --- Individual Summary Logic ---
             function populateIndividualSummarySelect() {
                 if (individualSelectSummary) {
                     individualSelectSummary.innerHTML = '<option value="">Select Employee</option>';
-                    activeAgents.forEach(agent => {
+                    // Use all users (active or inactive) for individual summary selection
+                    Object.values(usersData).forEach(user => {
                         const option = document.createElement('option');
-                        option.value = agent;
-                        option.textContent = agent;
+                        option.value = user.fullName;
+                        option.textContent = user.fullName;
                         individualSelectSummary.appendChild(option);
                     });
                 }
