@@ -747,19 +747,7 @@
                     </div>
                     <div class="notification-item warning">
                         <span class="notification-icon"><i class="fas fa-bed"></i></span>
-                        <p>Total Agents on Sick Off This Week: <strong id="totalSickOffAgents">0</strong></p>
-                    </div>
-                    <div class="notification-item success">
-                        <span class="notification-icon"><i class="fas fa-check-circle"></i></span>
-                        <p>Your leave request for July 15th has been **approved**.</p>
-                    </div>
-                     <div class="notification-item info">
-                        <span class="notification-icon"><i class="fas fa-info-circle"></i></span>
-                        <p>Reminder: Your shift starts in 30 minutes (09:00 AM).</p>
-                    </div>
-                    <div class="notification-item warning">
-                        <span class="notification-icon"><i class="fas fa-exclamation-triangle"></i></span>
-                        <p>Alert: Team Delta has 2 late logins today.</p>
+                        <p>Agents on Sick Off This Week: <strong id="agentsOnSickOffNames">No agents on sick off.</strong></p>
                     </div>
                 </div>
             </div>
@@ -1020,21 +1008,36 @@
                 // These values would come from your backend/Firebase in a real app
                 document.getElementById('statTotalPresent').textContent = Math.floor(Math.random() * agents.length); // Random present agents
                 document.getElementById('statTotalStaff').textContent = agents.length; // Total number of agents
-                document.getElementById('statAgentsOnLeaveWeek').textContent = Math.floor(Math.random() * 3); // Random agents on leave
-                document.getElementById('statAgentsOnSickOffWeek').textContent = Math.floor(Math.random() * 2); // Random agents on sick off
 
-                // Simulate staff on leave names (very basic)
+                // Simulate agents on leave
+                const numAgentsOnLeave = Math.floor(Math.random() * 3);
+                document.getElementById('statAgentsOnLeaveWeek').textContent = numAgentsOnLeave;
                 const onLeaveNames = [];
-                if (parseInt(document.getElementById('statAgentsOnLeaveWeek').textContent) > 0) {
+                if (numAgentsOnLeave > 0) {
                      // Pick a few random names from the agents list
                     const shuffledAgents = [...agents].sort(() => 0.5 - Math.random());
-                    for (let i = 0; i < parseInt(document.getElementById('statAgentsOnLeaveWeek').textContent); i++) {
+                    for (let i = 0; i < numAgentsOnLeave; i++) {
                         onLeaveNames.push(shuffledAgents[i]);
                     }
                 }
                 document.getElementById('staffOnLeaveNames').textContent = onLeaveNames.length > 0 ? onLeaveNames.join(', ') : 'No agents on leave.';
-                document.getElementById('totalSickOffAgents').textContent = document.getElementById('statAgentsOnSickOffWeek').textContent;
 
+
+                // Simulate agents on sick off
+                const numAgentsOnSickOff = Math.floor(Math.random() * 2);
+                document.getElementById('statAgentsOnSickOffWeek').textContent = numAgentsOnSickOff;
+                const onSickOffNames = [];
+                if (numAgentsOnSickOff > 0) {
+                    // Ensure sick off names are different from leave names for a better simulation
+                    const availableAgents = agents.filter(agent => !onLeaveNames.includes(agent));
+                    const shuffledAvailableAgents = [...availableAgents].sort(() => 0.5 - Math.random());
+                    for (let i = 0; i < numAgentsOnSickOff; i++) {
+                        if (shuffledAvailableAgents[i]) { // Check if agent exists to prevent undefined
+                            onSickOffNames.push(shuffledAvailableAgents[i]);
+                        }
+                    }
+                }
+                document.getElementById('agentsOnSickOffNames').textContent = onSickOffNames.length > 0 ? onSickOffNames.join(', ') : 'No agents on sick off.';
             }
 
 
