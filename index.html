@@ -375,13 +375,13 @@
             z-index: 1000; /* Sit on top */
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            padding-top: 50px; /* Space from top */
+            padding-top: 50px;
         }
 
         .modal-content {
@@ -391,11 +391,11 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             width: 90%;
-            max-width: 600px; /* Max width for the modal */
+            max-width: 600px;
             position: relative;
             display: flex;
             flex-direction: column;
-            max-height: 90vh; /* Limit height of modal */
+            max-height: 90vh;
         }
 
         .close-button {
@@ -423,11 +423,11 @@
         }
 
         .modal-table-container {
-            overflow-y: auto; /* Make table scrollable if many agents */
+            overflow-y: auto;
             margin-bottom: 20px;
             border: 1px solid #eee;
             border-radius: 8px;
-            flex-grow: 1; /* Allows table to fill available space */
+            flex-grow: 1;
         }
 
         #modalAttendanceTable {
@@ -456,7 +456,7 @@
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 15px;
+            font-size: 16px;
         }
 
         .modal-buttons {
@@ -469,7 +469,7 @@
 
         /* Calendar Modal Specific Styles */
         #calendarModal .modal-content {
-            max-width: 400px; /* Smaller for calendar */
+            max-width: 400px;
             padding: 20px;
         }
 
@@ -532,7 +532,7 @@
         }
 
         .calendar-day.empty {
-            visibility: hidden; /* Hide days from previous/next month */
+            visibility: hidden;
         }
 
         .calendar-day.today {
@@ -574,8 +574,8 @@
         .attendance-overview-table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0; /* Ensures no default spacing between cells */
-            min-width: 1000px; /* Ensure it doesn't get too small horizontally */
+            border-spacing: 0;
+            min-width: 1000px;
         }
 
         .attendance-overview-table th,
@@ -583,7 +583,7 @@
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #eee;
-            border-right: 1px solid #eee; /* Add right border for grid effect */
+            border-right: 1px solid #eee;
         }
 
         .attendance-overview-table th {
@@ -593,17 +593,17 @@
             text-transform: uppercase;
             font-size: 14px;
             position: sticky;
-            top: 0; /* Stick header to top when scrolling */
+            top: 0;
             z-index: 10;
         }
 
         .attendance-overview-table td:last-child,
         .attendance-overview-table th:last-child {
-            border-right: none; /* Remove right border for the last column */
+            border-right: none;
         }
 
         .attendance-overview-table tr:last-child td {
-            border-bottom: none; /* Remove bottom border for the last row */
+            border-bottom: none;
         }
 
         .attendance-overview-table tbody tr:hover {
@@ -611,8 +611,8 @@
         }
 
         .attendance-cell {
-            position: relative; /* Needed for positioning select */
-            padding: 0; /* Remove padding to make select fill cell */
+            position: relative;
+            padding: 0;
             background-color: #fcfcfc;
         }
 
@@ -621,14 +621,14 @@
             height: 100%;
             padding: 8px 10px;
             border: none;
-            background-color: transparent; /* Make select background transparent */
+            background-color: transparent;
             font-size: 15px;
             color: #333;
-            appearance: none; /* Remove default dropdown arrow */
+            appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             cursor: pointer;
-            outline: none; /* Remove outline on focus */
+            outline: none;
         }
 
 
@@ -670,14 +670,14 @@
         }
 
         /* Status Colors for table cells and guide */
-        .status-P { background-color: #28a745; color: white; } /* Present */
-        .status-SO { background-color: #6f42c1; color: white; } /* Signed Off */
-        .status-L { background-color: #17a2b8; color: white; } /* Leave */
-        .status-DO { background-color: #6c757d; color: white; } /* Day Off */
-        .status-UL { background-color: #dc3545; color: white; } /* Unpaid Leave */
-        .status-NCNS { background-color: #ffc107; color: #333; } /* No Call No Show */
-        .status-CL { background-color: #fd7e14; color: white; } /* Compassionate Leave */
-        .status-danger { background-color: #dc3545; color: white; } /* Used for Sick Off */
+        .status-P { background-color: #28a745; color: white; }
+        .status-SO { background-color: #6f42c1; color: white; }
+        .status-L { background-color: #17a2b8; color: white; }
+        .status-DO { background-color: #6c757d; color: white; }
+        .status-UL { background-color: #dc3545; color: white; }
+        .status-NCNS { background-color: #ffc107; color: #333; }
+        .status-CL { background-color: #fd7e14; color: white; }
+        .status-danger { background-color: #dc3545; color: white; }
 
 
         /* Dashboard Styles (New) */
@@ -686,12 +686,12 @@
             background-color: #f4f7f6;
             display: grid;
             gap: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
-            align-items: start; /* Align items to the start of their grid area */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            align-items: start;
         }
 
         .dashboard-header-row {
-            grid-column: 1 / -1; /* Spans all columns */
+            grid-column: 1 / -1;
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
@@ -699,20 +699,20 @@
         }
 
         .dashboard-header-card {
-            background-color: #007bff; /* Blue background */
+            background-color: #007bff;
             color: white;
             padding: 15px 20px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 15px;
-            flex: 1; /* Allows cards to grow */
-            min-width: 200px; /* Minimum width for responsiveness */
+            flex: 1;
+            min-width: 200px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .dashboard-header-card.employee-name {
-            background-color: #28a745; /* Green for employee name */
+            background-color: #28a745;
         }
 
         .dashboard-header-card i {
@@ -734,8 +734,28 @@
             font-weight: 600;
         }
 
+        .dashboard-header-card select {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            flex-grow: 1;
+        }
+
+        .dashboard-header-card select option {
+            background-color: #28a745; /* Background for options */
+            color: white;
+        }
+
         .dashboard-section-title {
-            grid-column: 1 / -1; /* Spans all columns */
+            grid-column: 1 / -1;
             font-size: 22px;
             color: #2c3e50;
             margin-top: 10px;
@@ -771,7 +791,7 @@
 
         .gauge {
             width: 100px;
-            height: 50px; /* Half circle */
+            height: 50px;
             border-radius: 100px 100px 0 0;
             border: 5px solid #e0e0e0;
             border-bottom: none;
@@ -788,7 +808,7 @@
             height: 100%;
             transform-origin: bottom center;
             transition: transform 0.5s ease-in-out;
-            background-color: #007bff; /* Default blue */
+            background-color: #007bff;
             border-radius: 100px 100px 0 0;
         }
 
@@ -799,9 +819,9 @@
         }
 
         /* Specific gauge colors */
-        .gauge-overall .gauge-fill { background-color: #007bff; transform: rotate(117deg); /* 65% of 180deg */ }
-        .gauge-today .gauge-fill { background-color: #fd7e14; transform: rotate(90deg); /* 50% of 180deg */ }
-        .gauge-month .gauge-fill { background-color: #17a2b8; transform: rotate(81deg); /* 45% of 180deg */ }
+        .gauge-overall .gauge-fill { background-color: #007bff; transform: rotate(117deg); }
+        .gauge-today .gauge-fill { background-color: #fd7e14; transform: rotate(90deg); }
+        .gauge-month .gauge-fill { background-color: #17a2b8; transform: rotate(81deg); }
 
 
         /* Bar Chart styles (simplified static representation) */
@@ -811,7 +831,7 @@
             flex-direction: column;
             justify-content: flex-end;
             gap: 5px;
-            height: 200px; /* Fixed height for chart area */
+            height: 200px;
             padding-top: 10px;
             position: relative;
         }
@@ -841,7 +861,7 @@
         }
 
         .bar {
-            width: 15px; /* Width of each bar */
+            width: 15px;
             background-color: #007bff;
             margin: 0 2px;
             transition: height 0.3s ease;
@@ -851,8 +871,8 @@
         .bar.late { background-color: #dc3545; }
         .bar.absent { background-color: #ffc107; }
         .bar.early { background-color: #28a745; }
-        .bar.overtime { background-color: #17a2b8; } /* Example for breaks/overtime */
-        .bar.break { background-color: #6f42c1; } /* Example for breaks/overtime */
+        .bar.overtime { background-color: #17a2b8; }
+        .bar.break { background-color: #6f42c1; }
 
 
         /* Specific chart layouts */
@@ -880,7 +900,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: conic-gradient(#007bff 0% 50.25%, #28a745 50.25% 100%); /* Example split */
+            background: conic-gradient(#007bff 0% 50.25%, #28a745 50.25% 100%);
             margin: 0 auto 15px;
             position: relative;
             display: flex;
@@ -936,7 +956,7 @@
             color: #495057;
         }
         .employee-name-label {
-            width: 100px; /* Fixed width for names */
+            width: 100px;
             text-align: right;
             margin-right: 10px;
             white-space: nowrap;
@@ -954,14 +974,14 @@
             height: 100%;
             background-color: #007bff;
             border-radius: 8px;
-            width: 0%; /* Will be set by JS/static value */
+            width: 0%;
             transition: width 0.5s ease-out;
         }
         .employee-bar-value {
             margin-left: 10px;
             font-weight: 600;
             color: #2c3e50;
-            min-width: 30px; /* Ensure space for value */
+            min-width: 30px;
         }
         .employee-bar-fill.p90 { width: 90%; }
         .employee-bar-fill.p85 { width: 85%; }
@@ -1105,7 +1125,10 @@
                             <i class="fas fa-user"></i>
                             <div>
                                 <div class="label">Employee Name</div>
-                                <div class="value">John William</div>
+                                <select id="employeeSelect" class="value">
+                                    <!-- Options will be populated by JS -->
+                                    <option value="">Select Employee</option>
+                                </select>
                             </div>
                         </div>
                         <div class="dashboard-header-card">
@@ -1142,7 +1165,7 @@
                         </div>
                     </div>
 
-                    <div class="dashboard-card-new">
+                    <div class="dashboard-card-new" style="grid-column: span 2;">
                         <h3>Attendance Statistics</h3>
                         <div class="bar-chart-container">
                             <div style="display:flex; justify-content:space-around; align-items:flex-end; height:100%;">
@@ -1200,40 +1223,6 @@
                     </div>
 
                     <div class="dashboard-card-new">
-                        <h3>Early Vs Late Login</h3>
-                        <div class="chart-grid">
-                            <div>
-                                <div class="value">50</div>
-                                <div class="label">Early</div>
-                            </div>
-                            <div>
-                                <div class="value">60</div>
-                                <div class="label">Late</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-new">
-                        <h3>Paid Time Off</h3>
-                        <div class="chart-grid">
-                            <div>
-                                <div class="value">101.50 Hrs.</div>
-                                <div class="label">Used</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-new">
-                        <h3>Today's Worked Hours</h3>
-                        <div class="gauge-container gauge-today">
-                            <div class="gauge">
-                                <div class="gauge-fill"></div>
-                            </div>
-                            <div class="gauge-label">50%</div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-new">
                         <h3>Leave Taken</h3>
                         <div class="chart-grid">
                             <div>
@@ -1244,30 +1233,6 @@
                                 <div class="value">50</div>
                                 <div class="label">Casual</div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-new">
-                        <h3>Breaks Vs Overtime</h3>
-                        <div class="chart-grid">
-                            <div>
-                                <div class="value">85.60 Hrs.</div>
-                                <div class="label">Break</div>
-                            </div>
-                            <div>
-                                <div class="value">265 Hrs.</div>
-                                <div class="label">Overtime</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-new">
-                        <h3>Current Month's Worked Hours</h3>
-                        <div class="gauge-container gauge-month">
-                            <div class="gauge">
-                                <div class="gauge-fill"></div>
-                            </div>
-                            <div class="gauge-label">45%</div>
                         </div>
                     </div>
 
@@ -1287,7 +1252,7 @@
                         </div>
                     </div>
 
-                    <div class="dashboard-card-new">
+                    <div class="dashboard-card-new" style="grid-column: span 2;">
                         <h3>Top 5 Employees by Attendance</h3>
                         <div class="top-employees-chart">
                             <div class="employee-bar-item">
@@ -1515,6 +1480,9 @@
             const deleteAttendanceDataBtn = document.getElementById('deleteAttendanceDataBtn');
             const exportAttendanceDataBtn = document.getElementById('exportAttendanceDataBtn');
 
+            // Dashboard Elements
+            const employeeSelect = document.getElementById('employeeSelect');
+
 
             // Agent data (static for this demo)
             const agents = [
@@ -1577,6 +1545,7 @@
                     document.getElementById('loggedInUserName').textContent = 'Demo User';
                     document.getElementById('loggedInUserRole').textContent = 'Manager';
                     updateHomeStatistics();
+                    populateEmployeeSelect(); // Populate employee dropdown on login
                 } else {
                     loginPage.classList.add('active');
                     appContainer.classList.remove('active');
@@ -1669,7 +1638,7 @@
                 const firstDayOfMonth = new Date(year, month, 1);
                 const lastDayOfMonth = new Date(year, month + 1, 0);
                 const numDaysInMonth = lastDayOfMonth.getDate();
-                const firstWeekday = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday...
+                const firstWeekday = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday, etc.
 
                 const today = new Date();
                 const todayFormatted = today.toISOString().split('T')[0];
@@ -1811,17 +1780,13 @@
 
                 attendanceMarkingModal.style.display = 'none'; // Hide modal
 
-                // Grey out the date input for the marked date
-                attendanceDateInput.value = selectedMarkingDate + " (Marked)";
-                // attendanceDateInput.disabled = true; // No longer disable the input, just mark it as done
-                openAttendanceModalBtn.disabled = true; // Disable the button after marking
+                // --- FIX: Reset attendance date input and disable button for next selection ---
+                attendanceDateInput.value = ''; // Clear the input field
+                openAttendanceModalBtn.disabled = true; // Disable button until a new date is selected
+                selectedMarkingDate = null; // Clear the stored date
+
 
                 generateAttendanceOverviewTable(); // Refresh the main overview table
-
-                // Reset selected date for next marking
-                selectedMarkingDate = null;
-                // attendanceDateInput.value = ''; // Keep the "Marked" text
-                // attendanceDateInput.disabled = false; // Re-enable for new date selection
             });
 
             // --- Team Attendance Overview Table Generation ---
@@ -1944,6 +1909,26 @@
                 }
                 alert("Attendance data exported to CSV!"); // Use alert for simplicity in demo, replace with custom modal
             });
+
+            // --- Dashboard Employee Select Population ---
+            function populateEmployeeSelect() {
+                if (employeeSelect) { // Ensure the element exists
+                    employeeSelect.innerHTML = '<option value="">Select Employee</option>'; // Clear existing options and add default
+                    agents.forEach(agent => {
+                        const option = document.createElement('option');
+                        option.value = agent;
+                        option.textContent = agent;
+                        employeeSelect.appendChild(option);
+                    });
+
+                    // Add event listener for selection change (for future dynamic updates)
+                    employeeSelect.addEventListener('change', (event) => {
+                        const selectedEmployee = event.target.value;
+                        console.log(`Employee selected in dashboard: ${selectedEmployee}`);
+                        // In a real application, you would update dashboard data based on this selection.
+                    });
+                }
+            }
 
 
             // Initialize UI state
