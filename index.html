@@ -7,6 +7,668 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Basic styles for demonstration, ideally these would be in style.css */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* Login Page */
+        .login-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 380px;
+            max-width: 90%;
+            margin: auto; /* Center it */
+        }
+
+        .login-container h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input[type="email"],
+        .input-group input[type="password"],
+        .input-group input[type="text"],
+        .input-group select,
+        .input-group input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* App Container Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px; /* Max width for the whole app */
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 25px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .logo {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: white; /* Changed to white as requested */
+        }
+
+        .main-nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .main-nav li {
+            margin-bottom: 10px;
+        }
+
+        .main-nav a {
+            display: flex;
+            align-items: center;
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 15px 30px;
+            font-size: 17px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .main-nav a i {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .main-nav a:hover,
+        .main-nav a.active {
+            background-color: #34495e;
+            color: #ffffff;
+            border-left: 5px solid #007bff;
+            padding-left: 25px; /* Adjust for border */
+        }
+
+        .logout-btn {
+            margin-top: auto; /* Pushes it to the bottom */
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-btn i {
+            margin-right: 10px;
+        }
+
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+
+        .top-system-bar {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header {
+            background-color: #ffffff;
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .user-info {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .user-info strong {
+            color: #2c3e50;
+            margin-right: 5px;
+        }
+
+        .user-role {
+            background-color: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .content-module {
+            padding: 30px;
+            flex-grow: 1;
+            overflow-y: auto; /* Enable scrolling for content */
+            display: none; /* Hidden by default */
+        }
+
+        .content-module.active {
+            display: block; /* Shown when active */
+        }
+
+        .content-module h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .content-module hr {
+            border: 0;
+            height: 1px;
+            background-color: #eee;
+            margin-bottom: 25px;
+        }
+
+        /* Home Page Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #007bff;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        /* Notifications */
+        .notifications-list {
+            margin-top: 20px;
+        }
+
+        .notification-item {
+            background-color: #ffffff;
+            border-left: 5px solid;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+
+        .notification-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .notification-item.success { border-color: #28a745; }
+        .notification-item.info { border-color: #17a2b8; }
+        .notification-item.warning { border-color: #ffc107; }
+        .notification-item.danger { border-color: #dc3545; }
+
+        .notification-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            line-height: 1; /* Aligns icon better */
+        }
+
+        .notification-item.success .notification-icon { color: #28a745; }
+        .notification-item.info .notification-icon { color: #17a2b8; }
+        .notification-item.warning .notification-icon { color: #ffc107; }
+        .notification-item.danger .notification-icon { color: #dc3545; }
+
+        .notification-item p {
+            margin: 0;
+            color: #495057;
+            line-height: 1.4;
+        }
+
+        /* Attendance Table */
+        .attendance-table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .attendance-overview-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0; /* Ensures no default spacing between cells */
+            min-width: 1000px; /* Ensure it doesn't get too small horizontally */
+        }
+
+        .attendance-overview-table th,
+        .attendance-overview-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee; /* Add right border for grid effect */
+        }
+
+        .attendance-overview-table th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+            position: sticky;
+            top: 0; /* Stick header to top when scrolling */
+            z-index: 10;
+        }
+
+        .attendance-overview-table td:last-child,
+        .attendance-overview-table th:last-child {
+            border-right: none; /* Remove right border for the last column */
+        }
+
+        .attendance-overview-table tr:last-child td {
+            border-bottom: none; /* Remove bottom border for the last row */
+        }
+
+        .attendance-overview-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .attendance-cell {
+            position: relative; /* Needed for positioning select */
+            padding: 0; /* Remove padding to make select fill cell */
+            background-color: #fcfcfc;
+        }
+
+        .attendance-status-select {
+            width: 100%;
+            height: 100%;
+            padding: 8px 10px;
+            border: none;
+            background-color: transparent; /* Make select background transparent */
+            font-size: 15px;
+            color: #333;
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            outline: none; /* Remove outline on focus */
+        }
+
+        /* Custom dropdown arrow if needed, but not strictly necessary with transparent background */
+        /* .attendance-cell::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #666;
+        } */
+
+
+        /* Status Guide */
+        .attendance-status-guide {
+            background-color: #f1f7fe;
+            border: 1px solid #d0e7ff;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .attendance-status-guide h3 {
+            width: 100%;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #007bff;
+            font-size: 18px;
+        }
+
+        .attendance-status-guide p {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .status-indicator-guide {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Status Colors for table cells and guide */
+        .status-P { background-color: #28a745; color: white; } /* Present */
+        .status-SO { background-color: #6f42c1; color: white; } /* Signed Off */
+        .status-L { background-color: #17a2b8; color: white; } /* Leave */
+        .status-DO { background-color: #6c757d; color: white; } /* Day Off */
+        .status-UL { background-color: #dc3545; color: white; } /* Unpaid Leave */
+        .status-NCNS { background-color: #ffc107; color: #333; } /* No Call No Show */
+        .status-CL { background-color: #fd7e14; color: white; } /* Compassionate Leave */
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .dashboard-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .dashboard-card h3 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .agent-status-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .agent-status-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #495057;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        .status-indicator.online { background-color: #28a745; }
+        .status-indicator.break { background-color: #ffc107; }
+        .status-indicator.offline { background-color: #6c757d; }
+        .status-indicator.late { background-color: #fd7e14; }
+        .status-indicator.absent { background-color: #dc3545; }
+
+        .status-label {
+            font-weight: 500;
+            margin-left: auto; /* Pushes label to the right */
+            background-color: #eef;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .status-indicator.late + .status-label { color: #dc3545; }
+        .status-indicator.absent + .status-label { color: #dc3545; }
+
+
+        .pending-actions ul, .shift-overview p {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        .pending-actions li {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #495057;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .action-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        .shift-overview p {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .shift-overview strong {
+            color: #2c3e50;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        .mt-2 { margin-top: 15px; }
+
+        /* Reports Page */
+        .report-filters {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .report-filters .input-group {
+            margin-bottom: 0; /* Override default margin */
+            flex: 1;
+            min-width: 180px; /* Ensure inputs don't get too small */
+        }
+
+        .report-results {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto; /* Enable horizontal scroll for table */
+        }
+
+        .report-results h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .report-results table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px; /* Ensure table is readable */
+        }
+
+        .report-results th,
+        .report-results td {
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        .report-results th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+        }
+
+        .report-results tbody tr:nth-child(even) {
+            background-color: #f6f6f6;
+        }
+
+        .report-results tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .status-good { color: #28a745; font-weight: 500; }
+        .status-warning { color: #ffc107; font-weight: 500; }
+        .status-danger { color: #dc3545; font-weight: 500; }
+
+        /* Admin Page */
+        #addMemberForm {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        #addMemberForm .input-group {
+            margin-bottom: 25px;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 16px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body>
 
@@ -37,14 +699,15 @@
                     <li><a href="#" data-page="attendance"><i class="fas fa-user-check"></i> Attendance Marking</a></li>
                     <li><a href="#" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                     <li><a href="#" data-page="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
-                    <li><a href="#" data-page="admin"><i class="fas fa-user-plus"></i> Admin</a></li> </ul>
+                    <li><a href="#" data-page="admin"><i class="fas fa-user-plus"></i> Admin</a></li>
+                </ul>
             </nav>
             <button id="logoutBtn" class="btn btn-secondary logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </aside>
 
         <main class="main-content">
             <div class="top-system-bar">
-                ICEA LION CC ATTENDANCE SYSTEM
+                ICEA LION Contact Centre Attendance Management
             </div>
             <header class="app-header">
                 <h1>Welcome to Attendance Management System</h1>
@@ -59,30 +722,38 @@
                 <hr>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h3>Clocked In</h3>
-                        <p id="statClockedIn" class="stat-value">0</p>
+                        <h3>Total Present</h3>
+                        <p id="statTotalPresent" class="stat-value">0</p>
                     </div>
                     <div class="stat-card">
-                        <h3>Scheduled Shifts</h3>
-                        <p id="statScheduledShifts" class="stat-value">0</p>
+                        <h3>Total Staff</h3>
+                        <p id="statTotalStaff" class="stat-value">0</p>
                     </div>
                     <div class="stat-card">
-                        <h3>Agents on Break</h3>
-                        <p id="statOnBreak" class="stat-value">0</p>
+                        <h3>Agents on Leave (Week)</h3>
+                        <p id="statAgentsOnLeaveWeek" class="stat-value">0</p>
                     </div>
                     <div class="stat-card">
-                        <h3>Pending Leave</h3>
-                        <p id="statPendingLeave" class="stat-value">0</p>
+                        <h3>Agents on Sick Off (Week)</h3>
+                        <p id="statAgentsOnSickOffWeek" class="stat-value">0</p>
                     </div>
                 </div>
 
                 <h3>Notifications</h3>
                 <div class="notifications-list">
+                    <div class="notification-item info">
+                        <span class="notification-icon"><i class="fas fa-calendar-alt"></i></span>
+                        <p>Staff on Leave This Week: <strong id="staffOnLeaveNames">No agents on leave.</strong></p>
+                    </div>
+                    <div class="notification-item warning">
+                        <span class="notification-icon"><i class="fas fa-bed"></i></span>
+                        <p>Total Agents on Sick Off This Week: <strong id="totalSickOffAgents">0</strong></p>
+                    </div>
                     <div class="notification-item success">
                         <span class="notification-icon"><i class="fas fa-check-circle"></i></span>
                         <p>Your leave request for July 15th has been **approved**.</p>
                     </div>
-                    <div class="notification-item info">
+                     <div class="notification-item info">
                         <span class="notification-icon"><i class="fas fa-info-circle"></i></span>
                         <p>Reminder: Your shift starts in 30 minutes (09:00 AM).</p>
                     </div>
@@ -311,6 +982,7 @@
                     showPage('homePage'); // Default to home after login
                     document.getElementById('loggedInUserName').textContent = 'Demo User'; // Replace with actual user name
                     document.getElementById('loggedInUserRole').textContent = 'Manager'; // Replace with actual user role
+                    updateHomeStatistics(); // Update statistics on login/page load
                 } else {
                     loginPage.classList.add('active');
                     appContainer.classList.remove('active');
@@ -343,77 +1015,27 @@
                 });
             });
 
-            // --- Attendance Marking Button Logic (Existing - still relevant for home page) ---
-            // Note: The attendance marking buttons are from your original attendancePage
-            // and are separate from the new table-based attendance marking.
-            // You might want to remove these buttons or integrate their logic
-            // into the table concept if they are for individual agent clock-in/out.
-            const btnClockIn = document.getElementById('btnClockIn'); // These will be null if attendancePage is only table
-            const btnStartBreak = document.getElementById('btnStartBreak');
-            const btnEndBreak = document.getElementById('btnEndBreak');
-            const btnClockOut = document.getElementById('btnClockOut');
-            const attendanceStatusText = document.getElementById('attendanceStatusText');
-            const lastClockIn = document.getElementById('lastClockIn');
-            const lastClockOut = document.getElementById('lastClockOut');
-            const lastBreakStart = document.getElementById('lastBreakStart');
-            const lastBreakEnd = document.getElementById('lastBreakEnd');
+            // --- Home Page Statistics Update (Simulated) ---
+            function updateHomeStatistics() {
+                // These values would come from your backend/Firebase in a real app
+                document.getElementById('statTotalPresent').textContent = Math.floor(Math.random() * agents.length); // Random present agents
+                document.getElementById('statTotalStaff').textContent = agents.length; // Total number of agents
+                document.getElementById('statAgentsOnLeaveWeek').textContent = Math.floor(Math.random() * 3); // Random agents on leave
+                document.getElementById('statAgentsOnSickOffWeek').textContent = Math.floor(Math.random() * 2); // Random agents on sick off
 
-            let currentAttendanceStatus = 'clocked_out'; // Initial state
-
-            function updateAttendanceUI(status) {
-                // This function is for the original clock-in/out buttons, not the table.
-                // If you completely replace the attendance page with the table, this
-                // function and the associated buttons/elements can be removed.
-                if (!btnClockIn) return; // Guard clause if elements don't exist
-
-                currentAttendanceStatus = status;
-                const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-                btnClockIn.disabled = true;
-                btnStartBreak.disabled = true;
-                btnEndBreak.disabled = true;
-                btnClockOut.disabled = true;
-
-                if (status === 'clocked_out') {
-                    attendanceStatusText.innerHTML = 'You are currently: <strong>Clocked Out</strong>';
-                    btnClockIn.disabled = false;
-                    lastClockOut.textContent = now;
-                    if(lastClockIn.textContent !== 'N/A' && lastClockOut.textContent !== 'N/A') {
-                       // Means a full cycle was completed, ready for next clock in
-                    } else {
-                        lastClockIn.textContent = 'N/A';
-                        lastBreakStart.textContent = 'N/A';
-                        lastBreakEnd.textContent = 'N/A';
+                // Simulate staff on leave names (very basic)
+                const onLeaveNames = [];
+                if (parseInt(document.getElementById('statAgentsOnLeaveWeek').textContent) > 0) {
+                     // Pick a few random names from the agents list
+                    const shuffledAgents = [...agents].sort(() => 0.5 - Math.random());
+                    for (let i = 0; i < parseInt(document.getElementById('statAgentsOnLeaveWeek').textContent); i++) {
+                        onLeaveNames.push(shuffledAgents[i]);
                     }
-
-                } else if (status === 'clocked_in') {
-                    attendanceStatusText.innerHTML = 'You are currently: <strong>Clocked In</strong>';
-                    btnStartBreak.disabled = false;
-                    btnClockOut.disabled = false;
-                    if(lastClockIn.textContent === 'N/A' || (lastClockIn.textContent !== 'N/A' && lastClockOut.textContent !== 'N/A')) {
-                         lastClockIn.textContent = now;
-                    }
-                    lastClockOut.textContent = 'N/A';
-                } else if (status === 'on_break') {
-                    attendanceStatusText.innerHTML = 'You are currently: <strong>On Break</strong>';
-                    btnEndBreak.disabled = false;
-                    lastBreakStart.textContent = now;
-                    lastBreakEnd.textContent = 'N/A';
                 }
-            }
+                document.getElementById('staffOnLeaveNames').textContent = onLeaveNames.length > 0 ? onLeaveNames.join(', ') : 'No agents on leave.';
+                document.getElementById('totalSickOffAgents').textContent = document.getElementById('statAgentsOnSickOffWeek').textContent;
 
-            // Bind existing clocking buttons if they exist
-            if (btnClockIn) btnClockIn.addEventListener('click', () => updateAttendanceUI('clocked_in'));
-            if (btnStartBreak) btnStartBreak.addEventListener('click', () => updateAttendanceUI('on_break'));
-            if (btnEndBreak) btnEndBreak.addEventListener('click', () => {
-                lastBreakEnd.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-                updateAttendanceUI('clocked_in');
-            });
-            if (btnClockOut) btnClockOut.addEventListener('click', () => {
-                lastClockOut.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-                updateAttendanceUI('clocked_out');
-            });
-            // End of original attendance marking logic
+            }
 
 
             // --- NEW: Dynamic Attendance Table Generation ---
@@ -475,23 +1097,27 @@
                         // Add change listener to dropdown
                         select.addEventListener('change', (event) => {
                             const selectedValue = event.target.value;
-                            // Remove all existing status classes from the cell
-                            td.className = ''; // Clear all classes
-                            td.classList.add('attendance-cell'); // Ensure base class is present
                             // Find the color class for the selected value
                             const selectedStatus = attendanceStatuses.find(s => s.value === selectedValue);
+
+                            // Clear previous classes starting with 'status-'
+                            td.className = 'attendance-cell'; // Reset to base class
                             if (selectedStatus && selectedStatus.colorClass) {
                                 td.classList.add(selectedStatus.colorClass); // Add new color class
                             }
-                            td.textContent = selectedValue === '' ? '' : selectedValue; // Display selected short form
+                            // Set text content based on selected value, or keep dropdown visible
+                            td.textContent = selectedValue === '' ? '' : selectedValue;
                             td.appendChild(select); // Re-append the select element to keep it visible
+                            select.value = selectedValue; // Ensure the select shows the chosen value
+
+                            // In a real application, you would save this change to your database here
+                            console.log(`Agent: ${agentName}, Date: ${date.toDateString()}, Status: ${selectedValue}`);
                         });
 
                         // Initialize cell state (e.g., set default or load saved status)
                         // For this example, we'll initialize with 'Select Status' but you could
                         // set a default like 'DO' for weekends or 'P' for weekdays etc.
                         td.classList.add('attendance-cell');
-                        td.textContent = ''; // Initially empty or default value
                         td.appendChild(select); // Add the select dropdown to the cell
                         tr.appendChild(td);
                     });
@@ -532,7 +1158,6 @@
             }
 
             // Initialize UI state
-            updateAttendanceUI('clocked_out'); // Set initial state for original buttons (if they exist)
             setLoggedInState(false); // Start on login page
         });
     </script>
