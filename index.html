@@ -294,7 +294,7 @@
             background-color: #ffffff;
             border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 44px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -1633,7 +1633,7 @@
                                 <th>On Sick Off</th>
                             </tr>
                         </thead>
-                        <tbody id="reportsTableBody">
+                        <tbody>
                             </tbody>
                     </table>
                 </div>
@@ -1685,7 +1685,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="staffListTableBody">
+                            <tbody>
                                 </tbody>
                         </table>
                     </div>
@@ -1850,6 +1850,7 @@
         // --- Authentication & UI State Management ---
         let isLoggedIn = false; // Initial state
 
+        // This function is used by auth.onAuthStateChanged
         function setLoggedInState(loggedIn) {
             isLoggedIn = loggedIn;
             if (isLoggedIn) {
