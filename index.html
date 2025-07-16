@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-
     <style>
         /* Basic styles for demonstration, ideally these would be in style.css */
         body {
@@ -1758,11 +1756,11 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        // const auth = firebase.auth(); // Firebase Auth removed for login/logout
         const db = firebase.firestore();
 
         // Global variables for Firebase data (caches)
-        let currentUser = null; // Stores the current logged-in Firebase user object
+        // let currentUser = null; // No longer applies directly with hardcoded login
         let usersData = {};     // Local cache for all user profiles from Firestore (email -> {uid, fullName, role, isActive, email})
         const attendanceData = {}; // Local cache for attendance records from Firestore (date -> {agentName: status})
         const markedDates = new Set(); // Local cache for dates with marked attendance
@@ -1791,9 +1789,8 @@
                 usersSnapshot.forEach(doc => {
                     const userData = doc.data();
                     usersData[userData.email] = {
-                        uid: doc.id, // Firestore Document ID, same as Firebase Auth UID
+                        uid: doc.id, // Firestore Document ID, for consistency with delete ops
                         fullName: userData.fullName,
-                        // Do NOT store passwords here, they are handled by Firebase Auth
                         role: userData.role,
                         isActive: userData.isActive,
                         email: userData.email
@@ -1803,7 +1800,8 @@
                 console.log("All user data loaded from Firestore.");
             } catch (error) {
                 console.error("Error fetching users from Firestore:", error.code, error.message);
-                // You might want to display this error to the user if critical
+                // If this fails, the app won't function correctly as it needs user list
+                alert("Critical: Could not load user list from database. Check console and Firebase rules.");
             }
         }
 
@@ -1821,10 +1819,9 @@
                     markedDates.add(doc.id);
                 });
                 console.log("Attendance data loaded from Firestore.");
-                // We'll call generateAttendanceOverviewTable, updateHomeStatistics, updateDashboardData
-                // after all data is fetched in auth.onAuthStateChanged
             } catch (error) {
                 console.error("Error fetching attendance data:", error);
+                alert("Critical: Could not load attendance data. Check console and Firebase rules.");
             }
         }
 
@@ -1834,112 +1831,65 @@
                 const docRef = db.collection('leaves').doc(monthYearKey);
                 const doc = await docRef.get();
                 if (doc.exists) {
-                    // Assuming your Firestore document for leaves has a field named 'data' that stores the array
                     leavePlannerData[monthYearKey] = doc.data().data || [];
                     console.log(`Leave data for ${monthYearKey} loaded from Firestore.`);
                 } else {
                     leavePlannerData[monthYearKey] = []; // Initialize empty if no data in Firestore
                     console.log(`No leave data found for ${monthYearKey} in Firestore, initialized locally.`);
                 }
-                // renderLeaveTrackerTable is called after successful fetch
             } catch (error) {
                 console.error("Error fetching leave data:", error);
+                alert("Critical: Could not load leave data. Check console and Firebase rules.");
             }
         }
 
-        // --- Authentication & UI State Management ---
-        let isLoggedIn = false; // Initial state
+        // --- UI State Management (Modified for hardcoded login) ---
+        let isLoggedIn = false;
 
-        // This function is used by auth.onAuthStateChanged
         function setLoggedInState(loggedIn) {
             isLoggedIn = loggedIn;
             if (isLoggedIn) {
+                console.log("Login state: TRUE. Transitioning to app view.");
                 loginPage.classList.remove('active');
                 appContainer.classList.add('active');
                 
+                // Hardcode logged-in user info for display since Firebase Auth is bypassed
+                document.getElementById('loggedInUserName').textContent = 'Darius';
+                document.getElementById('loggedInUserRole').textContent = 'Admin'; // Assume Admin role for hardcoded user
+
                 // Determine which page to show after login
-                const currentPageHash = window.location.hash.substring(1); // Get hash without '#'
-                let targetPageId = 'homePage'; // Default to home
+                const currentPageHash = window.location.hash.substring(1);
+                let targetPageId = 'homePage';
 
                 if (currentPageHash && document.getElementById(currentPageHash + 'Page')) {
                     targetPageId = currentPageHash + 'Page';
                 }
-                showPage(targetPageId); // Show the determined page
+                showPage(targetPageId);
                 
                 // Update all relevant UI components after successful login and data fetch
                 updateHomeStatistics();
-                populateEmployeeSelect(); // Populates dashboard dropdown
-                populateIndividualSummarySelect(); // Populates individual summary dropdown
-                updateDashboardData(); // Updates all dashboard charts/numbers
+                populateEmployeeSelect();
+                populateIndividualSummarySelect();
+                updateDashboardData();
             } else {
+                console.log("Login state: FALSE. Transitioning to login view.");
                 loginPage.classList.add('active');
                 appContainer.classList.remove('active');
                 loginForm.reset();
                 document.getElementById('loginError').textContent = '';
-                document.getElementById('loggedInUserName').textContent = 'Agent Name'; // Reset UI
-                document.getElementById('loggedInUserRole').textContent = 'Agent';     // Reset UI
+                document.getElementById('loggedInUserName').textContent = 'Agent Name';
+                document.getElementById('loggedInUserRole').textContent = 'Agent';
             }
         }
 
-        // Firebase Auth State Listener (central control for app state)
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // User is signed in.
-                currentUser = user;
-                console.log("User signed in:", user.email, "UID:", user.uid);
-
-                try {
-                    // Fetch all essential data BEFORE setting logged-in state to ensure UI is consistent
-                    await fetchAllUsersData(); // Populates usersData & activeAgents
-                    await fetchAttendanceData(); // Populates attendanceData & markedDates
-                    // Fetch current month's leave data when logging in
-                    await fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
-
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
-                        document.getElementById('loggedInUserName').textContent = userData.fullName || user.email;
-                        document.getElementById('loggedInUserRole').textContent = userData.role || 'User';
-                        setLoggedInState(true);
-                    } else {
-                        console.warn("User data not found in Firestore for UID:", user.uid, ". Defaulting role.");
-                        document.getElementById('loggedInUserName').textContent = user.email;
-                        document.getElementById('loggedInUserRole').textContent = 'User';
-                        // You might want to automatically create a basic profile here if it's missing
-                        await db.collection('users').doc(user.uid).set({
-                            fullName: user.email.split('@')[0], // Basic name from email
-                            email: user.email,
-                            role: 'Agent', // Default role for new users without profile
-                            isActive: true,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true }); // Use merge to avoid overwriting if doc partly exists
-                        await fetchAllUsersData(); // Re-fetch after creating profile
-                        setLoggedInState(true);
-                    }
-                } catch (error) {
-                    console.error("Error during initial data fetch on sign-in:", error);
-                    alert("Failed to load user data. Please check console for details and Firebase permissions. Logging out.");
-                    auth.signOut(); // Force logout if essential data can't be loaded
-                }
-
-            } else {
-                // User is signed out.
-                currentUser = null;
-                console.log("User signed out.");
-                setLoggedInState(false);
-            }
-        });
-
-        // --- Page Navigation (Moved to be within DOMContentLoaded scope) ---
-        // Function to show/hide content modules
+        // --- Page Navigation ---
         function showPage(pageId) {
-            // navLinks is now guaranteed to be defined because this function is called after its declaration in DOMContentLoaded
             document.querySelectorAll('.content-module').forEach(page => {
                 page.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
 
-            navLinks.forEach(link => { // navLinks is now defined at the top of DOMContentLoaded
+            navLinks.forEach(link => {
                 if (link.dataset.page === pageId.replace('Page', '')) {
                     link.classList.add('active');
                 } else {
@@ -1954,12 +1904,11 @@
                 populateEmployeeSelect();
                 updateDashboardData();
             } else if (pageId === 'leaveTrackerPage') {
-                fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth()); // Fetch and render on view
+                fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
             } else if (pageId === 'adminPage') {
                 renderStaffList();
             } else if (pageId === 'individualSummaryPage') {
                 populateIndividualSummarySelect();
-                // Clear previous summary data when no employee is selected initially
                 summaryWFO.textContent = '0';
                 summaryWFH.textContent = '0';
                 summaryLeave.textContent = '0';
@@ -1975,15 +1924,15 @@
 
         // --- Home Page Statistics Update ---
         function updateHomeStatistics() {
-            updateActiveAgentsList(); // Ensure activeAgents is up-to-date
+            updateActiveAgentsList();
 
-            document.getElementById('statTotalPresent').textContent = activeAgents.length; // Active agents are assumed present unless marked otherwise
-            document.getElementById('statTotalStaff').textContent = Object.keys(usersData).length; // Total registered system users
+            document.getElementById('statTotalPresent').textContent = activeAgents.length;
+            document.getElementById('statTotalStaff').textContent = Object.keys(usersData).length;
 
             const today = new Date();
             const oneWeekAgo = new Date(today);
             oneWeekAgo.setDate(today.getDate() - 7);
-            oneWeekAgo.setHours(0, 0, 0, 0); // Normalize to start of day
+            oneWeekAgo.setHours(0, 0, 0, 0);
 
             let agentsOnLeaveWeekCount = 0;
             let agentsOnSickOffWeekCount = 0;
@@ -1992,12 +1941,12 @@
 
             for (const dateKey in attendanceData) {
                 const date = new Date(dateKey);
-                date.setHours(0, 0, 0, 0); // Normalize for comparison
+                date.setHours(0, 0, 0, 0);
 
                 if (date >= oneWeekAgo && date <= today) {
                     const dailyAttendance = attendanceData[dateKey];
                     for (const agentName in dailyAttendance) {
-                        if (activeAgents.includes(agentName)) { // Only count for currently active agents
+                        if (activeAgents.includes(agentName)) {
                             const status = dailyAttendance[agentName];
                             if (status === 'L') {
                                 onLeaveNamesSet.add(agentName);
@@ -2018,7 +1967,6 @@
         }
 
         // --- Calendar Modal Logic ---
-        // (Elements will be moved to DOMContentLoaded)
         let selectedMarkingDate = null; // Keep this global as its value persists across modal openings
 
         function renderCalendar(year, month) {
