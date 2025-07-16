@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMS - Contact Center Attendance</title>
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Garamond:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -212,7 +211,7 @@
             background-color: #007bff;
             color: white;
             padding: 12px 25px;
-            font-size: 16px;
+            font-size: 18px; /* Changed font size */
             font-weight: 500;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -742,22 +741,28 @@
         }
 
         .dashboard-header-card select {
-            background-color: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Styles for the Employee Name dropdown to look presentable */
+            background-color: rgba(255, 255, 255, 0.3); /* Slightly transparent white */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Lighter border */
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
             outline: none;
-            appearance: none;
+            appearance: none; /* Remove default arrow */
             -webkit-appearance: none;
             -moz-appearance: none;
             flex-grow: 1;
+            /* Custom arrow for select (optional, but makes it look nicer) */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2C197.9c-3.2%2C3.2-8.3%2C3.2-11.5%2C0L146.2%2C68.9L16.9%2C197.9c-3.2%2C3.2-8.3%2C3.2-11.5%2C0c-3.2-3.2-3.2-8.3%2C0-11.5l135.5-135.5c3.2-3.2%2C8.3-3.2%2C11.5%2C0l135.5%2C135.5C290.2%2C189.6%2C290.2%2C194.7%2C287%2C197.9z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
         }
 
         .dashboard-header-card select option {
-            background-color: #28a745;
+            background-color: #28a745; /* Background for options in the dropdown */
             color: white;
         }
 
@@ -826,9 +831,8 @@
         }
 
         /* Specific gauge colors */
-        .gauge-overall .gauge-fill { background-color: #007bff; transform: rotate(117deg); }
-        .gauge-today .gauge-fill { background-color: #fd7e14; transform: rotate(90deg); }
-        .gauge-month .gauge-fill { background-color: #17a2b8; transform: rotate(81deg); }
+        /* These transforms will be set dynamically by JS based on calculated percentage */
+        .gauge-overall .gauge-fill { background-color: #007bff; }
 
 
         /* Bar Chart styles (simplified static representation) */
@@ -877,9 +881,7 @@
 
         .bar.late { background-color: #dc3545; }
         .bar.absent { background-color: #ffc107; }
-        .bar.early { background-color: #28a745; }
-        .bar.overtime { background-color: #17a2b8; }
-        .bar.break { background-color: #6f42c1; }
+        .bar.on-time-bar { background-color: #007bff; }
 
 
         /* Specific chart layouts */
@@ -907,7 +909,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: conic-gradient(#007bff 0% 50.25%, #28a745 50.25% 100%);
+            /* background will be set dynamically by JS */
             margin: 0 auto 15px;
             position: relative;
             display: flex;
@@ -981,7 +983,7 @@
             height: 100%;
             background-color: #007bff;
             border-radius: 8px;
-            width: 0%;
+            width: 0%; /* Will be set by JS */
             transition: width 0.5s ease-out;
         }
         .employee-bar-value {
@@ -990,11 +992,8 @@
             color: #2c3e50;
             min-width: 30px;
         }
-        .employee-bar-fill.p90 { width: 90%; }
-        .employee-bar-fill.p85 { width: 85%; }
-        .employee-bar-fill.p80 { width: 80%; }
-        .employee-bar-fill.p75 { width: 75%; }
-        .employee-bar-fill.p70 { width: 70%; }
+        /* Remove hardcoded percentages, will be dynamic */
+
 
         /* Leave Tracker Specific Styles */
         .leave-tracker-header {
@@ -1143,7 +1142,6 @@
         .leave-planner-table td.pending-leave {
             background-color: #ffeeba; /* Light yellow for pending */
             color: #856404;
-            font-weight: bold;
         }
 
 
@@ -1504,38 +1502,45 @@
                             <i class="fas fa-calendar-alt"></i>
                             <div>
                                 <div class="label">Start Date</div>
-                                <div class="value">Jan 11, 24</div>
-                            </div>
+                                <div class="value" id="dashboardStartDate"></div> </div>
                         </div>
                         <div class="dashboard-header-card employee-name">
                             <i class="fas fa-user"></i>
                             <div>
                                 <div class="label">Employee Name</div>
                                 <select id="employeeSelect" class="value">
-                                    <option value="">Select Employee</option>
-                                </select>
+                                    <option value="">All Employees</option> </select>
                             </div>
                         </div>
                         <div class="dashboard-header-card">
                             <i class="fas fa-users"></i>
                             <div>
                                 <div class="label">Total Employees</div>
-                                <div class="value">35</div>
-                            </div>
+                                <div class="value" id="dashboardTotalEmployees">0</div> </div>
                         </div>
                         <div class="dashboard-header-card">
                             <i class="fas fa-times-circle"></i>
                             <div>
                                 <div class="label">Absences Days</div>
-                                <div class="value">120</div>
-                            </div>
+                                <div class="value" id="dashboardAbsenceDays">0</div> </div>
                         </div>
                         <div class="dashboard-header-card">
                             <i class="fas fa-calendar-times"></i>
                             <div>
                                 <div class="label">Unapproved Leave</div>
-                                <div class="value">10</div>
-                            </div>
+                                <div class="value" id="dashboardUnapprovedLeave">0</div> </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card-new" style="grid-column: span 2;">
+                        <h3>Attendance Statistics</h3>
+                        <div class="bar-chart-container" id="attendanceStatsChart">
+                            <p style="text-align: center; width: 100%; margin-top: 50px;">No attendance data yet.</p>
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-size:13px; color:#555;">
+                            <span class="legend-item"><span class="legend-color-box on-time-bar"></span> On Time</span>
+                            <span class="legend-item"><span class="legend-color-box late"></span> Late</span>
+                            <span class="legend-item"><span class="legend-color-box absent"></span> Absent</span>
                         </div>
                     </div>
 
@@ -1543,60 +1548,9 @@
                         <h3>Overall Attendance Percentage</h3>
                         <div class="gauge-container gauge-overall">
                             <div class="gauge">
-                                <div class="gauge-fill"></div>
+                                <div class="gauge-fill" id="overallAttendanceGaugeFill"></div>
                             </div>
-                            <div class="gauge-label">65%</div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-new" style="grid-column: span 2;">
-                        <h3>Attendance Statistics</h3>
-                        <div class="bar-chart-container">
-                            <div style="display:flex; justify-content:space-around; align-items:flex-end; height:100%;">
-                                <div class="bar-group">
-                                    <div class="bar" style="height: 60%; background-color: #007bff;" title="On Time: 6"></div>
-                                    <div class="bar late" style="height: 30%;" title="Late: 3"></div>
-                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
-                                </div>
-                                <div class="bar-group">
-                                    <div class="bar" style="height: 70%; background-color: #007bff;" title="On Time: 7"></div>
-                                    <div class="bar late" style="height: 20%;" title="Late: 2"></div>
-                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
-                                </div>
-                                <div class="bar-group">
-                                    <div class="bar" style="height: 50%; background-color: #007bff;" title="On Time: 5"></div>
-                                    <div class="bar late" style="height: 40%;" title="Late: 4"></div>
-                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
-                                </div>
-                                <div class="bar-group">
-                                    <div class="bar" style="height: 65%; background-color: #007bff;" title="On Time: 6.5"></div>
-                                    <div class="bar late" style="height: 25%;" title="Late: 2.5"></div>
-                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
-                                </div>
-                                <div class="bar-group">
-                                    <div class="bar" style="height: 55%; background-color: #007bff;" title="On Time: 5.5"></div>
-                                    <div class="bar late" style="height: 35%;" title="Late: 3.5"></div>
-                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
-                                </div>
-                                <div class="bar-group">
-                                    <div class="bar" style="height: 75%; background-color: #007bff;" title="On Time: 7.5"></div>
-                                    <div class="bar late" style="height: 15%;" title="Late: 1.5"></div>
-                                    <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
-                                </div>
-                            </div>
-                            <div class="bar-chart-month-labels">
-                                <div>Jan</div>
-                                <div>Feb</div>
-                                <div>Mar</div>
-                                <div>Apr</div>
-                                <div>May</div>
-                                <div>Jun</div>
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-size:13px; color:#555;">
-                            <span style="display:flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background-color:#007bff; border-radius:2px; margin-right:5px;"></span> On Time</span>
-                            <span style="display:flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background-color:#dc3545; border-radius:2px; margin-right:5px;"></span> Late</span>
-                            <span style="display:flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background-color:#ffc107; border-radius:2px; margin-right:5px;"></span> Absent</span>
+                            <div class="gauge-label" id="overallAttendanceGaugeLabel">0%</div>
                         </div>
                     </div>
 
@@ -1604,23 +1558,20 @@
                         <h3>Leave Taken</h3>
                         <div class="chart-grid">
                             <div>
-                                <div class="value">25</div>
-                                <div class="label">Sick</div>
+                                <div class="value" id="leaveTakenSick">0</div> <div class="label">Sick</div>
                             </div>
                             <div>
-                                <div class="value">50</div>
-                                <div class="label">Casual</div>
+                                <div class="value" id="leaveTakenCasual">0</div> <div class="label">Casual</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="dashboard-card-new">
                         <h3>Working Location</h3>
-                        <div class="donut-chart-container">
-                            <div class="donut-chart-center"></div>
+                        <div class="donut-chart-container" id="workingLocationDonutChart">
+                             <div class="donut-chart-center"></div>
                         </div>
-                        <div class="donut-chart-label">50.25% Working From Office</div>
-                        <div class="donut-legend">
+                        <div class="donut-chart-label" id="workingLocationDonutLabel">0% Working From Office</div> <div class="donut-legend">
                             <div class="donut-legend-item">
                                 <span class="donut-legend-color" style="background-color: #007bff;"></span> Working From Office
                             </div>
@@ -1632,42 +1583,8 @@
 
                     <div class="dashboard-card-new" style="grid-column: span 2;">
                         <h3>Top 5 Employees by Attendance</h3>
-                        <div class="top-employees-chart">
-                            <div class="employee-bar-item">
-                                <span class="employee-name-label">Employee 05</span>
-                                <div class="employee-bar-track">
-                                    <div class="employee-bar-fill p90"></div>
-                                </div>
-                                <span class="employee-bar-value">90%</span>
-                            </div>
-                            <div class="employee-bar-item">
-                                <span class="employee-name-label">Employee 04</span>
-                                <div class="employee-bar-track">
-                                    <div class="employee-bar-fill p85"></div>
-                                </div>
-                                <span class="employee-bar-value">85%</span>
-                            </div>
-                            <div class="employee-bar-item">
-                                <span class="employee-name-label">Employee 03</span>
-                                <div class="employee-bar-track">
-                                    <div class="employee-bar-fill p80"></div>
-                                </div>
-                                <span class="employee-bar-value">80%</span>
-                            </div>
-                            <div class="employee-bar-item">
-                                <span class="employee-name-label">Employee 02</span>
-                                <div class="employee-bar-track">
-                                    <div class="employee-bar-fill p75"></div>
-                                </div>
-                                <span class="employee-bar-value">75%</span>
-                            </div>
-                            <div class="employee-bar-item">
-                                <span class="employee-name-label">Employee 01</span>
-                                <div class="employee-bar-track">
-                                    <div class="employee-bar-fill p70"></div>
-                                </div>
-                                <span class="employee-bar-value">70%</span>
-                            </div>
+                        <div class="top-employees-chart" id="topEmployeesChart">
+                            <p style="text-align: center; width: 100%; margin-top: 50px;">No employee data to display.</p>
                         </div>
                     </div>
                 </div>
@@ -1719,7 +1636,7 @@
 
             <div id="adminPage" class="content-module">
                 <h2>Add New System User</h2>
-                <p>Use this section to add new users who can log in and access the AMS system. You can define their role here.</p>
+                <p>Use this section to add new accounts that can log in to the Attendance Management System. These users will then appear as staff members for attendance tracking purposes.</p>
                 <hr>
                 <form id="addMemberForm">
                     <div class="input-group">
@@ -1744,13 +1661,13 @@
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New System User</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create System User</button>
                     <p id="addMemberMessage" class="success-message" style="display:none; margin-top:15px;"></p>
                 </form>
 
                 <div class="staff-management-section">
                     <h2>Manage Staff Members</h2>
-                    <p>Use this section to view, activate, deactivate, or remove staff members for attendance tracking purposes. Only active staff members appear in attendance marking and dashboard views.</p>
+                    <p>This table lists all existing system users. You can activate or deactivate staff members for attendance tracking, or permanently delete their user account from the system.</p>
                     <hr>
                     <div class="staff-list-table-container">
                         <table class="staff-list-table">
@@ -1874,8 +1791,21 @@
             let currentLeaveTrackerDate = new Date(); // Tracks the month/year for leave tracker
 
 
-            // Dashboard Elements
+            // Dashboard Elements (Dynamic)
             const employeeSelect = document.getElementById('employeeSelect');
+            const dashboardStartDate = document.getElementById('dashboardStartDate');
+            const dashboardTotalEmployees = document.getElementById('dashboardTotalEmployees');
+            const dashboardAbsenceDays = document.getElementById('dashboardAbsenceDays');
+            const dashboardUnapprovedLeave = document.getElementById('dashboardUnapprovedLeave');
+            const overallAttendanceGaugeFill = document.getElementById('overallAttendanceGaugeFill');
+            const overallAttendanceGaugeLabel = document.getElementById('overallAttendanceGaugeLabel');
+            const attendanceStatsChart = document.getElementById('attendanceStatsChart');
+            const leaveTakenSick = document.getElementById('leaveTakenSick');
+            const leaveTakenCasual = document.getElementById('leaveTakenCasual');
+            const workingLocationDonutChart = document.getElementById('workingLocationDonutChart');
+            const workingLocationDonutLabel = document.getElementById('workingLocationDonutLabel');
+            const topEmployeesChart = document.getElementById('topEmployeesChart');
+
 
             // Admin Elements
             const addMemberForm = document.getElementById('addMemberForm');
@@ -1885,20 +1815,6 @@
             const memberRoleSelect = document.getElementById('memberRole');
             const addMemberMessage = document.getElementById('addMemberMessage');
             const staffListTableBody = document.getElementById('staffListTableBody');
-
-            // Individual Summary Elements
-            const individualSelectSummary = document.getElementById('individualSelectSummary');
-            const summaryWFO = document.getElementById('summaryWFO');
-            const summaryWFH = document.getElementById('summaryWFH');
-            const summaryLeave = document.getElementById('summaryLeave');
-            const summarySickOff = document.getElementById('summarySickOff');
-            const summarySignedOff = document.getElementById('summarySignedOff');
-            const summaryDayOff = document.getElementById('summaryDayOff');
-            const summaryUnpaidLeave = document.getElementById('summaryUnpaidLeave');
-            const summaryNCNS = document.getElementById('summaryNCNS');
-            const summaryCompassionateLeave = document.getElementById('summaryCompassionateLeave');
-            const monthlyWFHWFOChart = document.getElementById('monthlyWFHWFOChart');
-
 
             // --- Simulated User Data & Agents List (now dynamic) ---
             // Stores user data: { email: { fullName, password, role, isActive } }
@@ -1967,6 +1883,7 @@
                     generateAttendanceOverviewTable(); // Always regenerate/update the overview table
                 } else if (pageId === 'dashboardPage') {
                     populateEmployeeSelect(); // Ensure dropdown is populated when dashboard is viewed
+                    updateDashboardData(); // Update all dashboard data when navigating to it
                 } else if (pageId === 'leaveTrackerPage') {
                     renderLeaveTrackerTable(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
                 } else if (pageId === 'adminPage') {
@@ -2026,33 +1943,45 @@
 
             // --- Home Page Statistics Update (Simulated) ---
             function updateHomeStatistics() {
+                // Ensure activeAgents is up-to-date
+                updateActiveAgentsList();
+
                 document.getElementById('statTotalPresent').textContent = activeAgents.length; // Total active agents
                 document.getElementById('statTotalStaff').textContent = Object.keys(usersData).length; // Total registered users
 
-                // Simulate based on active agents
-                const numAgentsOnLeave = Math.floor(Math.random() * Math.min(3, activeAgents.length));
-                document.getElementById('statAgentsOnLeaveWeek').textContent = numAgentsOnLeave;
-                const onLeaveNames = [];
-                if (numAgentsOnLeave > 0) {
-                    const shuffledActiveAgents = [...activeAgents].sort(() => 0.5 - Math.random());
-                    for (let i = 0; i < numAgentsOnLeave; i++) {
-                        if (shuffledActiveAgents[i]) onLeaveNames.push(shuffledActiveAgents[i]);
+                // Calculate dynamic leave/sick off numbers for the week based on available attendance data
+                const today = new Date();
+                const oneWeekAgo = new Date(today);
+                oneWeekAgo.setDate(today.getDate() - 7);
+
+                let agentsOnLeaveWeekCount = 0;
+                let agentsOnSickOffWeekCount = 0;
+                const onLeaveNamesSet = new Set();
+                const onSickOffNamesSet = new Set();
+
+                for (const dateKey in attendanceData) {
+                    const date = new Date(dateKey);
+                    if (date >= oneWeekAgo && date <= today) {
+                        const dailyAttendance = attendanceData[dateKey];
+                        for (const agent in dailyAttendance) {
+                            const status = dailyAttendance[agent];
+                            if (status === 'L') {
+                                onLeaveNamesSet.add(agent);
+                            } else if (status === 'SOF') {
+                                onSickOffNamesSet.add(agent);
+                            }
+                        }
                     }
                 }
-                document.getElementById('staffOnLeaveNames').textContent = onLeaveNames.length > 0 ? onLeaveNames.join(', ') : 'No agents on leave.';
+                agentsOnLeaveWeekCount = onLeaveNamesSet.size;
+                agentsOnSickOffWeekCount = onSickOffNamesSet.size;
 
+                document.getElementById('statAgentsOnLeaveWeek').textContent = agentsOnLeaveWeekCount;
+                document.getElementById('staffOnLeaveNames').textContent = agentsOnLeaveWeekCount > 0 ? Array.from(onLeaveNamesSet).join(', ') : 'No agents on leave.';
 
-                const numAgentsOnSickOff = Math.floor(Math.random() * Math.min(2, activeAgents.length - numAgentsOnLeave)); // Ensure not more than active agents
-                document.getElementById('statAgentsOnSickOffWeek').textContent = numAgentsOnSickOff;
-                const onSickOffNames = [];
-                if (numAgentsOnSickOff > 0) {
-                    const availableForSickOff = activeAgents.filter(agent => !onLeaveNames.includes(agent));
-                    const shuffledAvailableForSickOff = [...availableForSickOff].sort(() => 0.5 - Math.random());
-                    for (let i = 0; i < numAgentsOnSickOff; i++) {
-                        if (shuffledAvailableForSickOff[i]) onSickOffNames.push(shuffledAvailableForSickOff[i]);
-                    }
-                }
-                document.getElementById('agentsOnSickOffNames').textContent = onSickOffNames.length > 0 ? onSickOffNames.join(', ') : 'No agents on sick off.';
+                document.getElementById('statAgentsOnSickOffWeek').textContent = agentsOnSickOffWeekCount;
+                document.getElementById('agentsOnSickOffNames').textContent = agentsOnSickOffWeekCount > 0 ? Array.from(onSickOffNamesSet).join(', ') : 'No agents on sick off.';
+
             }
 
             // --- Calendar Modal Logic ---
@@ -2237,6 +2166,8 @@
 
 
                 generateAttendanceOverviewTable(); // Refresh the main overview table
+                updateHomeStatistics(); // Update home page stats after attendance is marked
+                updateDashboardData(); // Update dashboard data after attendance is marked
             });
 
             // --- Team Attendance Overview Table Generation ---
@@ -2328,6 +2259,8 @@
                     attendanceDateInput.disabled = false;
                     attendanceDateInput.value = '';
                     openAttendanceModalBtn.disabled = true;
+                    updateHomeStatistics(); // Update home page stats after data deletion
+                    updateDashboardData(); // Update dashboard data after data deletion
                 }
             });
 
@@ -2363,7 +2296,7 @@
             // --- Dashboard Employee Select Population ---
             function populateEmployeeSelect() {
                 if (employeeSelect) { // Ensure the element exists
-                    employeeSelect.innerHTML = '<option value="">Select Employee</option>'; // Clear existing options and add default
+                    employeeSelect.innerHTML = '<option value="">All Employees</option>'; // Clear existing options and add default
                     activeAgents.forEach(agent => { // Use activeAgents here
                         const option = document.createElement('option');
                         option.value = agent;
@@ -2374,11 +2307,246 @@
                     // Add event listener for selection change (for future dynamic updates)
                     employeeSelect.addEventListener('change', (event) => {
                         const selectedEmployee = event.target.value;
-                        console.log(`Employee selected in dashboard: ${selectedEmployee}`);
-                        // In a real application, you would update dashboard data based on this selection.
+                        updateDashboardData(selectedEmployee); // Update dashboard data based on selection
                     });
                 }
             }
+
+            // --- Dashboard Data Update Logic (Centralized) ---
+            function updateDashboardData(selectedEmployee = '') {
+                // Determine the date range for dashboard calculations (e.g., last 6 months from current date)
+                const endDate = new Date(); // Current date
+                const startDate = new Date();
+                startDate.setMonth(endDate.getMonth() - 5); // 6 months including current
+
+                // Format Start Date Header
+                dashboardStartDate.textContent = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+
+                // Total Employees (active)
+                dashboardTotalEmployees.textContent = activeAgents.length;
+
+                let totalAbsenceDays = 0;
+                let totalUnapprovedLeave = 0; // This will come from leavePlannerData for 'L' cells not yet approved/declined
+                let totalWFO = 0;
+                let totalWFH = 0;
+                let totalLeave = 0;
+                let totalSickOff = 0;
+                let totalSignedOff = 0;
+                let totalDayOff = 0;
+                let totalUnpaidLeave = 0;
+                let totalNCNS = 0;
+                let totalCompassionateLeave = 0;
+
+                const monthlyAttendanceSummary = {}; // { 'YYYY-MM': { onTime: 0, late: 0, absent: 0 } }
+                const agentAttendancePercentages = {}; // { 'Agent Name': { totalDays: X, presentDays: Y, percentage: Z } }
+
+
+                // Initialize agent attendance for Top 5 calculation
+                activeAgents.forEach(agent => {
+                    agentAttendancePercentages[agent] = { totalDays: 0, presentDays: 0, percentage: 0 };
+                });
+
+                // Iterate through attendanceData to populate counts and monthly stats
+                for (const dateKey in attendanceData) {
+                    const date = new Date(dateKey);
+                    // Filter by selected employee if applicable, otherwise process all
+                    const agentsToProcess = selectedEmployee ? [selectedEmployee] : Object.keys(attendanceData[dateKey]);
+
+                    // Only consider data within the dashboard date range
+                    if (date >= startDate && date <= endDate) {
+                        agentsToProcess.forEach(agent => {
+                            if (attendanceData[dateKey][agent]) {
+                                const status = attendanceData[dateKey][agent];
+
+                                // Update overall counts
+                                if (status === 'UL' || status === 'NCNS') {
+                                    totalAbsenceDays++;
+                                }
+                                if (status === 'WFO') totalWFO++;
+                                if (status === 'WFH') totalWFH++;
+                                if (status === 'L') totalLeave++;
+                                if (status === 'SOF') totalSickOff++;
+                                if (status === 'SO') totalSignedOff++;
+                                if (status === 'DO') totalDayOff++;
+                                if (status === 'UL') totalUnpaidLeave++;
+                                if (status === 'NCNS') totalNCNS++;
+                                if (status === 'CL') totalCompassionateLeave++;
+
+
+                                // Update monthly statistics for bar chart
+                                const monthYear = dateKey.substring(0, 7); // YYYY-MM
+                                if (!monthlyAttendanceSummary[monthYear]) {
+                                    monthlyAttendanceSummary[monthYear] = { onTime: 0, late: 0, absent: 0 };
+                                }
+                                if (status === 'WFO' || status === 'WFH') {
+                                    monthlyAttendanceSummary[monthYear].onTime++;
+                                    // Simulate some 'late' entries if WFO/WFH
+                                    if (Math.random() < 0.15) { // 15% chance of being "late" for a present day
+                                        monthlyAttendanceSummary[monthYear].late++;
+                                        monthlyAttendanceSummary[monthYear].onTime--; // Decrement onTime if late
+                                    }
+                                } else if (status === 'UL' || status === 'NCNS') {
+                                    monthlyAttendanceSummary[monthYear].absent++;
+                                }
+
+                                // Update agent attendance percentages for Top 5
+                                if (agentAttendancePercentages[agent]) {
+                                    agentAttendancePercentages[agent].totalDays++;
+                                    if (status === 'WFO' || status === 'WFH') {
+                                        agentAttendancePercentages[agent].presentDays++;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Calculate Unapproved Leave from leavePlannerData
+                const today = new Date();
+                // Iterate through all months in leavePlannerData
+                for (const monthYearKey in leavePlannerData) {
+                    const monthData = leavePlannerData[monthYearKey];
+                    monthData.forEach(rowData => {
+                        // Check each day in the row
+                        const dateKeysInRow = Object.keys(rowData).filter(key => key.includes('-') && key.length <= 6); // e.g., "1-Jul"
+                        dateKeysInRow.forEach(dayKey => {
+                            if (rowData[dayKey] === 'L') { // 'L' indicates pending leave
+                                // Construct full date string from monthYearKey and dayKey
+                                const [dayNum, monthAbbr] = dayKey.split('-');
+                                const year = monthYearKey.split(' ')[1];
+                                const monthIndex = new Date(Date.parse(monthAbbr + " 1, " + year)).getMonth(); // Get 0-indexed month
+                                const fullDate = new Date(year, monthIndex, parseInt(dayNum));
+
+                                if (fullDate <= today) { // Only count leaves up to today
+                                    if (!selectedEmployee || rowData['Name'] === selectedEmployee) {
+                                         totalUnapprovedLeave++;
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+
+
+                // Update Dashboard Cards
+                dashboardAbsenceDays.textContent = totalUnpaidLeave + totalNCNS; // Sum of explicitly absent statuses
+                dashboardUnapprovedLeave.textContent = totalUnapprovedLeave;
+
+                const totalPossibleAttendanceDays = activeAgents.length * markedDates.size; // Simple count of days marked
+                let overallPercentage = 0;
+                if (totalPossibleAttendanceDays > 0) {
+                    overallPercentage = ((totalWFO + totalWFH) / totalPossibleAttendanceDays) * 100;
+                }
+                overallAttendanceGaugeLabel.textContent = `${overallPercentage.toFixed(0)}%`;
+                // Calculate rotation for gauge (0% = -135deg, 100% = 45deg)
+                const rotation = -135 + (overallPercentage * 1.8);
+                overallAttendanceGaugeFill.style.transform = `rotate(${rotation}deg)`;
+
+                // Render Attendance Statistics Bar Chart
+                renderAttendanceStatsChart(monthlyAttendanceSummary);
+
+                // Update Leave Taken
+                leaveTakenSick.textContent = totalSickOff;
+                leaveTakenCasual.textContent = totalCompassionateLeave; // Using CL as proxy for Casual
+
+                // Update Working Location Donut Chart
+                renderWorkingLocationDonutChart(totalWFO, totalWFH);
+
+                // Render Top 5 Employees by Attendance
+                renderTopEmployeesChart(agentAttendancePercentages);
+            }
+
+
+            function renderAttendanceStatsChart(monthlyData) {
+                attendanceStatsChart.innerHTML = ''; // Clear previous content
+
+                const monthsSorted = Object.keys(monthlyData).sort();
+                if (monthsSorted.length === 0) {
+                    attendanceStatsChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No attendance data yet for charts.</p>';
+                    return;
+                }
+
+                const chartContainerInner = document.createElement('div');
+                chartContainerInner.style.display = 'flex';
+                chartContainerInner.style.justifyContent = 'space-around';
+                chartContainerInner.style.alignItems = 'flex-end';
+                chartContainerInner.style.height = '100%';
+                attendanceStatsChart.appendChild(chartContainerInner);
+
+                const maxCount = Math.max(...Object.values(monthlyData).flatMap(m => [m.onTime, m.late, m.absent]));
+                const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Max height 180px
+
+                monthsSorted.forEach(monthKey => {
+                    const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
+                    const monthSummary = monthlyData[monthKey];
+
+                    const barGroup = document.createElement('div');
+                    barGroup.classList.add('bar-group');
+
+                    barGroup.innerHTML = `
+                        <div class="bar on-time-bar" style="height: ${monthSummary.onTime * scaleFactor}px;" title="On Time: ${monthSummary.onTime}"></div>
+                        <div class="bar late" style="height: ${monthSummary.late * scaleFactor}px;" title="Late: ${monthSummary.late}"></div>
+                        <div class="bar absent" style="height: ${monthSummary.absent * scaleFactor}px;" title="Absent: ${monthSummary.absent}"></div>
+                    `;
+                    chartContainerInner.appendChild(barGroup);
+                });
+
+                const monthLabels = document.createElement('div');
+                monthLabels.classList.add('bar-chart-month-labels');
+                monthsSorted.forEach(monthKey => {
+                    const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
+                    const div = document.createElement('div');
+                    div.textContent = monthName;
+                    monthLabels.appendChild(div);
+                });
+                attendanceStatsChart.appendChild(monthLabels);
+            }
+
+            function renderWorkingLocationDonutChart(wfoCount, wfhCount) {
+                const total = wfoCount + wfhCount;
+                let wfoPercentage = 0;
+                let wfhPercentage = 0;
+
+                if (total > 0) {
+                    wfoPercentage = (wfoCount / total) * 100;
+                    wfhPercentage = (wfhCount / total) * 100;
+                }
+
+                workingLocationDonutChart.style.background = `conic-gradient(#007bff 0% ${wfoPercentage}%, #28a745 ${wfoPercentage}% 100%)`;
+                workingLocationDonutLabel.textContent = `${wfoPercentage.toFixed(2)}% Working From Office`; // Display WFO percentage
+                // You could also display WFH percentage here or both.
+            }
+
+            function renderTopEmployeesChart(agentAttendancePercentages) {
+                topEmployeesChart.innerHTML = ''; // Clear previous content
+
+                const agentsWithPercentages = Object.entries(agentAttendancePercentages)
+                    .map(([name, data]) => ({
+                        name,
+                        percentage: data.totalDays > 0 ? (data.presentDays / data.totalDays) * 100 : 0
+                    }))
+                    .sort((a, b) => b.percentage - a.percentage) // Sort descending by percentage
+                    .slice(0, 5); // Get top 5
+
+                if (agentsWithPercentages.length === 0) {
+                    topEmployeesChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No employee attendance data to display.</p>';
+                    return;
+                }
+
+                agentsWithPercentages.forEach(agent => {
+                    const item = document.createElement('div');
+                    item.classList.add('employee-bar-item');
+                    item.innerHTML = `
+                        <span class="employee-name-label">${agent.name}</span>
+                        <div class="employee-bar-track">
+                            <div class="employee-bar-fill" style="width: ${agent.percentage.toFixed(0)}%;"></div>
+                        </div>
+                        <span class="employee-bar-value">${agent.percentage.toFixed(0)}%</span>
+                    `;
+                    topEmployeesChart.appendChild(item);
+                });
+            }
+
 
             // --- Reports Generation Logic ---
             generateReportBtn.addEventListener('click', () => {
@@ -2406,6 +2574,7 @@
                 }
 
                 let currentDate = new Date(start);
+                let hasData = false;
                 while (currentDate <= end) {
                     const dateKey = currentDate.toISOString().split('T')[0];
                     const dailyAttendance = attendanceData[dateKey];
@@ -2425,6 +2594,7 @@
                                 onSickOffCount++;
                             }
                         }
+                        hasData = true;
                     }
 
                     const tr = document.createElement('tr');
@@ -2439,7 +2609,7 @@
                     currentDate.setDate(currentDate.getDate() + 1); // Move to next day
                 }
 
-                if (reportsTableBody.children.length === 0) {
+                if (!hasData && reportsTableBody.children.length === 0) { // Check if no data was processed and table is empty
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td colspan="4" style="text-align: center;">No data available for the selected date range.</td>`;
                     reportsTableBody.appendChild(tr);
@@ -2542,13 +2712,12 @@
 
                 addMemberForm.reset(); // Clear the form
 
-                // Re-populate employee select in dashboard if it's visible
-                if (document.getElementById('dashboardPage').classList.contains('active')) {
-                    populateEmployeeSelect();
-                }
-                if (document.getElementById('individualSummaryPage').classList.contains('active')) {
-                    populateIndividualSummarySelect();
-                }
+                // Re-populate all dropdowns and update dashboard/home stats
+                populateEmployeeSelect();
+                populateIndividualSummarySelect();
+                updateHomeStatistics();
+                updateDashboardData();
+
 
                 setTimeout(() => {
                     addMemberMessage.style.display = 'none';
@@ -2560,8 +2729,10 @@
             function renderStaffList() {
                 staffListTableBody.innerHTML = ''; // Clear existing rows
 
-                for (const email in usersData) {
-                    const user = usersData[email];
+                // Convert usersData object to an array for sorting if desired, or iterate directly
+                const sortedUsers = Object.entries(usersData).sort(([,a], [,b]) => a.fullName.localeCompare(b.fullName));
+
+                sortedUsers.forEach(([email, user]) => {
                     const tr = document.createElement('tr');
 
                     const statusSelect = document.createElement('select');
@@ -2576,6 +2747,8 @@
                     const deleteButton = document.createElement('button');
                     deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
                     deleteButton.textContent = 'Delete';
+                    // Disable delete for the currently logged-in user or critical admin accounts
+                    // For this demo, let's allow deleting everyone for full demo functionality.
                     deleteButton.addEventListener('click', () => {
                         deleteUser(email);
                     });
@@ -2588,25 +2761,20 @@
                     tr.children[3].appendChild(statusSelect);
                     tr.children[4].appendChild(deleteButton);
 
-                    // Add class to status text for styling
-                    const statusTextSpan = document.createElement('span');
-                    statusTextSpan.textContent = user.isActive ? 'Active' : 'Inactive';
-                    statusTextSpan.classList.add(user.isActive ? 'staff-status-active' : 'staff-status-inactive');
-                    // We can choose to display the text or the select, for now, select is more interactive.
-                    // If you want text only, replace statusSelect with statusTextSpan.
-
                     staffListTableBody.appendChild(tr);
-                }
+                });
             }
 
             function toggleUserStatus(email, isActive) {
                 if (usersData[email]) {
                     usersData[email].isActive = isActive;
-                    updateActiveAgentsList();
-                    renderStaffList(); // Re-render staff list
-                    generateAttendanceOverviewTable(); // Update attendance table
+                    updateActiveAgentsList(); // Crucial: Rebuild active agents list
+                    renderStaffList(); // Re-render staff list to reflect status change
+                    generateAttendanceOverviewTable(); // Update attendance table (might affect who appears)
                     populateEmployeeSelect(); // Update dashboard dropdown
                     populateIndividualSummarySelect(); // Update individual summary dropdown
+                    updateHomeStatistics(); // Update stats affected by active agents
+                    updateDashboardData(); // Update dashboard data
                     alert(`${usersData[email].fullName} status changed to ${isActive ? 'Active' : 'Inactive'}.`);
                 }
             }
@@ -2615,11 +2783,13 @@
                 const confirmDelete = confirm(`Are you sure you want to delete user ${usersData[email].fullName}? This action cannot be undone.`);
                 if (confirmDelete) {
                     delete usersData[email];
-                    updateActiveAgentsList();
+                    updateActiveAgentsList(); // Crucial: Rebuild active agents list
                     renderStaffList(); // Re-render staff list
                     generateAttendanceOverviewTable(); // Update attendance table
                     populateEmployeeSelect(); // Update dashboard dropdown
                     populateIndividualSummarySelect(); // Update individual summary dropdown
+                    updateHomeStatistics(); // Update stats affected by active agents
+                    updateDashboardData(); // Update dashboard data
                     alert(`User ${email} deleted.`);
                 }
             }
@@ -2653,7 +2823,7 @@
                     { 'No': 21, 'Name': 'Douglas Lagat', 'Opening Balance': '', 'Leave Balance': '', '1-Jul': '', '2-Jul': '', '3-Jul': '', '4-Jul': '', '5-Jul': '', '6-Jul': '', '7-Jul': '', '8-Jul': '', '9-Jul': '', '10-Jul': '', '11-Jul': '', '12-Jul': '', '13-Jul': '', '14-Jul': '', '15-Jul': '', '16-Jul': '', '17-Jul': '', '18-Jul': '', '19-Jul': '', '20-Jul': '', '21-Jul': '', '22-Jul': '', '23-Jul': '', '24-Jul': '', '25-Jul': '', '26-Jul': '', '27-Jul': '', '28-Jul': '', '29-Jul': '', '30-Jul': '', '31-Jul': '' },
                 ],
                 // You would add data for other months here if you were fetching from a real source
-                // 'August 2025': [...]
+                // 'August 2025': [] (add more simulated data if needed for testing different months)
             };
 
             // --- Leave Tracker Navigation ---
@@ -2872,6 +3042,8 @@
                 }
                 renderLeaveTrackerTable(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth()); // Re-render table
                 generateAttendanceOverviewTable(); // Refresh main attendance table
+                updateHomeStatistics(); // Update home page stats
+                updateDashboardData(); // Update dashboard data
             }
 
 
