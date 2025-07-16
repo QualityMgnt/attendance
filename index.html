@@ -1940,8 +1940,7 @@
 
         // Function to show/hide content modules
         function showPage(pageId) {
-            // navLinks must be defined in a scope accessible here (i.e., outside this function, but within DOMContentLoaded)
-            // Or pass navLinks as an argument: function showPage(pageId, navLinks) { ... }
+            // navLinks is now guaranteed to be defined because this function is called after its declaration in DOMContentLoaded
             document.querySelectorAll('.content-module').forEach(page => {
                 page.classList.remove('active');
             });
@@ -2027,16 +2026,8 @@
 
         // --- Calendar Modal Logic ---
         // Elements defined at top of script, then referenced within DOMContentLoaded
-        const attendanceDateInput = document.getElementById('attendanceDateInput');
-        const openAttendanceModalBtn = document.getElementById('openAttendanceModalBtn');
-        const calendarModal = document.getElementById('calendarModal');
-        const closeCalendarModal = document.getElementById('closeCalendarModal');
-        const prevMonthBtn = document.getElementById('prevMonthBtn');
-        const nextMonthBtn = document.getElementById('nextMonthBtn');
-        const currentMonthYear = document.getElementById('currentMonthYear');
-        const calendarDaysGrid = document.getElementById('calendarDaysGrid');
-        const cancelCalendarSelection = document.getElementById('cancelCalendarSelection');
-        let selectedMarkingDate = null;
+        // (Moved all these const declarations inside DOMContentLoaded)
+        let selectedMarkingDate = null; // Keep this global as its value persists across modal openings
 
         // Event listeners set up in DOMContentLoaded
         // ... (Listeners below inside DOMContentLoaded)
@@ -2093,14 +2084,6 @@
 
         // --- Attendance Marking Modal Logic ---
         // Elements defined at top of script, then referenced within DOMContentLoaded
-        const attendanceMarkingModal = document.getElementById('attendanceMarkingModal');
-        const closeButton = attendanceMarkingModal.querySelector('.close-button');
-        const modalDateDisplay = document.getElementById('modalDateDisplay');
-        const modalAttendanceTableBody = document.querySelector('#modalAttendanceTable tbody');
-        const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
-        const cancelAttendanceBtn = document.getElementById('cancelAttendanceBtn');
-        const modalErrorMessage = document.getElementById('modalErrorMessage');
-        const attendanceMarkingMessage = document.getElementById('attendanceMarkingMessage');
         const attendanceStatuses = [
             { value: '', text: 'Select Status', colorClass: '' },
             { value: 'WFO', text: 'Work From Office', colorClass: 'status-P' },
@@ -2145,9 +2128,7 @@
 
         // --- Team Attendance Overview Table Generation ---
         // Elements defined at top of script, then referenced within DOMContentLoaded
-        const attendanceOverviewTableContainer = document.querySelector('.attendance-table-container');
-        const deleteAttendanceDataBtn = document.getElementById('deleteAttendanceDataBtn');
-        const exportAttendanceDataBtn = document.getElementById('exportAttendanceDataBtn');
+        // (Moved these const declarations inside DOMContentLoaded)
 
         function generateAttendanceOverviewTable() {
             attendanceOverviewTableContainer.innerHTML = '';
@@ -2219,20 +2200,7 @@
 
         // --- Dashboard Data and Charting Functions ---
         // Elements defined at top of script, then referenced within DOMContentLoaded
-        const dashboardStartDate = document.getElementById('dashboardStartDate');
-        const employeeSelect = document.getElementById('employeeSelect');
-        const dashboardTotalEmployees = document.getElementById('dashboardTotalEmployees');
-        const dashboardAbsenceDays = document.getElementById('dashboardAbsenceDays');
-        const dashboardUnapprovedLeave = document.getElementById('dashboardUnapprovedLeave');
-        const overallAttendanceGaugeFill = document.getElementById('overallAttendanceGaugeFill');
-        const overallAttendanceGaugeLabel = document.getElementById('overallAttendanceGaugeLabel');
-        const attendanceStatsChart = document.getElementById('attendanceStatsChart');
-        const leaveTakenSick = document.getElementById('leaveTakenSick');
-        const leaveTakenCasual = document.getElementById('leaveTakenCasual');
-        const workingLocationDonutChart = document.getElementById('workingLocationDonutChart');
-        const workingLocationDonutLabel = document.getElementById('workingLocationDonutLabel');
-        const topEmployeesChart = document.getElementById('topEmployeesChart');
-
+        // (Moved these const declarations inside DOMContentLoaded)
 
         function populateEmployeeSelect() {
             if (employeeSelect) {
@@ -2810,99 +2778,6 @@
                 }
             }
         }
-
-        // --- DOMContentLoaded: Initial setup and event listeners ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Get all relevant DOM elements after the DOM is fully loaded
-            const loginPage = document.getElementById('loginPage');
-            const appContainer = document.getElementById('appContainer');
-            const navLinks = document.querySelectorAll('.main-nav a'); // NOW DEFINED HERE!
-            const logoutBtn = document.getElementById('logoutBtn');
-            const loginForm = document.getElementById('loginForm');
-
-            // Event listeners that depend on DOM elements can now be assigned
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                const loginError = document.getElementById('loginError');
-                loginError.textContent = ''; // Clear previous errors
-
-                try {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    console.log('Logged in successfully.');
-                    // auth.onAuthStateChanged will handle UI update
-                } catch (error) {
-                    console.error('Login failed:', error.code, error.message);
-                    loginError.textContent = `Login failed: ${error.message}`;
-                }
-            });
-
-            logoutBtn.addEventListener('click', async () => {
-                try {
-                    await auth.signOut();
-                    console.log('Logged out successfully.');
-                    // auth.onAuthStateChanged will handle UI update
-                } catch (error) {
-                    console.error('Logout failed:', error.message);
-                    alert(`Logout failed: ${error.message}`);
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showPage(e.target.dataset.page + 'Page');
-                    window.location.hash = e.target.dataset.page;
-                });
-            });
-
-            // Calendar and Attendance Modal Listeners
-            openAttendanceModalBtn.addEventListener('click', () => {
-                if (!selectedMarkingDate) {
-                    modalErrorMessage.textContent = "Please select a date first.";
-                    return;
-                }
-                if (markedDates.has(selectedMarkingDate)) {
-                    modalErrorMessage.textContent = `Attendance for ${selectedMarkingDate} has already been marked.`;
-                    return;
-                }
-                modalDateDisplay.textContent = selectedMarkingDate;
-                populateModalAttendanceTable();
-                attendanceMarkingModal.style.display = 'flex';
-                modalErrorMessage.textContent = '';
-            });
-
-            attendanceDateInput.addEventListener('click', () => {
-                currentCalendarDate = new Date();
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-                calendarModal.style.display = 'flex';
-            });
-            closeCalendarModal.addEventListener('click', () => calendarModal.style.display = 'none');
-            cancelCalendarSelection.addEventListener('click', () => calendarModal.style.display = 'none');
-            prevMonthBtn.addEventListener('click', () => {
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-            });
-            nextMonthBtn.addEventListener('click', () => {
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-            });
-
-            closeButton.addEventListener('click', () => attendanceMarkingModal.style.display = 'none');
-            cancelAttendanceBtn.addEventListener('click', () => attendanceMarkingModal.style.display = 'none');
-            saveAttendanceBtn.addEventListener('click', async () => { /* ... (Logic defined globally) ... */ });
-
-            deleteAttendanceDataBtn.addEventListener('click', async () => { /* ... (Logic defined globally) ... */ });
-            exportAttendanceDataBtn.addEventListener('click', () => { /* ... (Logic defined globally) ... */ });
-            generateReportBtn.addEventListener('click', () => { /* ... (Logic defined globally) ... */ });
-            exportReportCsvBtn.addEventListener('click', () => { /* ... (Logic defined globally) ... */ });
-            addMemberForm.addEventListener('submit', async (e) => { /* ... (Logic defined globally) ... */ });
-            employeeSelect.addEventListener('change', (event) => { /* ... (Logic defined globally) ... */ });
-            individualSelectSummary.addEventListener('change', (event) => { /* ... (Logic defined globally) ... */ });
-            prevMonthLeaveBtn.addEventListener('click', async () => { /* ... (Logic defined globally) ... */ });
-            nextMonthLeaveBtn.addEventListener('click', async () => { /* ... (Logic defined globally) ... */ });
-        });
     </script>
 </body>
 </html>
