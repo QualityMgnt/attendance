@@ -1880,11 +1880,6 @@
             }
         }
 
-        // --- Login/Logout Event Listeners ---
-        // These will be assigned inside DOMContentLoaded as they depend on loginForm/logoutBtn elements
-        // ... (Listeners below inside DOMContentLoaded)
-
-
         // Firebase Auth State Listener (central control for app state)
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -1922,7 +1917,7 @@
                     }
                 } catch (error) {
                     console.error("Error during initial data fetch on sign-in:", error);
-                    alert("Failed to load user data. Please check console for details and Firebase permissions.");
+                    alert("Failed to load user data. Please check console for details and Firebase permissions. Logging out.");
                     auth.signOut(); // Force logout if essential data can't be loaded
                 }
 
@@ -1934,10 +1929,7 @@
             }
         });
 
-        // --- Page Navigation ---
-        // These will be assigned inside DOMContentLoaded as they depend on navLinks element
-        // ... (Listeners below inside DOMContentLoaded)
-
+        // --- Page Navigation (Moved to be within DOMContentLoaded scope) ---
         // Function to show/hide content modules
         function showPage(pageId) {
             // navLinks is now guaranteed to be defined because this function is called after its declaration in DOMContentLoaded
@@ -2025,12 +2017,8 @@
         }
 
         // --- Calendar Modal Logic ---
-        // Elements defined at top of script, then referenced within DOMContentLoaded
-        // (Moved all these const declarations inside DOMContentLoaded)
+        // (Elements will be moved to DOMContentLoaded)
         let selectedMarkingDate = null; // Keep this global as its value persists across modal openings
-
-        // Event listeners set up in DOMContentLoaded
-        // ... (Listeners below inside DOMContentLoaded)
 
         function renderCalendar(year, month) {
             calendarDaysGrid.innerHTML = '';
@@ -2083,7 +2071,7 @@
         }
 
         // --- Attendance Marking Modal Logic ---
-        // Elements defined at top of script, then referenced within DOMContentLoaded
+        // (Elements will be moved to DOMContentLoaded)
         const attendanceStatuses = [
             { value: '', text: 'Select Status', colorClass: '' },
             { value: 'WFO', text: 'Work From Office', colorClass: 'status-P' },
@@ -2096,9 +2084,6 @@
             { value: 'CL', text: 'Compassionate Leave', colorClass: 'status-CL' },
             { value: 'SOF', text: 'Sick Off', colorClass: 'status-danger' }
         ];
-
-        // Event listeners assigned in DOMContentLoaded
-        // ... (Listeners below inside DOMContentLoaded)
 
         function populateModalAttendanceTable() {
             modalAttendanceTableBody.innerHTML = '';
@@ -2127,8 +2112,7 @@
         }
 
         // --- Team Attendance Overview Table Generation ---
-        // Elements defined at top of script, then referenced within DOMContentLoaded
-        // (Moved these const declarations inside DOMContentLoaded)
+        // (Elements will be moved to DOMContentLoaded)
 
         function generateAttendanceOverviewTable() {
             attendanceOverviewTableContainer.innerHTML = '';
@@ -2199,8 +2183,7 @@
         }
 
         // --- Dashboard Data and Charting Functions ---
-        // Elements defined at top of script, then referenced within DOMContentLoaded
-        // (Moved these const declarations inside DOMContentLoaded)
+        // (Elements will be moved to DOMContentLoaded)
 
         function populateEmployeeSelect() {
             if (employeeSelect) {
@@ -2436,26 +2419,7 @@
 
 
         // --- Reports Generation Logic ---
-        // Elements defined at top of script, then referenced within DOMContentLoaded
-        const reportsTableBody = document.getElementById('reportsTableBody');
-        const generateReportBtn = document.getElementById('generateReportBtn');
-        const exportReportCsvBtn = document.getElementById('exportReportCsvBtn');
-        const reportTypeSelect = document.getElementById('reportType');
-        const startDateInput = document.getElementById('startDate');
-        const endDateInput = document.getElementById('endDate');
-
-        generateReportBtn.addEventListener('click', () => {
-            const startDate = startDateInput.value;
-            const endDate = endDateInput.value;
-            const reportType = reportTypeSelect.value;
-
-            if (!startDate || !endDate) {
-                alert("Please select both start and end dates for the report.");
-                return;
-            }
-
-            generateReportData(startDate, endDate);
-        });
+        // (Elements will be moved to DOMContentLoaded)
 
         function generateReportData(startDate, endDate) {
             reportsTableBody.innerHTML = '';
@@ -2512,140 +2476,8 @@
             }
         }
 
-        exportReportCsvBtn.addEventListener('click', () => {
-            const startDate = startDateInput.value;
-            const endDate = endDateInput.value;
-
-            if (!startDate || !endDate) {
-                alert("Please select both start and end dates for the report.");
-                return;
-            }
-
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            end.setHours(23,59,59,999);
-
-            if (start > end) {
-                alert("Start date cannot be after end date.");
-                return;
-            }
-
-            let csvContent = "Date,Present (WFO/WFH),On Leave,On Sick Off\n";
-
-            let currentDate = new Date(start);
-            while (currentDate <= end) {
-                const dateKey = currentDate.toISOString().split('T')[0];
-                const dailyAttendance = attendanceData[dateKey];
-
-                let presentCount = 0;
-                let onLeaveCount = 0;
-                let onSickOffCount = 0;
-
-                if (dailyAttendance) {
-                     for (const agentName in dailyAttendance) {
-                        const status = dailyAttendance[agentName];
-                        if (status === 'WFO' || status === 'WFH') {
-                            presentCount++;
-                        } else if (status === 'L') {
-                            onLeaveCount++;
-                        } else if (status === 'SOF') {
-                            onSickOffCount++;
-                        }
-                    }
-                }
-                csvContent += `${dateKey},${presentCount},${onLeaveCount},${onSickOffCount}\n`;
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `attendance_summary_${startDate}_to_${endDate}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                alert("Your browser does not support HTML5 download. Please copy the data manually.");
-            }
-            alert("Report exported to CSV!");
-        });
-
-
         // --- Admin Add/Manage User Logic ---
-        // Elements defined at top of script, then referenced within DOMContentLoaded
-        const addMemberForm = document.getElementById('addMemberForm');
-        const fullNameInput = document.getElementById('fullName');
-        const newEmailInput = document.getElementById('newEmail');
-        const newPasswordInput = document.getElementById('newPassword');
-        const memberRoleSelect = document.getElementById('memberRole');
-        const addMemberMessage = document.getElementById('addMemberMessage');
-        const staffListTableBody = document.getElementById('staffListTableBody');
-
-
-        addMemberForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fullName = fullNameInput.value;
-            const email = newEmailInput.value;
-            const password = newPasswordInput.value;
-            const role = memberRoleSelect.value;
-            addMemberMessage.textContent = ''; // Clear previous messages
-
-            if (!fullName || !email || !password || !role) {
-                addMemberMessage.textContent = "All fields are required.";
-                addMemberMessage.style.display = 'block';
-                addMemberMessage.style.color = '#dc3545';
-                return;
-            }
-
-            try {
-                // 1. Create user in Firebase Authentication
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const uid = userCredential.user.uid;
-
-                // 2. Save user profile data to Firestore
-                await db.collection('users').doc(uid).set({
-                    fullName: fullName,
-                    email: email,
-                    role: role,
-                    isActive: true, // New users are active by default
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                addMemberMessage.textContent = `Successfully added ${fullName} as ${role}!`;
-                addMemberMessage.style.display = 'block';
-                addMemberMessage.style.color = '#28a745';
-
-                addMemberForm.reset();
-
-                // Refresh all lists and data that depend on usersData
-                await fetchAllUsersData(); // Re-fetch all users to update usersData object
-                renderStaffList(); // Re-render staff list in admin panel
-                generateAttendanceOverviewTable(); // Update attendance table
-                populateEmployeeSelect(); // Update dashboard dropdown
-                populateIndividualSummarySelect(); // Update individual summary dropdown
-                updateHomeStatistics(); // Update home page stats
-                updateDashboardData(); // Update dashboard data
-
-            } catch (error) {
-                console.error('Error adding user:', error.code, error.message);
-                if (error.code === 'auth/email-already-in-use') {
-                    addMemberMessage.textContent = "Error: This email is already in use by another account.";
-                } else if (error.code === 'auth/weak-password') {
-                    addMemberMessage.textContent = "Error: Password should be at least 6 characters.";
-                } else {
-                    addMemberMessage.textContent = `Error adding user: ${error.message}`;
-                }
-                addMemberMessage.style.display = 'block';
-                addMemberMessage.style.color = '#dc3545';
-            } finally {
-                setTimeout(() => {
-                    addMemberMessage.style.display = 'none';
-                }, 3000);
-            }
-        });
+        // (Elements will be moved to DOMContentLoaded)
 
         function renderStaffList() {
             staffListTableBody.innerHTML = '';
