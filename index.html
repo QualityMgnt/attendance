@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMS - Contact Center Attendance</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Garamond:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Basic styles for demonstration, ideally these would be in style.css */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Garamond', serif; /* Changed to Garamond */
             margin: 0;
             background-color: #f4f7f6;
             display: flex;
@@ -19,6 +19,12 @@
             min-height: 100vh;
             color: #333;
         }
+
+        /* Re-apply Poppins to specific elements where it enhances readability (e.g., buttons, smaller text) */
+        .btn, .main-nav a, .input-group label, .input-group input, .input-group select, .stat-card h3, .user-role, .dashboard-header-card .label, .dashboard-header-card .value, .dashboard-section-title, .dashboard-card-new h3, .gauge-label, .bar-chart-month-labels div, .chart-grid .label, .donut-chart-label, .donut-legend-item, .employee-bar-item, .summary-stat-card h4, .summary-stat-card .count, .monthly-bar-label, .chart-legend {
+            font-family: 'Poppins', sans-serif;
+        }
+
 
         .page {
             display: none;
@@ -686,7 +692,7 @@
             padding: 20px;
             background-color: #f4f7f6;
             display: grid;
-            gap: 20px;
+            gap: 2mm; /* Changed to 2mm as requested */
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             align-items: start;
         }
@@ -1323,9 +1329,7 @@
                 <ul>
                     <li><a href="#" data-page="home"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#" data-page="attendance"><i class="fas fa-user-check"></i> Attendance Marking</a></li>
-                    <li><a href="#" data-page="leaveTracker"><i class="fas fa-calendar-alt"></i> Leave Tracker</a></li> <!-- New Leave Tracker Tab -->
-                    <li><a href="#" data-page="individualSummary"><i class="fas fa-user"></i> Individual Summary</a></li> <!-- New Individual Summary Tab -->
-                    <li><a href="#" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#" data-page="leaveTracker"><i class="fas fa-calendar-alt"></i> Leave Tracker</a></li> <li><a href="#" data-page="individualSummary"><i class="fas fa-user"></i> Individual Summary</a></li> <li><a href="#" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                     <li><a href="#" data-page="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
                     <li><a href="#" data-page="admin"><i class="fas fa-user-plus"></i> Admin</a></li>
                 </ul>
@@ -1387,8 +1391,7 @@
                     <div class="input-group">
                         <label for="attendanceDateInput">Select Date:</label>
                         <input type="text" id="attendanceDateInput" placeholder="Click to select date" readonly required>
-                        <!-- Using type="text" and a JS date picker for custom behavior -->
-                    </div>
+                        </div>
                     <button id="openAttendanceModalBtn" class="btn btn-primary"><i class="fas fa-edit"></i> Mark Attendance</button>
                     <p id="attendanceMarkingMessage" class="success-message" style="display:none; margin-top:10px;"></p>
                 </div>
@@ -1400,8 +1403,7 @@
                     <button id="exportAttendanceDataBtn" class="btn btn-secondary"><i class="fas fa-file-export"></i> Export Data</button>
                 </div>
                 <div class="attendance-table-container">
-                    <!-- Attendance table will be generated here by JS -->
-                </div>
+                    </div>
                 <div class="attendance-status-guide">
                     <h3>Status Key:</h3>
                     <p><span class="status-indicator-guide status-P"></span> WFO: Work From Office</p>
@@ -1416,7 +1418,6 @@
                 </div>
             </div>
 
-            <!-- New Leave Tracker Page -->
             <div id="leaveTrackerPage" class="content-module">
                 <div class="leave-tracker-header">
                     <h2>Leave Tracker</h2>
@@ -1428,11 +1429,9 @@
                 </div>
                 <hr>
                 <div class="leave-tracker-table-container">
-                    <!-- Leave planner table will be generated here by JS -->
-                </div>
+                    </div>
             </div>
 
-            <!-- New Individual Summary Page -->
             <div id="individualSummaryPage" class="content-module">
                 <h2>Individual Attendance Summary</h2>
                 <hr>
@@ -1441,8 +1440,7 @@
                         <label for="individualSelectSummary">Select Team Member:</label>
                         <select id="individualSelectSummary">
                             <option value="">Select Employee</option>
-                            <!-- Populated by JS -->
-                        </select>
+                            </select>
                     </div>
                 </div>
 
@@ -1488,7 +1486,6 @@
                 <div class="individual-summary-chart-container">
                     <h3>WFH vs WFO (Monthly Trend)</h3>
                     <div class="monthly-bar-chart" id="monthlyWFHWFOChart">
-                        <!-- Chart bars will be dynamically generated here -->
                         <p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>
                     </div>
                      <div class="chart-legend">
@@ -1502,7 +1499,6 @@
             <div id="dashboardPage" class="content-module">
                 <h2 style="margin-bottom: 20px;">HR Employees Attendance Dashboard</h2>
                 <div class="dashboard-container">
-                    <!-- Top Header Row Cards -->
                     <div class="dashboard-header-row">
                         <div class="dashboard-header-card">
                             <i class="fas fa-calendar-alt"></i>
@@ -1516,7 +1512,6 @@
                             <div>
                                 <div class="label">Employee Name</div>
                                 <select id="employeeSelect" class="value">
-                                    <!-- Options will be populated by JS -->
                                     <option value="">Select Employee</option>
                                 </select>
                             </div>
@@ -1544,7 +1539,6 @@
                         </div>
                     </div>
 
-                    <!-- Main Dashboard Grid -->
                     <div class="dashboard-card-new" style="grid-column: span 2;">
                         <h3>Overall Attendance Percentage</h3>
                         <div class="gauge-container gauge-overall">
@@ -1559,37 +1553,31 @@
                         <h3>Attendance Statistics</h3>
                         <div class="bar-chart-container">
                             <div style="display:flex; justify-content:space-around; align-items:flex-end; height:100%;">
-                                <!-- Jan -->
                                 <div class="bar-group">
                                     <div class="bar" style="height: 60%; background-color: #007bff;" title="On Time: 6"></div>
                                     <div class="bar late" style="height: 30%;" title="Late: 3"></div>
                                     <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
                                 </div>
-                                <!-- Feb -->
                                 <div class="bar-group">
                                     <div class="bar" style="height: 70%; background-color: #007bff;" title="On Time: 7"></div>
                                     <div class="bar late" style="height: 20%;" title="Late: 2"></div>
                                     <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
                                 </div>
-                                <!-- Mar -->
                                 <div class="bar-group">
                                     <div class="bar" style="height: 50%; background-color: #007bff;" title="On Time: 5"></div>
                                     <div class="bar late" style="height: 40%;" title="Late: 4"></div>
                                     <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
                                 </div>
-                                <!-- Apr -->
                                 <div class="bar-group">
                                     <div class="bar" style="height: 65%; background-color: #007bff;" title="On Time: 6.5"></div>
                                     <div class="bar late" style="height: 25%;" title="Late: 2.5"></div>
                                     <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
                                 </div>
-                                <!-- May -->
                                 <div class="bar-group">
                                     <div class="bar" style="height: 55%; background-color: #007bff;" title="On Time: 5.5"></div>
                                     <div class="bar late" style="height: 35%;" title="Late: 3.5"></div>
                                     <div class="bar absent" style="height: 10%;" title="Absent: 1"></div>
                                 </div>
-                                <!-- Jun -->
                                 <div class="bar-group">
                                     <div class="bar" style="height: 75%; background-color: #007bff;" title="On Time: 7.5"></div>
                                     <div class="bar late" style="height: 15%;" title="Late: 1.5"></div>
@@ -1724,14 +1712,14 @@
                             </tr>
                         </thead>
                         <tbody id="reportsTableBody">
-                            <!-- Report data will be generated here -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
 
             <div id="adminPage" class="content-module">
-                <h2>Add New User</h2>
+                <h2>Add New System User</h2>
+                <p>Use this section to add new users who can log in and access the AMS system. You can define their role here.</p>
                 <hr>
                 <form id="addMemberForm">
                     <div class="input-group">
@@ -1756,12 +1744,13 @@
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New User</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New System User</button>
                     <p id="addMemberMessage" class="success-message" style="display:none; margin-top:15px;"></p>
                 </form>
 
                 <div class="staff-management-section">
-                    <h2>Manage Staff</h2>
+                    <h2>Manage Staff Members</h2>
+                    <p>Use this section to view, activate, deactivate, or remove staff members for attendance tracking purposes. Only active staff members appear in attendance marking and dashboard views.</p>
                     <hr>
                     <div class="staff-list-table-container">
                         <table class="staff-list-table">
@@ -1775,8 +1764,7 @@
                                 </tr>
                             </thead>
                             <tbody id="staffListTableBody">
-                                <!-- Staff list will be rendered here by JS -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -1784,7 +1772,6 @@
             </main>
     </div>
 
-    <!-- Attendance Marking Modal Structure -->
     <div id="attendanceMarkingModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -1798,8 +1785,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Rows generated by JS -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
             <div class="modal-buttons">
@@ -1810,7 +1796,6 @@
         </div>
     </div>
 
-    <!-- Calendar Modal Structure -->
     <div id="calendarModal" class="modal">
         <div class="modal-content">
             <span class="close-button" id="closeCalendarModal">&times;</span>
@@ -1829,8 +1814,7 @@
                 <div>Sat</div>
             </div>
             <div class="calendar-days" id="calendarDaysGrid">
-                <!-- Days will be dynamically generated here -->
-            </div>
+                </div>
             <div class="modal-buttons">
                 <button id="cancelCalendarSelection" class="btn btn-secondary">Cancel</button>
             </div>
@@ -2600,9 +2584,7 @@
                         <td>${user.fullName}</td>
                         <td>${email}</td>
                         <td>${user.role}</td>
-                        <td></td> <!-- Placeholder for select -->
-                        <td></td> <!-- Placeholder for buttons -->
-                    `;
+                        <td></td> <td></td> `;
                     tr.children[3].appendChild(statusSelect);
                     tr.children[4].appendChild(deleteButton);
 
@@ -2688,6 +2670,7 @@
             function renderLeaveTrackerTable(year, month) {
                 leaveTrackerTableContainer.innerHTML = ''; // Clear previous table
 
+                // Format month for header (e.g., "July 2025")
                 const monthYearKey = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
                 currentLeaveMonthYear.textContent = monthYearKey;
 
@@ -2726,6 +2709,7 @@
                     const monthShort = date.toLocaleString('en-US', { month: 'short' }); // Jan, Feb
 
                     const headerCell = document.createElement('th');
+                    // Changed to use the desired abbreviation directly for consistency with data
                     headerCell.textContent = `${dayOfWeek} ${dayOfMonth}-${monthShort}`;
                     headerRow1.appendChild(headerCell);
                 }
@@ -2744,7 +2728,8 @@
                     for (let day = 1; day <= numDaysInMonth; day++) {
                         // Dynamically create date key based on current month being rendered
                         const dateObjForColumn = new Date(year, month, day);
-                        const dateKey = `${day}-${dateObjForColumn.toLocaleString('en-US', { month: 'short' })}`; // e.g., "1-Jul"
+                        const monthAbbr = dateObjForColumn.toLocaleString('en-US', { month: 'short' });
+                        const dateKey = `${day}-${monthAbbr}`; // e.g., "1-Jul"
                         const fullDateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`; // YYYY-MM-DD format
 
                         const cellValue = rowData[dateKey] || '';
@@ -2757,21 +2742,25 @@
                             totalLeavesPerDay[day - 1]++;
 
                             // Add event listener for 'L' input to trigger approval overlay
-                            td.addEventListener('input', (event) => {
-                                if (event.target.textContent.toUpperCase() === 'L') {
+                            // This event listener should ideally be on click or a dedicated button,
+                            // not on "input" for a contentEditable cell for a 'L' value,
+                            // as 'L' is already static in the data.
+                            // For demo purposes, keeping it on a click might be better.
+                             td.addEventListener('click', (event) => {
+                                if (event.target.textContent.toUpperCase() === 'L' && !event.target.classList.contains('approved-leave') && !event.target.classList.contains('declined-leave')) {
                                     showLeaveApprovalOverlay(td, rowData['Name'], fullDateString);
                                 }
                             });
                         } else if (cellValue === 'Approved') { // Assuming 'Approved' is set after approval
                             td.classList.add('approved-leave');
+                            td.contentEditable = 'false'; // Make approved cells non-editable
                         } else if (cellValue === 'Declined') { // Assuming 'Declined' is set after decline
                             td.classList.add('declined-leave');
+                            td.contentEditable = 'false'; // Make declined cells non-editable
+                        } else {
+                             td.contentEditable = 'false'; // Default to non-editable if not 'L'
                         }
 
-                        // Make cells editable for 'L' input
-                        td.contentEditable = 'true';
-                        td.setAttribute('data-name', rowData['Name']);
-                        td.setAttribute('data-date', fullDateString); // Store full date for attendance marking
 
                         tr.appendChild(td);
                     }
@@ -2811,20 +2800,25 @@
                 cell.appendChild(overlay);
 
                 // Position the overlay relative to the cell
+                // Using getBoundingClientRect() for more accurate positioning
                 const cellRect = cell.getBoundingClientRect();
-                const tableContainerRect = leaveTrackerTableContainer.getBoundingClientRect();
+                const overlayRect = overlay.getBoundingClientRect(); // Get overlay size after it's in DOM
+                const scrollX = window.scrollX || window.pageXOffset;
+                const scrollY = window.scrollY || window.pageYOffset;
 
-                overlay.style.top = `${cell.offsetTop - overlay.offsetHeight - 5}px`; // 5px padding
-                overlay.style.left = `${cell.offsetLeft + (cell.offsetWidth / 2) - (overlay.offsetWidth / 2)}px`;
+                overlay.style.position = 'absolute';
+                overlay.style.top = `${cellRect.top + scrollY - overlayRect.height - 5}px`; // 5px padding above cell
+                overlay.style.left = `${cellRect.left + scrollX + (cellRect.width / 2) - (overlayRect.width / 2)}px`;
+
 
                 // Handle Approve/Decline clicks
                 overlay.querySelector('.approve-btn').addEventListener('click', () => {
-                    handleLeaveApproval(agentName, dateString, 'Approve');
+                    handleLeaveApproval(agentName, dateString, 'Approved'); // Pass 'Approved' as action
                     overlay.remove();
                 });
 
                 overlay.querySelector('.decline-btn').addEventListener('click', () => {
-                    handleLeaveApproval(agentName, dateString, 'Decline');
+                    handleLeaveApproval(agentName, dateString, 'Declined'); // Pass 'Declined' as action
                     overlay.remove();
                 });
 
@@ -2840,25 +2834,38 @@
             // Function to handle leave approval/decline
             function handleLeaveApproval(agentName, dateString, action) {
                 // Update simulated leavePlannerData
-                const dateParts = dateString.split('-'); // YYYY-MM-DD
-                const monthName = new Date(dateParts[0], dateParts[1] - 1).toLocaleString('en-US', { month: 'long' });
-                const monthYearKey = `${monthName} ${dateParts[0]}`;
-                const dayKey = `${parseInt(dateParts[2])}-${new Date(dateParts[0], dateParts[1] - 1).toLocaleString('en-US', { month: 'short' })}`;
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const day = date.getDate();
+
+                const monthName = date.toLocaleString('en-US', { month: 'long' });
+                const monthYearKey = `${monthName} ${year}`;
+                const monthAbbr = date.toLocaleString('en-US', { month: 'short' });
+                const dayKey = `${day}-${monthAbbr}`; // e.g., "1-Jul"
 
                 if (leavePlannerData[monthYearKey]) {
                     const rowIndex = leavePlannerData[monthYearKey].findIndex(row => row.Name === agentName);
                     if (rowIndex !== -1) {
-                        if (action === 'Approve') {
-                            leavePlannerData[monthYearKey][rowIndex][dayKey] = 'Approved'; // Mark as approved
-                            // Automatically mark attendance in attendanceData
+                        leavePlannerData[monthYearKey][rowIndex][dayKey] = action; // Mark as Approved/Declined
+
+                        if (action === 'Approved') {
+                            // Automatically mark attendance in attendanceData if approved
                             if (!attendanceData[dateString]) {
                                 attendanceData[dateString] = {};
                             }
                             attendanceData[dateString][agentName] = 'L'; // Mark as Leave in attendance
                             markedDates.add(dateString); // Mark this date as having attendance recorded
                             alert(`Leave for ${agentName} on ${dateString} Approved and attendance marked!`);
-                        } else if (action === 'Decline') {
-                            leavePlannerData[monthYearKey][rowIndex][dayKey] = ''; // Clear the 'L'
+                        } else if (action === 'Declined') {
+                            // If declined, clear the 'L' or any pending status in attendance data too
+                            if (attendanceData[dateString] && attendanceData[dateString][agentName] === 'L') {
+                                delete attendanceData[dateString][agentName]; // Or set to empty string
+                                if (Object.keys(attendanceData[dateString]).length === 0) {
+                                    delete attendanceData[dateString]; // If no one marked, remove date entirely
+                                    markedDates.delete(dateString);
+                                }
+                            }
                             alert(`Leave for ${agentName} on ${dateString} Declined. Please select another period.`);
                         }
                     }
@@ -2972,7 +2979,7 @@
                 const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Max height 180px for bars
 
                 months.forEach(monthKey => {
-                    const monthName = new Date(monthKey).toLocaleString('en-US', { month: 'short' });
+                    const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' }); // Convert to date object for month name
                     const wfoHeight = monthlyData[monthKey].WFO * scaleFactor;
                     const wfhHeight = monthlyData[monthKey].WFH * scaleFactor;
 
