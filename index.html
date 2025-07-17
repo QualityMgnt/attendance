@@ -15,7 +15,7 @@
         body {
             font-family: 'Garamond', serif; /* Changed to Garamond */
             margin: 0;
-            background-color: #f4f7f6;
+            background-color: #800080; /* Changed to purple */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -73,7 +73,8 @@
         .input-group input[type="password"],
         .input-group input[type="text"],
         .input-group select,
-        .input-group input[type="date"] {
+        .input-group input[type="date"],
+        .input-group input[type="time"] {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -1217,6 +1218,69 @@
         .staff-status-active { color: #28a745; font-weight: 600;}
         .staff-status-inactive { color: #dc3545; font-weight: 600;}
 
+        /* Shift Schedule Specific Styles */
+        #addShiftForm {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+        }
+        #addShiftForm .input-group {
+            margin-bottom: 0;
+        }
+        #addShiftForm button {
+            grid-column: span 2; /* Make button span two columns on larger screens */
+            width: fit-content;
+            justify-self: end;
+            margin-top: 10px;
+        }
+
+        .shift-roster-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+        .shift-roster-controls .input-group {
+            margin-bottom: 0;
+        }
+
+        .shift-roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .shift-roster-table th,
+        .shift-roster-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+        .shift-roster-table th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        .shift-roster-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .shift-roster-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        .shift-roster-table .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+
         /* Individual Summary Page */
         .individual-summary-controls {
             display: flex;
@@ -1407,6 +1471,7 @@
                     <li><a href="#" data-page="home"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#" data-page="attendance"><i class="fas fa-user-check"></i> Attendance Marking</a></li>
                     <li><a href="#" data-page="leaveTracker"><i class="fas fa-calendar-alt"></i> Leave Tracker</a></li>
+                    <li><a href="#" data-page="shiftSchedule"><i class="fas fa-clock"></i> Shift Schedule</a></li> <!-- New Tab -->
                     <li><a href="#" data-page="individualSummary"><i class="fas fa-user"></i> Individual Summary</a></li>
                     <li><a href="#" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                     <li><a href="#" data-page="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
@@ -1509,8 +1574,149 @@
                 </div>
                 <hr>
                 <div class="leave-tracker-table-container" id="leaveTrackerTableContainer">
+                    <!-- Leave planner table will be rendered here by JavaScript -->
                 </div>
             </div>
+
+            <!-- New Shift Schedule Page -->
+            <div id="shiftSchedulePage" class="content-module">
+                <h2>Shift Schedule Management</h2>
+                <p>Manage and view daily shift assignments for all staff members.</p>
+                <hr>
+
+                <h3>Add New Shift</h3>
+                <form id="addShiftForm">
+                    <div class="input-group">
+                        <label for="shiftAgentName">Agent Name:</label>
+                        <select id="shiftAgentName" required>
+                            <option value="">Select Agent</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="shiftRole">Role:</label>
+                        <select id="shiftRole" required>
+                            <option value="">Select Role</option>
+                            <option value="Agent">Agent</option>
+                            <option value="QA">QA</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="shiftDate">Shift Date:</label>
+                        <input type="date" id="shiftDate" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="shiftStartTime">Shift Start:</label>
+                        <input type="time" id="shiftStartTime" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="shiftEndTime">Shift End:</label>
+                        <input type="time" id="shiftEndTime" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="breakTime">Break Time (mins):</label>
+                        <input type="number" id="breakTime" value="15" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="lunchBreak">Lunch Break (mins):</label>
+                        <input type="number" id="lunchBreak" value="60" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="shiftRemarks">Remarks:</label>
+                        <input type="text" id="shiftRemarks" placeholder="e.g., Shift swap with John">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Shift</button>
+                    <p id="addShiftMessage" class="success-message" style="display:none; margin-top:15px;"></p>
+                </form>
+
+                <h3 style="margin-top: 40px;">Shift Roster</h3>
+                <hr>
+                <div class="shift-roster-controls">
+                    <div class="input-group" style="flex-basis: 150px;">
+                        <label for="rosterMonthSelect">Month:</label>
+                        <select id="rosterMonthSelect">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex-basis: 150px;">
+                        <label for="rosterRoleFilter">Filter by Role:</label>
+                        <select id="rosterRoleFilter">
+                            <option value="">All Roles</option>
+                            <option value="Agent">Agent</option>
+                            <option value="QA">QA</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <button id="exportRosterPdfBtn" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                </div>
+                <div class="shift-roster-table-container" style="overflow-x: auto; margin-top: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                    <table class="shift-roster-table" style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Agent Name</th>
+                                <th>Role</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Break</th>
+                                <th>Lunch</th>
+                                <th>Total Hrs</th>
+                                <th>Remarks</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shiftRosterTableBody">
+                            <tr><td colspan="10" style="text-align: center;">No shifts scheduled for this month.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 40px;">Shift Analytics & Visualizations</h3>
+                <hr>
+                <div class="dashboard-container" style="padding: 0; margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                    <div class="dashboard-card-new">
+                        <h3>Shift Load Graph</h3>
+                        <p>Time vs Number of Scheduled Agents. (Placeholder for a chart library integration like Chart.js or D3.js)</p>
+                        <div style="height: 150px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #777;">Graph Placeholder</div>
+                    </div>
+                    <div class="dashboard-card-new">
+                        <h3>Break Load Chart</h3>
+                        <p>Number of agents on tea/lunch at any given interval. (Placeholder for a chart library integration)</p>
+                        <div style="height: 150px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #777;">Chart Placeholder</div>
+                    </div>
+                    <div class="dashboard-card-new" style="grid-column: span 2;">
+                        <h3>Repetition Alerts & Compliance</h3>
+                        <p>Alerts for double shifts, overlapping schedules, or non-compliance with legal working hours. (Logic to be implemented)</p>
+                        <ul>
+                            <li><i class="fas fa-exclamation-triangle" style="color: orange;"></i> Agent X has overlapping shifts on YYYY-MM-DD.</li>
+                            <li><i class="fas fa-check-circle" style="color: green;"></i> All shifts compliant with working hours.</li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-new">
+                        <h3>Swap Request Summary</h3>
+                        <p>Overview of pending, approved, and declined shift swap requests. (Requires swap workflow implementation)</p>
+                        <ul>
+                            <li>Pending: 0</li>
+                            <li>Approved: 0</li>
+                            <li>Declined: 0</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-sm" style="margin-top: 10px;">View Swap Requests</button>
+                    </div>
+                    <div class="dashboard-card-new">
+                        <h3>Daily Coverage by Role</h3>
+                        <p>How many Supervisors, QAs, Agents on duty per day. (Requires data aggregation)</p>
+                        <ul>
+                            <li>Agents: 0</li>
+                            <li>Supervisors: 0</li>
+                            <li>QAs: 0</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
 
             <div id="individualSummaryPage" class="content-module">
                 <h2>Individual Attendance Summary</h2>
@@ -1666,10 +1872,10 @@
                         </div>
                         <div class="donut-chart-label" id="workingLocationDonutLabel">0% Working From Office</div>
                         <div class="donut-legend">
-                            <div class="donut-legend-item">
+                            <div class="legend-item">
                                 <span class="donut-legend-color" style="background-color: #007bff;"></span> Working From Office
                             </div>
-                            <div class="donut-legend-item">
+                            <div class="legend-item">
                                 <span class="donut-legend-color" style="background-color: #28a745;"></span> Working From Home
                             </div>
                         </div>
@@ -1863,6 +2069,7 @@
         let activeAgents = []; // Array of active agent full names, derived from usersData
         let currentLeaveTrackerDate = new Date(); // Tracks the month/year for leave tracker
         const leavePlannerData = {}; // Local cache for leave records from Firestore ({ 'Month YYYY': [{...}, {...}] })
+        const shiftSchedulesData = {}; // Local cache for shift schedules ({ 'Month YYYY': [{...}, {...}] })
 
         const todayGlobal = new Date(); // Constant for today's date
 
@@ -1885,6 +2092,174 @@
 
         // Helper to format date for Firestore document IDs
         const formatDate = (date) => date.toISOString().split('T')[0];
+
+        // --- Simulated Google Sheet Data for Leave Planner ---
+        // This data will be used to initialize Firestore if a month's leave data is not found.
+        // In a real application, you would use a backend process (e.g., Cloud Function)
+        // to import data from Google Sheets into Firestore.
+        const initialLeaveData = {
+            "January 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 20, "Leave Balance": 18, "01": "L", "02": "L", "03": "AP", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 20, "Leave Balance": 17, "01": "AP", "02": "AP", "03": "AP", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 20, "Leave Balance": 19, "01": "", "02": "", "03": "L", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 20, "Leave Balance": 15, "01": "AP", "02": "AP", "03": "AP", "04": "AP", "05": "AP", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 20, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "L", "07": "L", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 20, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "L", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 20, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "L", "13": "L", "14": "L", "15": "L", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 20, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "L", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 20, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "AP", "17": "AP", "18": "AP", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 20, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "L", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 20, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "L", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 20, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "L", "22": "L", "23": "L", "24": "L", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 20, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "L", "26": "L", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 20, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "L", "28": "L", "29": "L", "30": "L", "31": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" }
+            ],
+            "February 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 17, "Leave Balance": 17, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 15, "Leave Balance": 15, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 19.5, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 19.25, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 18.5, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 16.5, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 18.75, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 17.25, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "" }
+            ],
+            "May 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 17, "Leave Balance": 17, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 15, "Leave Balance": 15, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 19.5, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 19.25, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 18.5, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 16.5, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 18.75, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 17.25, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" }
+            ],
+            "June 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 17, "Leave Balance": 17, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 15, "Leave Balance": 15, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 19.5, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 19.25, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 18.5, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 16.5, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 18.75, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 17.25, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" }
+            ],
+            "July 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 17, "Leave Balance": 17, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 15, "Leave Balance": 15, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 19.5, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 19.25, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 18.5, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 16.5, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 18.75, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 17.25, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" }
+            ],
+            "September 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 17, "Leave Balance": 17, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 15, "Leave Balance": 15, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 19.5, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 19.25, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 18.5, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 16.5, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 18.75, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 17.25, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" }
+            ],
+            "October 2024": [
+                { "No.": 1, "Name": "Margaret Mukulu", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 2, "Name": "Patricia Mumbi", "Opening Balance": 17, "Leave Balance": 17, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 3, "Name": "Eunice Musembi", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 4, "Name": "Rebecca Nduta", "Opening Balance": 15, "Leave Balance": 15, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 5, "Name": "Phina Owiti", "Opening Balance": 18, "Leave Balance": 18, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 6, "Name": "Phily Oolich", "Opening Balance": 19.5, "Leave Balance": 19.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 7, "Name": "Phelix Otieno", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 8, "Name": "Oliver Akinyi", "Opening Balance": 19.25, "Leave Balance": 19.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 9, "Name": "Nancy Wanjitu", "Opening Balance": 18.25, "Leave Balance": 18.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 10, "Name": "Melinda Ombala", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 11, "Name": "Maureen Ongola", "Opening Balance": 19, "Leave Balance": 19, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 12, "Name": "Marion Wanja", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 13, "Name": "Linnete Chege", "Opening Balance": 18.5, "Leave Balance": 18.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "" },
+                { "No.": 14, "Name": "Lawrence Ochola", "Opening Balance": 16.5, "Leave Balance": 16.5, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 15, "Name": "Faith Irungu", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 16, "Name": "Edith Wanjahi", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 17, "Name": "Cliff Otwori", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 18, "Name": "Boniface Masiaga", "Opening Balance": 18.75, "Leave Balance": 18.75, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 19, "Name": "Ann Nyokabi", "Opening Balance": 17.25, "Leave Balance": 17.25, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 20, "Name": "Victor Kibet", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" },
+                { "No.": 21, "Name": "Douglas Lagat", "Opening Balance": 20, "Leave Balance": 20, "01": "", "02": "", "03": "", "04": "", "05": "", "06": "", "07": "", "08": "", "09": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "" }
+            ]
+        };
 
         // --- Core Helper Functions ---
 
@@ -1951,6 +2326,7 @@
 
         /**
          * Fetches leave data for a specific month and year from Firestore.
+         * If data for the month doesn't exist, it initializes it from `initialLeaveData`.
          * @param {number} year
          * @param {number} month (0-indexed)
          * @returns {Promise<void>}
@@ -1964,13 +2340,45 @@
                     leavePlannerData[monthYearKey] = doc.data().data || [];
                     console.log(`Leave data for ${monthYearKey} loaded from Firestore.`);
                 } else {
-                    leavePlannerData[monthYearKey] = []; // Initialize empty if no data in Firestore
-                    console.log(`No leave data found for ${monthYearKey} in Firestore, initialized locally.`);
+                    // Initialize from simulated data if not found in Firestore
+                    if (initialLeaveData[monthYearKey]) {
+                        await docRef.set({ data: initialLeaveData[monthYearKey] });
+                        leavePlannerData[monthYearKey] = initialLeaveData[monthYearKey];
+                        console.log(`Leave data for ${monthYearKey} initialized from simulated data and saved to Firestore.`);
+                    } else {
+                        leavePlannerData[monthYearKey] = []; // Initialize empty if no data in Firestore or simulated data
+                        console.log(`No leave data found for ${monthYearKey} in Firestore or simulated data, initialized locally as empty.`);
+                    }
                 }
                 renderLeavePlannerTable(); // Re-render table after fetching data
             } catch (error) {
                 console.error("Error fetching leave data:", error);
                 alert("Critical: Could not load leave data. Check console and Firebase rules.");
+            }
+        }
+
+        /**
+         * Fetches shift schedule data for a specific month and year from Firestore.
+         * @param {number} year
+         * @param {number} month (0-indexed)
+         * @returns {Promise<void>}
+         */
+        async function fetchShiftSchedules(year, month) {
+            const monthYearKey = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            try {
+                const docRef = db.collection('shiftSchedules').doc(monthYearKey);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    shiftSchedulesData[monthYearKey] = doc.data().data || [];
+                    console.log(`Shift schedule data for ${monthYearKey} loaded from Firestore.`);
+                } else {
+                    shiftSchedulesData[monthYearKey] = []; // Initialize empty if no data in Firestore
+                    console.log(`No shift schedule data found for ${monthYearKey} in Firestore, initialized locally.`);
+                }
+                renderShiftRosterTable(); // Re-render table after fetching data
+            } catch (error) {
+                console.error("Error fetching shift schedule data:", error);
+                alert("Critical: Could not load shift schedule data. Check console and Firebase rules.");
             }
         }
 
@@ -2009,17 +2417,21 @@
                 showPage(targetPageId);
 
                 // Initial data load and UI updates (only if not already fetched by onAuthStateChanged listener)
-                if (Object.keys(usersData).length === 0 || Object.keys(attendanceData).length === 0) {
+                if (Object.keys(usersData).length === 0 || Object.keys(attendanceData).length === 0 || Object.keys(leavePlannerData).length === 0 || Object.keys(shiftSchedulesData).length === 0) {
                     Promise.all([
                         fetchAllUsersData(),
                         fetchAttendanceData(),
-                        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth())
+                        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth()),
+                        fetchShiftSchedules(todayGlobal.getFullYear(), todayGlobal.getMonth()) // Fetch current month's shifts
                     ]).then(() => {
                         updateHomeStatistics();
                         populateEmployeeSelect();
                         populateIndividualSummarySelect();
                         updateDashboardData(DOM.employeeSelect.value);
                         renderStaffList();
+                        populateShiftAgentNames(); // Populate agent names for shift form
+                        populateRosterMonthSelect(); // Populate month selector for shift roster
+                        renderShiftRosterTable(); // Initial render of shift roster
                     }).catch(err => {
                         console.error("Error during initial data fetch:", err);
                         alert("Failed to load initial application data.");
@@ -2031,6 +2443,9 @@
                     populateIndividualSummarySelect();
                     updateDashboardData(DOM.employeeSelect.value);
                     renderStaffList();
+                    populateShiftAgentNames();
+                    populateRosterMonthSelect();
+                    renderShiftRosterTable();
                 }
 
             } else {
@@ -2080,6 +2495,11 @@
                     break;
                 case 'leaveTrackerPage':
                     fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+                    break;
+                case 'shiftSchedulePage':
+                    populateShiftAgentNames();
+                    populateRosterMonthSelect();
+                    renderShiftRosterTable();
                     break;
                 case 'adminPage':
                     renderStaffList();
@@ -2685,10 +3105,232 @@
                     }
 
                     alert(`Leave for ${agentName} on ${fullDateKey} ${newStatus === 'AP' ? 'approved' : 'declined'} successfully.`);
+                } else {
+                    // If the month document or agent row doesn't exist, create it
+                    const newRow = { "No.": activeAgents.indexOf(agentName) + 1, "Name": agentName, "Opening Balance": 20, "Leave Balance": 20 };
+                    newRow[dayOnly] = newStatus;
+                    const updatedData = [...currentData, newRow]; // Add new row to existing data (if any)
+                    await docRef.set({ data: updatedData });
+                    leavePlannerData[monthYearKey] = updatedData;
+                    renderLeavePlannerTable();
+                    alert(`Leave for ${agentName} on ${fullDateKey} marked as ${newStatus}.`);
                 }
             } catch (error) {
                 console.error("Error updating leave status:", error);
                 alert(`Failed to update leave status: ${error.message}`);
+            }
+        }
+
+
+        // --- Shift Schedule Functions ---
+
+        /**
+         * Populates the Agent Name dropdown in the Add Shift form.
+         */
+        function populateShiftAgentNames() {
+            DOM.shiftAgentName.innerHTML = '<option value="">Select Agent</option>';
+            activeAgents.forEach(agentName => {
+                const option = document.createElement('option');
+                option.value = agentName;
+                option.textContent = agentName;
+                DOM.shiftAgentName.appendChild(option);
+            });
+        }
+
+        /**
+         * Calculates total working hours for a shift.
+         * @param {string} startTime - Shift start time (HH:MM).
+         * @param {string} endTime - Shift end time (HH:MM).
+         * @param {number} breakTime - Short break in minutes.
+         * @param {number} lunchBreak - Lunch break in minutes.
+         * @returns {number} Total working hours.
+         */
+        function calculateTotalHours(startTime, endTime, breakTime, lunchBreak) {
+            const start = new Date(`2000-01-01T${startTime}:00`);
+            const end = new Date(`2000-01-01T${endTime}:00`);
+
+            if (end < start) { // Handle overnight shifts
+                end.setDate(end.getDate() + 1);
+            }
+
+            const durationMs = end - start;
+            const totalMinutes = durationMs / (1000 * 60);
+
+            const netMinutes = totalMinutes - breakTime - lunchBreak;
+            return Math.max(0, netMinutes / 60); // Return hours, ensure not negative
+        }
+
+        /**
+         * Adds a new shift schedule to Firestore.
+         */
+        async function addShift() {
+            DOM.addShiftMessage.style.display = 'none';
+            const agentName = DOM.shiftAgentName.value;
+            const role = DOM.shiftRole.value;
+            const shiftDate = DOM.shiftDate.value;
+            const startTime = DOM.shiftStartTime.value;
+            const endTime = DOM.shiftEndTime.value;
+            const breakTime = parseInt(DOM.breakTime.value) || 0;
+            const lunchBreak = parseInt(DOM.lunchBreak.value) || 0;
+            const remarks = DOM.shiftRemarks.value.trim();
+
+            if (!agentName || !role || !shiftDate || !startTime || !endTime) {
+                DOM.addShiftMessage.textContent = 'Please fill all required shift fields.';
+                DOM.addShiftMessage.style.color = '#dc3545';
+                DOM.addShiftMessage.style.display = 'block';
+                return;
+            }
+
+            const totalHours = calculateTotalHours(startTime, endTime, breakTime, lunchBreak);
+            const monthYearKey = new Date(shiftDate).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+            const newShift = {
+                id: Date.now(), // Unique ID for the shift
+                agentName,
+                role,
+                shiftDate,
+                startTime,
+                endTime,
+                breakTime,
+                lunchBreak,
+                totalHours: totalHours.toFixed(2),
+                remarks,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = db.collection('shiftSchedules').doc(monthYearKey);
+                const doc = await docRef.get();
+                let currentShifts = [];
+                if (doc.exists) {
+                    currentShifts = doc.data().data || [];
+                }
+                currentShifts.push(newShift);
+                await docRef.set({ data: currentShifts }); // Overwrite with updated array
+
+                shiftSchedulesData[monthYearKey] = currentShifts; // Update local cache
+
+                DOM.addShiftMessage.textContent = `Shift added successfully for ${agentName} on ${shiftDate}!`;
+                DOM.addShiftMessage.style.color = '#28a745';
+                DOM.addShiftMessage.style.display = 'block';
+                DOM.addShiftForm.reset();
+                populateShiftAgentNames(); // Re-populate to clear selection
+
+                renderShiftRosterTable(); // Re-render the roster
+            } catch (error) {
+                console.error("Error adding shift:", error);
+                DOM.addShiftMessage.textContent = `Error adding shift: ${error.message}`;
+                DOM.addShiftMessage.style.color = '#dc3545';
+                DOM.addShiftMessage.style.display = 'block';
+            }
+        }
+
+        /**
+         * Populates the month select dropdown for the shift roster.
+         */
+        function populateRosterMonthSelect() {
+            DOM.rosterMonthSelect.innerHTML = '';
+            const today = new Date();
+            for (let i = -6; i <= 6; i++) { // Show 6 months before and 6 months after current
+                const month = new Date(today.getFullYear(), today.getMonth() + i, 1);
+                const monthYearKey = month.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                const option = document.createElement('option');
+                option.value = monthYearKey;
+                option.textContent = monthYearKey;
+                if (i === 0) { // Select current month by default
+                    option.selected = true;
+                }
+                DOM.rosterMonthSelect.appendChild(option);
+            }
+        }
+
+        /**
+         * Renders the shift roster table based on selected month and filters.
+         */
+        function renderShiftRosterTable() {
+            DOM.shiftRosterTableBody.innerHTML = '';
+            const selectedMonthYear = DOM.rosterMonthSelect.value;
+            const selectedRoleFilter = DOM.rosterRoleFilter.value;
+
+            const currentMonthShifts = shiftSchedulesData[selectedMonthYear] || [];
+
+            let filteredShifts = currentMonthShifts;
+            if (selectedRoleFilter) {
+                filteredShifts = currentMonthShifts.filter(shift => shift.role === selectedRoleFilter);
+            }
+
+            if (filteredShifts.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="10" style="text-align: center;">No shifts scheduled for this month or matching filter.</td>`;
+                DOM.shiftRosterTableBody.appendChild(tr);
+                return;
+            }
+
+            // Sort shifts by date and then by start time
+            filteredShifts.sort((a, b) => {
+                const dateA = new Date(a.shiftDate + 'T' + a.startTime);
+                const dateB = new Date(b.shiftDate + 'T' + b.startTime);
+                return dateA - dateB;
+            });
+
+            filteredShifts.forEach(shift => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${shift.shiftDate}</td>
+                    <td>${shift.agentName}</td>
+                    <td>${shift.role}</td>
+                    <td>${shift.startTime}</td>
+                    <td>${shift.endTime}</td>
+                    <td>${shift.breakTime}</td>
+                    <td>${shift.lunchBreak}</td>
+                    <td>${shift.totalHours}</td>
+                    <td>${shift.remarks || '-'}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" data-shift-id="${shift.id}" data-month-year="${selectedMonthYear}">Delete</button>
+                    </td>
+                `;
+                DOM.shiftRosterTableBody.appendChild(tr);
+            });
+
+            // Add event listeners for delete buttons
+            DOM.shiftRosterTableBody.querySelectorAll('.btn-danger').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const shiftId = parseInt(e.target.dataset.shiftId);
+                    const monthYear = e.target.dataset.monthYear;
+                    deleteShift(shiftId, monthYear);
+                });
+            });
+        }
+
+        /**
+         * Deletes a shift from Firestore.
+         * @param {number} shiftId - The ID of the shift to delete.
+         * @param {string} monthYearKey - The month-year key of the document.
+         */
+        async function deleteShift(shiftId, monthYearKey) {
+            if (!confirm('Are you sure you want to delete this shift?')) {
+                return;
+            }
+
+            try {
+                const docRef = db.collection('shiftSchedules').doc(monthYearKey);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    let currentShifts = doc.data().data || [];
+                    const updatedShifts = currentShifts.filter(shift => shift.id !== shiftId);
+
+                    if (updatedShifts.length > 0) {
+                        await docRef.set({ data: updatedShifts });
+                    } else {
+                        await docRef.delete(); // Delete the document if no shifts left
+                    }
+                    shiftSchedulesData[monthYearKey] = updatedShifts; // Update local cache
+                    renderShiftRosterTable(); // Re-render table
+                    alert('Shift deleted successfully.');
+                }
+            } catch (error) {
+                console.error("Error deleting shift:", error);
+                alert("Failed to delete shift: " + error.message);
             }
         }
 
@@ -2894,962 +3536,4 @@
 
         /**
          * Renders the monthly attendance statistics bar chart.
-         * @param {object} monthlyData - An object where keys are 'YYYY-MM' and values are { present, late, absent }.
-         */
-        function renderAttendanceStatsChart(monthlyData) {
-            DOM.attendanceStatsChart.innerHTML = ''; // Clear previous chart
-
-            const monthsSorted = Object.keys(monthlyData).sort();
-            if (monthsSorted.length === 0) {
-                DOM.attendanceStatsChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No attendance data yet for charts.</p>';
-                return;
-            }
-
-            const chartContainerInner = document.createElement('div');
-            chartContainerInner.style.display = 'flex';
-            chartContainerInner.style.justifyContent = 'space-around';
-            chartContainerInner.style.alignItems = 'flex-end';
-            chartContainerInner.style.height = '100%';
-            DOM.attendanceStatsChart.appendChild(chartContainerInner);
-
-            // Calculate max count for scaling bars
-            const allCounts = Object.values(monthlyData).flatMap(m => [m.present, m.late, m.absent]);
-            const maxCount = Math.max(...allCounts);
-            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Max height of chart area is 200px (minus padding)
-
-            monthsSorted.forEach(monthKey => {
-                const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
-                const monthSummary = monthlyData[monthKey];
-
-                const barGroup = document.createElement('div');
-                barGroup.classList.add('bar-group');
-
-                barGroup.innerHTML = `
-                    <div class="bar on-time-bar" style="height: ${monthSummary.present * scaleFactor}px;" title="Present: ${monthSummary.present}"></div>
-                    <div class="bar late" style="height: ${monthSummary.late * scaleFactor}px;" title="Late/Partial: ${monthSummary.late}"></div>
-                    <div class="bar absent" style="height: ${monthSummary.absent * scaleFactor}px;" title="Absent: ${monthSummary.absent}"></div>
-                `;
-                chartContainerInner.appendChild(barGroup);
-            });
-
-            const monthLabels = document.createElement('div');
-            monthLabels.classList.add('bar-chart-month-labels');
-            monthsSorted.forEach(monthKey => {
-                const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
-                const div = document.createElement('div');
-                div.textContent = monthName;
-                monthLabels.appendChild(div);
-            });
-            DOM.attendanceStatsChart.appendChild(monthLabels);
-        }
-
-        /**
-         * Renders the working location distribution donut chart.
-         * @param {number} wfoCount - Count of Work From Office days.
-         * @param {number} wfhCount - Count of Work From Home days.
-         */
-        function renderWorkingLocationDonutChart(wfoCount, wfhCount) {
-            const total = wfoCount + wfhCount;
-            let wfoPercentage = 0;
-
-            if (total > 0) {
-                wfoPercentage = (wfoCount / total) * 100;
-            }
-
-            DOM.workingLocationDonutChart.style.background = `conic-gradient(#007bff 0% ${wfoPercentage}%, #28a745 ${wfoPercentage}% 100%)`;
-            DOM.workingLocationDonutLabel.textContent = `${wfoPercentage.toFixed(0)}% Working From Office`; // Round to whole number
-        }
-
-        /**
-         * Renders the top employees by attendance bar chart.
-         * @param {object} agentAttendancePercentages - An object mapping agent names to { totalDays, presentDays, percentage }.
-         */
-        function renderTopEmployeesChart(agentAttendancePercentages) {
-            DOM.topEmployeesChart.innerHTML = '';
-
-            const agentsWithPercentages = Object.entries(agentAttendancePercentages)
-                .map(([name, data]) => ({
-                    name,
-                    percentage: data.totalDays > 0 ? (data.presentDays / data.totalDays) * 100 : 0
-                }))
-                .sort((a, b) => b.percentage - a.percentage) // Sort descending by percentage
-                .slice(0, 5); // Take top 5
-
-            if (agentsWithPercentages.length === 0) {
-                DOM.topEmployeesChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No employee data to display.</p>';
-                return;
-            }
-
-            agentsWithPercentages.forEach(agent => {
-                const item = document.createElement('div');
-                item.classList.add('employee-bar-item');
-                item.innerHTML = `
-                    <span class="employee-name-label">${agent.name}</span>
-                    <div class="employee-bar-track">
-                        <div class="employee-bar-fill" style="width: ${agent.percentage.toFixed(0)}%;"></div>
-                    </div>
-                    <span class="employee-bar-value">${agent.percentage.toFixed(0)}%</span>
-                `;
-                DOM.topEmployeesChart.appendChild(item);
-            });
-        }
-
-
-        // --- Individual Summary Page Functions ---
-        /**
-         * Updates individual summary statistics and chart for the selected employee.
-         * @param {string} employeeName - The full name of the employee to summarize.
-         */
-        function updateIndividualSummary(employeeName) {
-            if (!employeeName) {
-                // Clear all stats and chart if no employee is selected
-                DOM.summaryWFO.textContent = '0';
-                DOM.summaryWFH.textContent = '0';
-                DOM.summaryLeave.textContent = '0';
-                DOM.summarySickOff.textContent = '0';
-                DOM.summarySignedOff.textContent = '0';
-                DOM.summaryDayOff.textContent = '0';
-                DOM.summaryUnpaidLeave.textContent = '0';
-                DOM.summaryNCNS.textContent = '0';
-                DOM.summaryCompassionateLeave.textContent = '0';
-                DOM.monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>';
-                return;
-            }
-
-            let wfoCount = 0;
-            let wfhCount = 0;
-            let leaveCount = 0;
-            let sickOffCount = 0;
-            let signedOffCount = 0;
-            let dayOffCount = 0;
-            let unpaidLeaveCount = 0;
-            let ncnsCount = 0;
-            let compassionateLeaveCount = 0;
-
-            const monthlyWFHWFO = {}; // { 'YYYY-MM': { wfo: 0, wfh: 0 } }
-
-            // Aggregate data from attendanceData
-            for (const dateKey in attendanceData) {
-                const dailyRecord = attendanceData[dateKey];
-                if (dailyRecord[employeeName]) {
-                    const status = dailyRecord[employeeName];
-                    const monthYear = dateKey.substring(0, 7);
-
-                    if (!monthlyWFHWFO[monthYear]) {
-                        monthlyWFHWFO[monthYear] = { wfo: 0, wfh: 0 };
-                    }
-
-                    switch (status) {
-                        case 'WFO':
-                            wfoCount++;
-                            monthlyWFHWFO[monthYear].wfo++;
-                            break;
-                        case 'WFH':
-                            wfhCount++;
-                            monthlyWFHWFO[monthYear].wfh++;
-                            break;
-                        case 'L':
-                            leaveCount++;
-                            break;
-                        case 'SOF':
-                            sickOffCount++;
-                            break;
-                        case 'SO':
-                            signedOffCount++;
-                            break;
-                        case 'DO':
-                            dayOffCount++;
-                            break;
-                        case 'UL':
-                            unpaidLeaveCount++;
-                            break;
-                        case 'NCNS':
-                            ncnsCount++;
-                            break;
-                        case 'CL':
-                            compassionateLeaveCount++;
-                            break;
-                    }
-                }
-            }
-
-            DOM.summaryWFO.textContent = wfoCount;
-            DOM.summaryWFH.textContent = wfhCount;
-            DOM.summaryLeave.textContent = leaveCount;
-            DOM.summarySickOff.textContent = sickOffCount;
-            DOM.summarySignedOff.textContent = signedOffCount;
-            DOM.summaryDayOff.textContent = dayOffCount;
-            DOM.summaryUnpaidLeave.textContent = unpaidLeaveCount;
-            DOM.summaryNCNS.textContent = ncnsCount;
-            DOM.summaryCompassionateLeave.textContent = compassionateLeaveCount;
-
-            renderMonthlyWFHWFOChart(monthlyWFHWFO);
-        }
-
-        /**
-         * Renders the monthly WFO vs WFH bar chart for an individual employee.
-         * @param {object} monthlyData - An object where keys are 'YYYY-MM' and values are { wfo, wfh }.
-         */
-        function renderMonthlyWFHWFOChart(monthlyData) {
-            DOM.monthlyWFHWFOChart.innerHTML = '';
-
-            const monthsSorted = Object.keys(monthlyData).sort();
-            if (monthsSorted.length === 0) {
-                DOM.monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No data available for this employee for charts.</p>';
-                return;
-            }
-
-            // Determine max value for scaling
-            const allCounts = Object.values(monthlyData).flatMap(m => [m.wfo, m.wfh]);
-            const maxCount = Math.max(...allCounts);
-            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Chart height is 200px
-
-            monthsSorted.forEach(monthKey => {
-                const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
-                const monthSummary = monthlyData[monthKey];
-
-                const barGroup = document.createElement('div');
-                barGroup.classList.add('monthly-bar-group');
-
-                // WFO Bar
-                const wfoBar = document.createElement('div');
-                wfoBar.classList.add('monthly-bar', 'wfo');
-                wfoBar.style.height = `${monthSummary.wfo * scaleFactor}px`;
-                wfoBar.title = `WFO: ${monthSummary.wfo}`;
-                barGroup.appendChild(wfoBar);
-
-                // WFH Bar
-                const wfhBar = document.createElement('div');
-                wfhBar.classList.add('monthly-bar', 'wfh');
-                wfhBar.style.height = `${monthSummary.wfh * scaleFactor}px`;
-                wfhBar.title = `WFH: ${monthSummary.wfh}`;
-                barGroup.appendChild(wfhBar);
-
-                // Month Label
-                const label = document.createElement('div');
-                label.classList.add('monthly-bar-label');
-                label.textContent = monthName;
-                barGroup.appendChild(label);
-
-                DOM.monthlyWFHWFOChart.appendChild(barGroup);
-            });
-        }
-
-
-        // --- Reports Generation Logic ---
-
-        /**
-         * Generates and displays report data based on selected filters.
-         * @param {string} reportType - Type of report ('daily', 'tardiness', 'absenteeism').
-         * @param {string} startDateStr - Start date in YYYY-MM-DD format.
-         * @param {string} endDateStr - End date in YYYY-MM-DD format.
-         */
-        function generateReportData(reportType, startDateStr, endDateStr) {
-            DOM.reportsTableBody.innerHTML = '';
-
-            const start = new Date(startDateStr);
-            const end = new Date(endDateStr);
-            end.setHours(23,59,59,999); // Set to end of the day for inclusive range
-
-            if (start > end) {
-                alert("Start date cannot be after end date.");
-                return;
-            }
-
-            let currentDate = new Date(start);
-            let reportData = [];
-
-            while (currentDate <= end) {
-                const dateKey = formatDate(currentDate);
-                const dailyAttendance = attendanceData[dateKey];
-
-                const rowData = {
-                    Date: dateKey,
-                    WFO: 0,
-                    WFH: 0,
-                    L: 0,
-                    SOF: 0,
-                    SO: 0,
-                    DO: 0,
-                    UL: 0,
-                    NCNS: 0,
-                    CL: 0,
-                    Late: 0, // For tardiness report
-                    Absent: 0 // For absenteeism report
-                };
-
-                if (dailyAttendance) {
-                    for (const agentName of activeAgents) { // Iterate over active agents to get counts
-                        const status = dailyAttendance[agentName] || ''; // Get status or empty string
-
-                        switch (status) {
-                            case 'WFO':
-                                rowData.WFO++;
-                                break;
-                            case 'WFH':
-                                rowData.WFH++;
-                                break;
-                            case 'L':
-                                rowData.L++;
-                                break;
-                            case 'SOF':
-                                rowData.SOF++;
-                                break;
-                            case 'SO':
-                                rowData.SO++;
-                                break;
-                            case 'DO':
-                                rowData.DO++;
-                                break;
-                            case 'UL':
-                                rowData.UL++;
-                                rowData.Absent++; // Count as absent for report
-                                break;
-                            case 'NCNS':
-                                rowData.NCNS++;
-                                rowData.Absent++; // Count as absent for report
-                                break;
-                            case 'CL':
-                                rowData.CL++;
-                                break;
-                            default:
-                                // If an agent is not marked, they are considered absent or expected to be present
-                                if (!status && activeAgents.includes(agentName)) { // If no status recorded for active agent
-                                    rowData.Absent++;
-                                }
-                                break;
-                        }
-
-                        // Simulate late entries for tardiness report (if not a specific status like leave/day off)
-                        if ((status === 'WFO' || status === 'WFH') && Math.random() < 0.1) { // 10% chance of being late
-                            rowData.Late++;
-                        }
-                    }
-                }
-
-                reportData.push(rowData);
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            renderReportTable(reportData, reportType);
-        }
-
-        /**
-         * Renders the report table based on the generated data and report type.
-         * @param {Array<object>} data - The report data.
-         * @param {string} reportType - The type of report.
-         */
-        function renderReportTable(data, reportType) {
-            DOM.reportsTableBody.innerHTML = '';
-            let headerHtml = '';
-            let rowHtmlGenerator;
-
-            if (reportType === 'daily') {
-                headerHtml = `
-                    <th>Date</th>
-                    <th>Present (WFO)</th>
-                    <th>Present (WFH)</th>
-                    <th>On Leave</th>
-                    <th>On Sick Off</th>
-                    <th>Signed Off</th>
-                    <th>Day Off</th>
-                    <th>Unpaid Leave</th>
-                    <th>No Call No Show</th>
-                    <th>Compassionate Leave</th>
-                `;
-                rowHtmlGenerator = (row) => `
-                    <td>${row.Date}</td>
-                    <td>${row.WFO}</td>
-                    <td>${row.WFH}</td>
-                    <td>${row.L}</td>
-                    <td>${row.SOF}</td>
-                    <td>${row.SO}</td>
-                    <td>${row.DO}</td>
-                    <td>${row.UL}</td>
-                    <td>${row.NCNS}</td>
-                    <td>${row.CL}</td>
-                `;
-            } else if (reportType === 'tardiness') {
-                headerHtml = `
-                    <th>Date</th>
-                    <th>Late Arrivals</th>
-                `;
-                rowHtmlGenerator = (row) => `
-                    <td>${row.Date}</td>
-                    <td>${row.Late}</td>
-                `;
-            } else if (reportType === 'absenteeism') {
-                headerHtml = `
-                    <th>Date</th>
-                    <th>Absences (UL/NCNS)</th>
-                `;
-                rowHtmlGenerator = (row) => `
-                    <td>${row.Date}</td>
-                    <td>${row.Absent}</td>
-                `;
-            }
-
-            DOM.reportTable.querySelector('thead tr').innerHTML = headerHtml;
-
-            if (data.length === 0 || data.every(row => Object.values(row).slice(1).every(val => val === 0))) {
-                   const tr = document.createElement('tr');
-                   tr.innerHTML = `<td colspan="${DOM.reportTable.querySelector('thead tr').children.length}" style="text-align: center;">No data available for the selected criteria.</td>`;
-                   DOM.reportsTableBody.appendChild(tr);
-            } else {
-                data.forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = rowHtmlGenerator(row);
-                    DOM.reportsTableBody.appendChild(tr);
-                });
-            }
-        }
-
-
-        /**
-         * Exports the currently displayed report data to a CSV file.
-         */
-        function exportReportToCSV() {
-            let csv = [];
-            const rows = DOM.reportTable.querySelectorAll('tr');
-
-            for (let i = 0; i < rows.length; i++) {
-                const row = [], cols = rows[i].querySelectorAll('td, th');
-                for (let j = 0; j < cols.length; j++) {
-                    // Handle commas within data by enclosing in quotes
-                    let data = cols[j].innerText.replace(/"/g, '""'); // Escape double quotes
-                    row.push(`"${data}"`);
-                }
-                csv.push(row.join(','));
-            }
-
-            const csvString = csv.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `${DOM.reportTypeSelect.value}_report_${DOM.startDateInput.value}_to_${DOM.endDateInput.value}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            alert('Report exported successfully to CSV.');
-        }
-
-
-        // --- Admin Add/Manage User Logic ---
-
-        /**
-         * Renders the staff list table in the Admin page.
-         */
-        function renderStaffList() {
-            DOM.staffListTableBody.innerHTML = '';
-
-            const sortedUsers = Object.values(usersData).sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-            if (sortedUsers.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="5" style="text-align: center;">No staff members found.</td>`;
-                DOM.staffListTableBody.appendChild(tr);
-                return;
-            }
-
-            sortedUsers.forEach(user => {
-                const tr = document.createElement('tr');
-
-                const statusSelect = document.createElement('select');
-                statusSelect.innerHTML = `
-                    <option value="true" ${user.isActive ? 'selected' : ''}>Active</option>
-                    <option value="false" ${!user.isActive ? 'selected' : ''}>Inactive</option>
-                `;
-                statusSelect.addEventListener('change', (e) => {
-                    toggleUserStatus(user.email, e.target.value === 'true');
-                });
-
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', () => {
-                    deleteUser(user.email);
-                });
-
-                tr.innerHTML = `
-                    <td>${user.fullName}</td>
-                    <td>${user.email}</td>
-                    <td>${user.role}</td>
-                    <td></td>
-                    <td></td>
-                `;
-                tr.children[3].appendChild(statusSelect);
-                tr.children[4].appendChild(deleteButton);
-
-                DOM.staffListTableBody.appendChild(tr);
-            });
-        }
-
-        /**
-         * Toggles the active status of a user in Firestore.
-         * @param {string} email - The email of the user to update.
-         * @param {boolean} isActive - The new active status.
-         */
-        async function toggleUserStatus(email, isActive) {
-            const userToUpdate = usersData[email];
-            if (userToUpdate && userToUpdate.uid) {
-                if (loggedInUser.email === email && !isActive) {
-                    alert("You cannot deactivate your own account while logged in.");
-                    renderStaffList(); // Re-render to revert selection
-                    return;
-                }
-                try {
-                    await db.collection('users').doc(userToUpdate.uid).update({
-                        isActive: isActive
-                    });
-                    userToUpdate.isActive = isActive; // Update local state
-                    updateActiveAgentsList(); // Rebuild active agents list
-                    renderStaffList(); // Re-render table
-
-                    // Refresh relevant sections that depend on active agents
-                    generateAttendanceOverviewTable();
-                    populateEmployeeSelect();
-                    populateIndividualSummarySelect();
-                    updateHomeStatistics();
-                    updateDashboardData(DOM.employeeSelect.value);
-                    alert(`${userToUpdate.fullName} status changed to ${isActive ? 'Active' : 'Inactive'}.`);
-                } catch (error) {
-                    console.error("Error toggling user status:", error);
-                    alert(`Failed to change status for ${userToUpdate.fullName}: ${error.message}`);
-                }
-            } else {
-                alert("User not found or UID is missing.");
-            }
-        }
-
-        /**
-         * Deletes a user's profile and related data from Firestore.
-         * NOTE: Deleting a Firebase Auth user from the client is generally not allowed for other users.
-         * For a production app, this would require a Firebase Cloud Function.
-         * Here, we delete their Firestore profile and data, but the Auth user might persist unless manually deleted in Firebase Console or via Cloud Function.
-         * @param {string} email - The email of the user to delete.
-         */
-        async function deleteUser(email) {
-            const userToDelete = usersData[email];
-            if (!userToDelete) {
-                alert("User not found.");
-                return;
-            }
-
-            if (loggedInUser.email === email) {
-                alert("You cannot delete your own account while logged in. Please log out and ask another administrator to delete your account, or delete it via Firebase Console.");
-                return;
-            }
-
-            const confirmDelete = confirm(`Are you sure you want to delete user ${userToDelete.fullName} (${email})? This action will also delete their attendance and leave records and cannot be undone.`);
-            if (!confirmDelete) {
-                return;
-            }
-
-            try {
-                const batch = db.batch();
-
-                // 1. Delete user data from Firestore 'users' collection
-                if (userToDelete.uid) {
-                    batch.delete(db.collection('users').doc(userToDelete.uid));
-                }
-
-                // 2. Delete their attendance records for this agent
-                const attendanceSnapshot = await db.collection('attendance').get();
-                attendanceSnapshot.forEach(doc => {
-                    const docData = doc.data();
-                    if (docData[userToDelete.fullName]) {
-                        const updatedData = { ...docData };
-                        delete updatedData[userToDelete.fullName]; // Remove agent's specific attendance for this day
-                        if (Object.keys(updatedData).length > 0) {
-                            batch.update(db.collection('attendance').doc(doc.id), updatedData);
-                        } else {
-                            batch.delete(db.collection('attendance').doc(doc.id)); // Delete doc if no agents left for that day
-                        }
-                    }
-                });
-
-                // 3. Delete their leave records (simplified, assumes flat structure in month docs)
-                const leavesSnapshot = await db.collection('leaves').get();
-                leavesSnapshot.forEach(doc => {
-                    const monthDocData = doc.data();
-                    if (monthDocData.data && Array.isArray(monthDocData.data)) {
-                        const originalData = monthDocData.data;
-                        const updatedData = originalData.filter(row => row.Name !== userToDelete.fullName);
-                        if (updatedData.length !== originalData.length) { // If something was filtered out
-                            if (updatedData.length > 0) {
-                                batch.update(db.collection('leaves').doc(doc.id), { data: updatedData });
-                            } else {
-                                batch.delete(db.collection('leaves').doc(doc.id)); // Delete month doc if no agents left
-                            }
-                        }
-                    }
-                });
-
-                await batch.commit(); // Commit all batched operations
-
-                // Update local state and re-render UI
-                delete usersData[email];
-                updateActiveAgentsList();
-                renderStaffList();
-                generateAttendanceOverviewTable();
-                populateEmployeeSelect();
-                populateIndividualSummarySelect();
-                updateHomeStatistics();
-                updateDashboardData(DOM.employeeSelect.value);
-                alert(`User ${userToDelete.fullName} and their related data deleted from Firestore.`);
-
-                // IMPORTANT: The Firebase Auth user account for ${email} still exists.
-                console.warn(`Firebase Auth user for ${email} was NOT deleted client-side. Please delete it manually in Firebase Console or via a Cloud Function.`);
-
-            } catch (error) {
-                console.error("Error deleting user and associated data:", error);
-                alert(`Failed to delete user ${userToDelete.fullName}: ${error.message}`);
-            }
-        }
-
-        // --- Event Listener Initialization ---
-        function initializeEventListeners() {
-            // Login/Logout
-            DOM.loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = DOM.loginEmailInput.value;
-                const password = DOM.loginPasswordInput.value;
-                DOM.loginError.textContent = '';
-
-                try {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    console.log("User logged in successfully.");
-                } catch (error) {
-                    let errorMessage;
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                        case 'auth/wrong-password':
-                        case 'auth/invalid-credential':
-                            errorMessage = 'Invalid email or password.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'Invalid email format.';
-                            break;
-                        case 'auth/user-disabled':
-                            errorMessage = 'Your account has been disabled.';
-                            break;
-                        default:
-                            errorMessage = `Login error: ${error.message}`;
-                            break;
-                    }
-                    DOM.loginError.textContent = errorMessage;
-                    console.error("Login Error:", error.code, error.message);
-                }
-            });
-
-            DOM.logoutBtn.addEventListener('click', async () => {
-                try {
-                    await auth.signOut();
-                    console.log("User logged out.");
-                } catch (error) {
-                    console.error("Logout Error:", error);
-                    alert("Failed to log out: " + error.message);
-                }
-            });
-
-            // Navigation
-            DOM.navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (loggedInUser) {
-                        const pageId = link.dataset.page + 'Page';
-                        if (link.dataset.page === 'admin' && loggedInUserRole !== 'Admin') {
-                            alert("You do not have permission to access the Admin page.");
-                            return;
-                        }
-                        showPage(pageId);
-                        window.location.hash = link.dataset.page;
-                    } else {
-                        alert("Please log in to access the application.");
-                    }
-                });
-            });
-
-            // Attendance Marking Workflow
-            DOM.openAttendanceCalendarBtn.addEventListener('click', () => {
-                currentCalendarDate = new Date(todayGlobal.getFullYear(), todayGlobal.getMonth(), 1);
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-                DOM.calendarModal.style.display = 'flex';
-            });
-
-            DOM.selectDateFromCalendarBtn.addEventListener('click', () => {
-                if (selectedMarkingDate) {
-                    DOM.attendanceDateInput.value = selectedMarkingDate;
-                    DOM.modalDateDisplay.textContent = selectedMarkingDate;
-                    populateModalAttendanceTable();
-                    DOM.calendarModal.style.display = 'none'; // Close calendar
-                    DOM.attendanceMarkingModal.style.display = 'flex'; // Open attendance modal
-                } else {
-                    alert('Please select a date from the calendar.');
-                }
-            });
-
-
-            // Calendar Modal
-            DOM.closeCalendarModal.addEventListener('click', () => DOM.calendarModal.style.display = 'none');
-            DOM.cancelCalendarSelection.addEventListener('click', () => {
-                DOM.calendarModal.style.display = 'none';
-                selectedMarkingDate = null; // Clear selected date if cancelled
-                DOM.attendanceDateInput.value = ''; // Clear date input
-            });
-            DOM.prevMonthBtn.addEventListener('click', () => {
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-            });
-            DOM.nextMonthBtn.addEventListener('click', () => {
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-            });
-
-            // Attendance Marking Modal
-            DOM.closeAttendanceModal.addEventListener('click', () => DOM.attendanceMarkingModal.style.display = 'none');
-            DOM.cancelAttendanceBtn.addEventListener('click', () => DOM.attendanceMarkingModal.style.display = 'none');
-            DOM.saveAttendanceBtn.addEventListener('click', saveAttendance);
-
-            // Attendance Overview Table
-            DOM.deleteAttendanceDataBtn.addEventListener('click', deleteAttendanceData);
-            DOM.exportAttendanceDataBtn.addEventListener('click', exportAttendanceDataToCSV);
-
-            // Leave Tracker
-            DOM.prevMonthLeaveBtn.addEventListener('click', () => {
-                currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() - 1);
-                fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
-            });
-            DOM.nextMonthLeaveBtn.addEventListener('click', () => {
-                currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() + 1);
-                fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
-            });
-
-            // Individual Summary
-            DOM.individualSelectSummary.addEventListener('change', (e) => updateIndividualSummary(e.target.value));
-
-            // Dashboard
-            DOM.employeeSelect.addEventListener('change', (e) => updateDashboardData(e.target.value));
-
-            // Reports Page
-            DOM.generateReportBtn.addEventListener('click', () => {
-                const reportType = DOM.reportTypeSelect.value;
-                const startDate = DOM.startDateInput.value;
-                const endDate = DOM.endDateInput.value;
-
-                if (!startDate || !endDate) {
-                    alert('Please select both start and end dates for the report.');
-                    return;
-                }
-                generateReportData(reportType, startDate, endDate);
-            });
-            DOM.exportReportCsvBtn.addEventListener('click', exportReportToCSV);
-
-            // Admin Add User Form
-            DOM.addMemberForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                DOM.addMemberMessage.style.display = 'none';
-                const fullName = DOM.fullNameInput.value.trim();
-                const newEmail = DOM.newEmailInput.value.trim();
-                const newPassword = DOM.newPasswordInput.value;
-                const memberRole = DOM.memberRoleSelect.value;
-
-                if (!fullName || !newEmail || !newPassword || !memberRole) {
-                    DOM.addMemberMessage.textContent = 'All fields are required!';
-                    DOM.addMemberMessage.style.color = '#dc3545';
-                    DOM.addMemberMessage.style.display = 'block';
-                    return;
-                }
-
-                try {
-                    const userCredential = await auth.createUserWithEmailAndPassword(newEmail, newPassword);
-                    const newUser = userCredential.user;
-
-                    await db.collection('users').doc(newUser.uid).set({
-                        fullName: fullName,
-                        email: newEmail,
-                        role: memberRole,
-                        isActive: true,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    DOM.addMemberMessage.textContent = `User ${fullName} created successfully!`;
-                    DOM.addMemberMessage.style.color = '#28a745';
-                    DOM.addMemberMessage.style.display = 'block';
-                    DOM.addMemberForm.reset();
-
-                    await fetchAllUsersData();
-                    renderStaffList();
-                    populateEmployeeSelect();
-                    populateIndividualSummarySelect();
-                    updateHomeStatistics();
-                    updateDashboardData(DOM.employeeSelect.value);
-                } catch (error) {
-                    let errorMessage = 'Error creating user.';
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            errorMessage = 'The email address is already in use by another account.';
-                            break;
-                        case 'auth/weak-password':
-                            errorMessage = 'Password is too weak. Please choose a stronger password.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'The email address is not valid.';
-                            break;
-                        default:
-                            errorMessage = `Error: ${error.message}`;
-                            break;
-                    }
-                    DOM.addMemberMessage.textContent = errorMessage;
-                    DOM.addMemberMessage.style.color = '#dc3545';
-                    DOM.addMemberMessage.style.display = 'block';
-                    console.error("Add User Error:", error.code, error.message);
-                }
-            });
-        }
-
-        // --- DOMContentLoaded and Initial Setup ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Assign DOM elements to the DOM object
-            DOM = {
-                loginPage: document.getElementById('loginPage'),
-                appContainer: document.getElementById('appContainer'),
-                loginForm: document.getElementById('loginForm'),
-                loginEmailInput: document.getElementById('loginEmail'),
-                loginPasswordInput: document.getElementById('loginPassword'),
-                loginError: document.getElementById('loginError'),
-
-                loggedInUserName: document.getElementById('loggedInUserName'),
-                loggedInUserRoleDisplay: document.getElementById('loggedInUserRole'),
-                logoutBtn: document.getElementById('logoutBtn'),
-                adminNavLink: document.getElementById('adminNavLink'),
-                navLinks: document.querySelectorAll('.main-nav a'),
-
-                homePage: document.getElementById('homePage'),
-                statTotalPresent: document.getElementById('statTotalPresent'),
-                statTotalStaff: document.getElementById('statTotalStaff'),
-                statAgentsOnLeaveWeek: document.getElementById('statAgentsOnLeaveWeek'),
-                statAgentsOnSickOffWeek: document.getElementById('statAgentsOnSickOffWeek'),
-                staffOnLeaveNames: document.getElementById('staffOnLeaveNames'),
-                agentsOnSickOffNames: document.getElementById('agentsOnSickOffNames'),
-
-                attendancePage: document.getElementById('attendancePage'),
-                attendanceDateInput: document.getElementById('attendanceDateInput'),
-                openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'), // Renamed
-                attendanceMarkingMessage: document.getElementById('attendanceMarkingMessage'),
-                attendanceOverviewTableContainer: document.getElementById('attendanceOverviewTableContainer'),
-                deleteAttendanceDataBtn: document.getElementById('deleteAttendanceDataBtn'),
-                exportAttendanceDataBtn: document.getElementById('exportAttendanceDataBtn'),
-
-                attendanceMarkingModal: document.getElementById('attendanceMarkingModal'),
-                closeAttendanceModal: document.getElementById('closeAttendanceModal'),
-                modalDateDisplay: document.getElementById('modalDateDisplay'),
-                modalAttendanceTableBody: document.getElementById('modalAttendanceTable').querySelector('tbody'),
-                saveAttendanceBtn: document.getElementById('saveAttendanceBtn'),
-                cancelAttendanceBtn: document.getElementById('cancelAttendanceBtn'),
-                modalErrorMessage: document.getElementById('modalErrorMessage'),
-
-                calendarModal: document.getElementById('calendarModal'),
-                closeCalendarModal: document.getElementById('closeCalendarModal'),
-                prevMonthBtn: document.getElementById('prevMonthBtn'),
-                nextMonthBtn: document.getElementById('nextMonthBtn'),
-                currentMonthYear: document.getElementById('currentMonthYear'),
-                calendarDaysGrid: document.getElementById('calendarDaysGrid'),
-                cancelCalendarSelection: document.getElementById('cancelCalendarSelection'),
-                selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'), // New button
-
-                leaveTrackerPage: document.getElementById('leaveTrackerPage'),
-                prevMonthLeaveBtn: document.getElementById('prevMonthLeaveBtn'),
-                nextMonthLeaveBtn: document.getElementById('nextMonthLeaveBtn'),
-                currentLeaveMonthYear: document.getElementById('currentLeaveMonthYear'),
-                leaveTrackerTableContainer: document.getElementById('leaveTrackerTableContainer'),
-
-                individualSummaryPage: document.getElementById('individualSummaryPage'),
-                individualSelectSummary: document.getElementById('individualSelectSummary'),
-                summaryWFO: document.getElementById('summaryWFO'),
-                summaryWFH: document.getElementById('summaryWFH'),
-                summaryLeave: document.getElementById('summaryLeave'),
-                summarySickOff: document.getElementById('summarySickOff'),
-                summarySignedOff: document.getElementById('summarySignedOff'),
-                summaryDayOff: document.getElementById('summaryDayOff'),
-                summaryUnpaidLeave: document.getElementById('summaryUnpaidLeave'),
-                summaryNCNS: document.getElementById('summaryNCNS'),
-                summaryCompassionateLeave: document.getElementById('summaryCompassionateLeave'),
-                monthlyWFHWFOChart: document.getElementById('monthlyWFHWFOChart'),
-
-                dashboardPage: document.getElementById('dashboardPage'),
-                dashboardStartDate: document.getElementById('dashboardStartDate'),
-                employeeSelect: document.getElementById('employeeSelect'),
-                dashboardTotalEmployees: document.getElementById('dashboardTotalEmployees'),
-                dashboardAbsenceDays: document.getElementById('dashboardAbsenceDays'),
-                dashboardUnapprovedLeave: document.getElementById('dashboardUnapprovedLeave'),
-                overallAttendanceGaugeFill: document.getElementById('overallAttendanceGaugeFill'),
-                overallAttendanceGaugeLabel: document.getElementById('overallAttendanceGaugeLabel'),
-                attendanceStatsChart: document.getElementById('attendanceStatsChart'),
-                leaveTakenSick: document.getElementById('leaveTakenSick'),
-                leaveTakenCasual: document.getElementById('leaveTakenCasual'),
-                leaveTakenAnnual: document.getElementById('leaveTakenAnnual'),
-                leaveTakenUnpaid: document.getElementById('leaveTakenUnpaid'),
-                workingLocationDonutChart: document.getElementById('workingLocationDonutChart'),
-                workingLocationDonutLabel: document.getElementById('workingLocationDonutLabel'),
-                topEmployeesChart: document.getElementById('topEmployeesChart'),
-
-                reportsPage: document.getElementById('reportsPage'),
-                reportTypeSelect: document.getElementById('reportType'),
-                startDateInput: document.getElementById('startDate'),
-                endDateInput: document.getElementById('endDate'),
-                generateReportBtn: document.getElementById('generateReportBtn'),
-                exportReportCsvBtn: document.getElementById('exportReportCsvBtn'),
-                reportsTableBody: document.getElementById('reportsTableBody'),
-                reportTable: document.getElementById('reportTable'),
-
-                adminPage: document.getElementById('adminPage'),
-                addMemberForm: document.getElementById('addMemberForm'),
-                fullNameInput: document.getElementById('fullName'),
-                newEmailInput: document.getElementById('newEmail'),
-                newPasswordInput: document.getElementById('newPassword'),
-                memberRoleSelect: document.getElementById('memberRole'),
-                addMemberMessage: document.getElementById('addMemberMessage'),
-                staffListTableBody: document.getElementById('staffListTableBody')
-            };
-
-            initializeEventListeners();
-
-            // Firebase Auth State Listener
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    console.log("Firebase Auth State Changed: User is logged in.", user.email);
-                    try {
-                        const userProfileDoc = await db.collection('users').doc(user.uid).get();
-                        if (userProfileDoc.exists) {
-                            const userProfile = userProfileDoc.data();
-                            setLoggedInState(true, user, userProfile);
-                        } else {
-                            console.warn("User profile not found in Firestore for UID:", user.uid);
-                            alert("Your user profile is incomplete. Please contact administrator.");
-                            auth.signOut();
-                        }
-                    } catch (error) {
-                        console.error("Error fetching user profile:", error);
-                        alert("Error fetching user profile. Please try again.");
-                        auth.signOut();
-                    }
-                } else {
-                    console.log("Firebase Auth State Changed: User is logged out.");
-                    setLoggedInState(false);
-                }
-            });
-
-            // Initial load based on hash (if user refreshed while logged in)
-            if (window.location.hash && loggedInUser) { // Check loggedInUser after auth state listener might have updated it
-                const pageIdFromHash = window.location.hash.substring(1) + 'Page';
-                if (DOM[pageIdFromHash]) {
-                    showPage(pageIdFromHash);
-                }
-            } else if (!loggedInUser) {
-                setLoggedInState(false);
-            }
-        });
-    </script>
-</body>
-</html>
+         * @param {object} monthlyData - An object where keys are 'YY
