@@ -2459,6 +2459,11 @@
             DOM.leaveTrackerTableContainer.innerHTML = '';
             DOM.currentLeaveMonthYear.textContent = currentLeaveTrackerDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
+            if (activeAgents.length === 0) {
+                DOM.leaveTrackerTableContainer.innerHTML = '<p style="text-align: center; padding: 20px;">No active staff members to display in the leave tracker. Please add active staff via the Admin page.</p>';
+                return;
+            }
+
             const table = document.createElement('table');
             table.classList.add('leave-planner-table');
             const thead = document.createElement('thead');
@@ -2489,6 +2494,8 @@
 
             const totalMonthlyLeave = Array(numDaysInMonth).fill(0); // For footer totals
 
+            let hasDataForTable = false; // Flag to check if any active agent has data
+
             activeAgents.forEach((agentName, index) => {
                 const tr = document.createElement('tr');
                 const agentLeaveData = currentMonthLeaveData.find(row => row.Name === agentName);
@@ -2504,6 +2511,7 @@
                     <td class="current-leave-balance" data-agent="${agentName}">${leaveBalance}</td>
                 `;
 
+                let agentHasLeaveEntries = false; // Check if this agent has any leave entries for the month
                 monthlyDateKeys.forEach((fullDateKey, dayIndex) => {
                     const dateObj = new Date(fullDateKey);
                     const dayOnly = dateObj.getDate().toString().padStart(2, '0'); // 'DD' format
@@ -2519,6 +2527,7 @@
                     if (cellStatus === 'L') {
                         td.classList.add('pending-leave');
                         td.title = "Pending Leave Request";
+                        agentHasLeaveEntries = true;
                         // Add interactive overlay for approval/decline only if it's pending
                         if (loggedInUserRole === 'Admin' || loggedInUserRole === 'Supervisor') { // Only admins/supervisors can approve
                             td.innerHTML = `<span style="display:none;" class="leave-approval-overlay">
@@ -2542,11 +2551,20 @@
                     } else if (cellStatus === 'AP') {
                         td.classList.add('approved-leave');
                         td.title = "Approved Leave";
+                        agentHasLeaveEntries = true;
                     } else if (cellStatus === 'D') {
                         td.classList.add('declined-leave');
                         td.title = "Declined Leave";
+                        agentHasLeaveEntries = true;
                     } else {
-                         // Attempt to get color class from ATTENDANCE_STATUSES if it's not a leave status
+                         // Allow clicking empty cells to request leave (only if not disabled)
+                        if (loggedInUserRole === 'Agent' || loggedInUserRole === 'QA' || loggedInUserRole === 'Supervisor') { // Allow agents, QA, supervisors to request
+                            td.addEventListener('click', async (event) => {
+                                if (event.target.textContent === '') { // Only allow if empty
+                                    await updateLeaveStatus(agentName, fullDateKey, 'L'); // Request leave
+                                }
+                            });
+                        }
                         const statusObj = ATTENDANCE_STATUSES.find(s => s.value === cellStatus);
                         if (statusObj && statusObj.colorClass) {
                             td.classList.add(statusObj.colorClass);
@@ -2563,13 +2581,15 @@
 
                 // Update leave balance if needed (simplified: only deduct on approval)
                 if (agentLeaveData) {
-                    const approvedLeavesCount = Object.keys(agentLeaveData).filter(key => agentLeaveData[key] === 'AP' && key.length === 2 && !isNaN(key)).length; // Count only numeric day keys
+                    const approvedLeavesCount = Object.keys(agentLeaveData).filter(key => agentLeaveData[key] === 'AP' && key.length <= 2 && !isNaN(key)).length; // Count only numeric day keys
                     leaveBalance = openingBalance - approvedLeavesCount;
                     tr.querySelector('.current-leave-balance').textContent = Math.max(0, leaveBalance); // Ensure balance doesn't go negative
                 }
 
-
                 tbody.appendChild(tr);
+                if (agentHasLeaveEntries || Object.keys(agentLeaveData || {}).length > 4) { // Check if row has any relevant data beyond initial balances
+                    hasDataForTable = true;
+                }
             });
             table.appendChild(tbody);
 
@@ -2584,7 +2604,13 @@
             tfoot.appendChild(tfootRow);
             table.appendChild(tfoot);
 
-            DOM.leaveTrackerTableContainer.appendChild(table);
+            if (activeAgents.length > 0 && !hasDataForTable && currentMonthLeaveData.length === 0) {
+                 // If there are active agents but no leave data for the current month
+                DOM.leaveTrackerTableContainer.innerHTML = '<p style="text-align: center; padding: 20px;">No leave data found for this month. Click on a day to request leave.</p>';
+            } else if (activeAgents.length > 0) {
+                DOM.leaveTrackerTableContainer.appendChild(table);
+            }
+
 
             // Add event listeners for approve/decline buttons after rendering
             document.querySelectorAll('.leave-approval-overlay button').forEach(button => {
