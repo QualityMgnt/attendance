@@ -44,7 +44,7 @@
             display: flex;
         }
 
-        /* Login Page */
+        /* Login Container */
         .login-container {
             background-color: #fff;
             padding: 40px;
@@ -1410,7 +1410,8 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
-            min-width: 1200px; /* Ensure horizontal scroll if many columns */
+            /* Adjust min-width based on number of columns: fixed columns + (days in month * 3 for shift/break/lunch) */
+            min-width: calc(400px + (31 * 150px)); /* Example: 4 fixed, 31 days, 150px per day */
         }
 
         .shift-schedule-table th,
@@ -1421,118 +1422,153 @@
             white-space: nowrap; /* Prevent wrapping for compact cells */
         }
 
-        .shift-schedule-table thead th {
-            background-color: #f0f0f0;
-            font-weight: 600;
-            color: #333;
+        /* Fixed left columns */
+        .shift-schedule-table th:nth-child(1),
+        .shift-schedule-table td:nth-child(1) {
             position: sticky;
-            top: 0;
-            z-index: 2;
+            left: 0;
+            z-index: 4; /* Higher z-index for fixed headers */
+            background-color: #f0f0f0; /* Consistent with header background */
         }
-        /* Specific styling for the monthly headers (July, August etc.) */
-        .shift-schedule-table th.month-header {
-            text-align: center;
-            background-color: #e9f5ff; /* Light blue for monthly headers */
+        .shift-schedule-table td:nth-child(1) {
+            background-color: #fff; /* White background for cell */
+        }
+        .shift-schedule-table th:nth-child(2),
+        .shift-schedule-table td:nth-child(2) {
+            position: sticky;
+            left: 50px; /* Adjust based on width of first column */
+            z-index: 4;
+            background-color: #f0f0f0;
+        }
+        .shift-schedule-table td:nth-child(2) {
+            background-color: #fff;
+        }
+        .shift-schedule-table th:nth-child(3),
+        .shift-schedule-table td:nth-child(3) {
+            position: sticky;
+            left: 170px; /* Adjust based on width of first two columns */
+            z-index: 4;
+            background-color: #f0f0f0;
+        }
+        .shift-schedule-table td:nth-child(3) {
+            background-color: #fff;
+        }
+        .shift-schedule-table th:nth-child(4),
+        .shift-schedule-table td:nth-child(4) {
+            position: sticky;
+            left: 290px; /* Adjust based on width of first three columns */
+            z-index: 4;
+            background-color: #f0f0f0;
+        }
+        .shift-schedule-table td:nth-child(4) {
+            background-color: #fff;
+        }
+         .shift-schedule-table th:nth-child(5), /* New Month Column */
+        .shift-schedule-table td:nth-child(5) {
+            position: sticky;
+            left: 450px; /* Adjust based on previous fixed columns */
+            z-index: 4;
+            background-color: #f0f0f0;
+        }
+        .shift-schedule-table td:nth-child(5) {
+            background-color: #fff;
+        }
+
+
+        .shift-schedule-table thead th {
+            background-color: #3498db; /* Blue header as in image */
+            color: white;
+            font-weight: 600;
+            padding: 8px 10px; /* Slightly less padding for headers */
             font-size: 15px;
-            padding-top: 5px; /* Add some padding */
-            padding-bottom: 5px;
+            border-color: #2980b9; /* Darker blue border */
         }
-        /* Specific styling for nested headers within a month (Shift Start, Break etc.) */
-        .shift-schedule-table th.sub-header {
-            background-color: #d0e7ff; /* Darker blue for sub headers */
+
+        /* Specific styling for the monthly headers (e.g., "1 (S)") */
+        .shift-schedule-table th.daily-main-header {
+            text-align: center;
+            background-color: #3498db; /* Blue background */
+            color: white;
+            font-size: 15px;
+            border-color: #2980b9;
+        }
+
+        /* Sub-headers like Shift Time, Break, Lunch */
+        .shift-schedule-table th.daily-sub-header {
+            background-color: #87CEEB; /* Lighter blue for sub-headers */
+            color: #333;
             font-weight: 500;
             font-size: 13px;
             text-align: center;
+            padding: 5px 8px;
+            border-color: #6495ED; /* Cornflower blue border */
         }
 
         .shift-schedule-table tbody tr:nth-child(even) {
             background-color: #f9f9f9;
         }
 
-        /* Styles for shift cells */
-        .shift-schedule-table td .shift-details-group {
-            /* This class is now largely unused for display in the table,
-            primarily for the "Add Shift" form. Keeping for structural integrity
-            but its flex properties might not apply to table cells directly anymore
-            if content is directly placed in td.
-            However, we are now placing the *combined-shift-info* INSIDE the td.
-            */
-            display: flex; /* Keep flex for its internal organization in the add form */
-            flex-direction: column;
-            gap: 5px;
-            min-width: 150px;
-        }
-        .shift-schedule-table td .shift-details-group select,
-        .shift-schedule-table td .shift-details-group input {
+        /* Styles for individual cells containing dropdown/spans */
+        .shift-schedule-table td select,
+        .shift-schedule-table td span {
+            font-size: 13px; /* Smaller font for inline elements */
+            padding: 2px 5px; /* Compact padding */
+            border-radius: 3px;
+            display: block; /* Each item on its own line */
             width: 100%;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        .shift-schedule-table td .shift-details-group span {
-            font-size: 13px;
-            color: #555;
-            padding: 5px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
+            box-sizing: border-box; /* Include padding/border in width */
+            text-align: left; /* Align text left within cell */
         }
 
-        /* IMPORTANT: NEW/MODIFIED Styles for combined Shift Time / Break / Lunch display */
-        .shift-schedule-table td.daily-shift-cell {
+        .shift-schedule-table td select {
+            border: 1px solid #ccc;
+            background-color: #fdfdfd;
+            cursor: pointer;
+        }
+
+        /* Styles for combined Shift Time / Break / Lunch display in daily cells */
+        .shift-schedule-table td.daily-cell { /* Added new class for daily content cells */
             padding: 5px 8px; /* Compact padding for daily cells */
             vertical-align: top; /* Align content to the top */
         }
+        .shift-schedule-table td.daily-cell .shift-time-display {
+            font-weight: 600;
+            color: #007bff; /* Blue for shift time */
+            margin-bottom: 2px; /* Small separation from breaks */
+        }
+        .shift-schedule-table td.daily-cell .break-display,
+        .shift-schedule-table td.daily-cell .lunch-display {
+            color: #555;
+            font-size: 12px; /* Smaller font for breaks */
+        }
 
-        .shift-schedule-table td .combined-shift-info {
+        /* Styles for shift cells (now simpler text content) */
+        .shift-schedule-table td .shift-text-display {
             display: flex;
             flex-direction: column;
             align-items: flex-start; /* Align left */
             font-family: 'Poppins', sans-serif;
-            font-size: 12px; /* Smaller font for compact view */
+            font-size: 12px; /* Adjust overall font size for cell content */
             color: #333;
-            gap: 0px; /* No gap between lines for compact look */
-            white-space: nowrap; /* Prevent wrapping within this cell */
-            line-height: 1.2; /* Slightly tighter line height */
+            gap: 2px; /* Small gap between lines like in your image */
         }
-        .shift-schedule-table td .combined-shift-info span {
-            display: block;
-            width: 100%;
-            text-align: left;
-            line-height: inherit; /* Inherit from parent */
-        }
-        .shift-schedule-table td .combined-shift-info .shift-time-display {
-            font-weight: 600;
+        .shift-schedule-table td .shift-text-display strong {
+            font-size: 13px; /* Shift Time should be slightly larger/bolder */
             color: #007bff;
-            margin-bottom: 2px; /* Small separation from breaks */
         }
-        .shift-schedule-table td .combined-shift-info .break-lunch-display {
-            color: #555;
+        .shift-schedule-table td .shift-text-display span {
+            display: block; /* Each part on its own line */
+            line-height: 1.2;
+            white-space: nowrap; /* Prevent individual lines from wrapping too much */
         }
 
-
-        .shift-schedule-table td.overtime {
+        .shift-schedule-table td.overtime-cell { /* Apply to TD if total hours indicate overtime */
             background-color: #ffcccc; /* Light red for overtime */
-            color: #cc0000;
-            font-weight: bold;
         }
-
-        .shift-schedule-table td.compliant {
+        .shift-schedule-table td.compliant-cell { /* Apply to TD if total hours are compliant */
             background-color: #d4edda; /* Light green for compliant */
-            color: #155724;
         }
 
-        .shift-schedule-table td.swap-requested {
-            background-color: #ffeeba; /* Light yellow for pending swap */
-            color: #856404;
-            cursor: pointer;
-        }
-
-        .shift-schedule-table td.swapped {
-            background-color: #e2f0fb; /* Light blue for swapped */
-            color: #0056b3;
-            text-decoration: line-through;
-        }
 
         .shift-schedule-dashboard {
             display: grid;
@@ -2177,6 +2213,7 @@
             { shift: "8:00 am - 4:30 pm", break: "8:50-9:05AM", lunch: "12:30-1:30PM", hours: 8.5 },
             { shift: "8:30 am - 5:00 pm", break: "9:50 - 10:05AM", lunch: "1:30 - 2:30PM", hours: 8.5 },
             { shift: "7:00 am - 3:30 pm", break: "8:20 - 8:35AM", lunch: "12:30-1:30PM", hours: 8.5 },
+            { shift: "8:00 am - 4:30 pm - B", break: "8:50-9:05AM", lunch: "1:30-2:30PM", hours: 8.5 }, // Added from image
             { shift: "9:30 am - 6:00 pm", break: "10:45-11:45AM", lunch: "2:30-3:30PM", hours: 8.5 },
             { shift: "Day Off", break: "", lunch: "", hours: 0 },
             { shift: "Public Holiday", break: "", lunch: "", hours: 0 },
@@ -3993,35 +4030,57 @@
             ).sort((a, b) => a.fullName.localeCompare(b.fullName));
 
             if (filteredAgents.length === 0) {
-                DOM.shiftScheduleTableBody.innerHTML = `<tr><td colspan="11" style="text-align: center; padding: 20px;">No active staff found for the selected criteria.</td></tr>`;
+                DOM.shiftScheduleTableBody.innerHTML = `<tr><td colspan="100%" style="text-align: center; padding: 20px;">No active staff found for the selected criteria.</td></tr>`; // Updated colspan
                 updateShiftScheduleDashboard([]); // Clear dashboard
                 return;
             }
 
             // Generate Header Rows
             const headerRow1 = document.createElement('tr');
+            const headerRow2 = document.createElement('tr'); // This row will contain "Shift Time", "Break", "Lunch" repeated
+
+            // Fixed columns headers for headerRow1
             headerRow1.innerHTML = `
-                <th rowspan="1">No</th>
-                <th rowspan="1">Name</th>
-                <th rowspan="1">Role</th>
-                <th rowspan="1">Secondary Role</th>
-                <th rowspan="1">Month</th>
+                <th rowspan="2">No</th>
+                <th rowspan="2">Name</th>
+                <th rowspan="2">Role</th>
+                <th rowspan="2">Secondary Role</th>
+                <th rowspan="2">Month</th>
             `;
 
-            // For each day, add a single header column
+            // Fixed columns headers for headerRow2 (empty for these cells, handled by rowspan above)
+            headerRow2.innerHTML = `
+                <th></th> <th></th> <th></th> <th></th> <th></th> `;
+
+
+            // Daily headers (Day Number + Day of Week)
             const numDaysInMonth = new Date(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth() + 1, 0).getDate();
+            const dailySubHeaders = ['Shift Time', 'Break', 'Lunch']; // These headers will repeat for each day
 
             for (let day = 1; day <= numDaysInMonth; day++) {
                 const date = new Date(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth(), day);
                 const dayOfMonth = date.getDate().toString();
                 const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 1);
 
-                const dailyHeaderCell = document.createElement('th');
-                dailyHeaderCell.classList.add('month-header'); // Use month-header for styling
-                dailyHeaderCell.innerHTML = `${dayOfMonth}<br>(${dayOfWeek})`; // Formatted as "1 (S)" for example
-                headerRow1.appendChild(dailyHeaderCell);
+                // Top-level daily header (e.g., "1 (S)")
+                const dailyMainHeaderCell = document.createElement('th');
+                dailyMainHeaderCell.classList.add('daily-main-header');
+                dailyMainHeaderCell.colSpan = dailySubHeaders.length; // Spans "Shift Time", "Break", "Lunch"
+                dailyMainHeaderCell.textContent = `${dayOfMonth} (${dayOfWeek})`;
+                headerRow1.appendChild(dailyMainHeaderCell);
+
+                // Sub-headers for "Shift Time", "Break", "Lunch"
+                dailySubHeaders.forEach(subHeader => {
+                    const subHeaderCell = document.createElement('th');
+                    subHeaderCell.classList.add('daily-sub-header');
+                    subHeaderCell.textContent = subHeader;
+                    headerRow2.appendChild(subHeaderCell);
+                });
             }
+
             DOM.shiftScheduleTableHead.appendChild(headerRow1);
+            DOM.shiftScheduleTableHead.appendChild(headerRow2);
+
 
             // Populate Table Body
             // Re-generate sample data for the current view, ensuring it matches what's displayed
@@ -4040,70 +4099,105 @@
 
                 for (let day = 1; day <= numDaysInMonth; day++) {
                     const currentDayFormatted = `${selectedMonthYear}-${day.toString().padStart(2, '0')}`;
-                    const agentShiftForDay = allShiftsForMonth.find(s =>
+                    let agentShiftForDay = allShiftsForMonth.find(s =>
                         s.agentName === agent.fullName && s.shiftDate === currentDayFormatted
                     );
 
-                    const td = document.createElement('td');
-                    td.classList.add('daily-shift-cell'); // Add a specific class for daily cells
+                    // If no shift is found, create a default empty one for this display
+                    if (!agentShiftForDay) {
+                         agentShiftForDay = { // Default empty values for display purposes
+                            shiftTime: '',
+                            breakTime: '',
+                            lunchBreak: '',
+                            totalHours: 0,
+                            remarks: '',
+                            swapStatus: ''
+                        };
+                    }
 
-                    // *** Combined Shift Details Display (Shift Time, Break, Lunch, Total Hours, Remarks, Swap Status) ***
-                    const combinedShiftInfoDiv = document.createElement('div');
-                    combinedShiftInfoDiv.classList.add('combined-shift-info');
-
-                    const shiftTimeSpan = document.createElement('span');
-                    shiftTimeSpan.classList.add('shift-time-display');
-                    shiftTimeSpan.textContent = agentShiftForDay ? agentShiftForDay.shiftTime : '';
-                    combinedShiftInfoDiv.appendChild(shiftTimeSpan);
-
-                    const breakLunchSpan = document.createElement('span');
-                    breakLunchSpan.classList.add('break-lunch-display');
-                    const breakText = agentShiftForDay && agentShiftForDay.breakTime ? `Brk: ${agentShiftForDay.breakTime}` : '';
-                    const lunchText = agentShiftForDay && agentShiftForDay.lunchBreak ? `Lch: ${agentShiftForDay.lunchBreak}` : '';
-                    breakLunchSpan.textContent = [breakText, lunchText].filter(Boolean).join(' | ');
-                    combinedShiftInfoDiv.appendChild(breakLunchSpan);
-
-                    const totalHoursText = agentShiftForDay && agentShiftForDay.totalHours > 0 ? `${agentShiftForDay.totalHours} hrs` : '';
-                    const remarksText = agentShiftForDay && agentShiftForDay.remarks ? `Remarks: ${agentShiftForDay.remarks}` : '';
-                    const swapStatusText = agentShiftForDay && agentShiftForDay.swapStatus && agentShiftForDay.swapStatus !== '-' ? `Swap: ${agentShiftForDay.swapStatus}` : '';
-
-                    // Add total hours, remarks, and swap status directly as spans within the same cell
-                    if (totalHoursText) {
-                        const span = document.createElement('span');
-                        span.textContent = totalHoursText;
-                        if (agentShiftForDay) { // Apply styling for overtime/compliant if relevant
-                             const shiftDetail = SHIFT_DETAILS_MAP.find(s => s.shift === agentShiftForDay.shiftTime);
-                            if (shiftDetail && shiftDetail.hours > 9) {
-                                span.classList.add('overtime');
-                            } else if (shiftDetail && shiftDetail.hours >= 7 && shiftDetail.hours <= 9) {
-                                span.classList.add('compliant');
-                            }
+                    // --- Shift Time Cell (Dropdown) ---
+                    const shiftTimeTd = document.createElement('td');
+                    const shiftSelect = document.createElement('select');
+                    shiftSelect.classList.add('shift-time-select');
+                    shiftSelect.dataset.agent = agent.fullName;
+                    shiftSelect.dataset.date = currentDayFormatted;
+                    shiftSelect.innerHTML = '<option value="">-</option>';
+                    SHIFT_DETAILS_MAP.forEach(shiftOption => {
+                        const option = document.createElement('option');
+                        option.value = shiftOption.shift;
+                        option.textContent = shiftOption.shift;
+                        if (agentShiftForDay.shiftTime === shiftOption.shift) {
+                            option.selected = true;
                         }
-                        combinedShiftInfoDiv.appendChild(span);
-                    }
-                    if (remarksText) {
-                        const span = document.createElement('span');
-                        span.textContent = remarksText;
-                        combinedShiftInfoDiv.appendChild(span);
-                    }
-                    if (swapStatusText) {
-                        const span = document.createElement('span');
-                        span.textContent = swapStatusText;
-                        // Apply styling for swap status if needed, similar to how it was on the td
-                         if (agentShiftForDay.swapStatus === 'Swap Requested') {
-                            span.classList.add('swap-requested'); // Re-use class or define new one for span
-                        } else if (agentShiftForDay.swapStatus === 'Swapped') {
-                            span.classList.add('swapped');
-                        } else if (agentShiftForDay.swapStatus === 'Declined') {
-                            span.classList.add('declined-leave');
+                        shiftSelect.appendChild(option);
+                    });
+                    shiftSelect.addEventListener('change', (e) => {
+                        // Find the corresponding existing shift in in-memory data, or create it
+                        let updatedShift = shiftScheduleData.find(s => s.agentName === agent.fullName && s.shiftDate === currentDayFormatted);
+                        if (!updatedShift) {
+                            updatedShift = { // Create a new entry if none exists
+                                agentName: agent.fullName,
+                                role: agent.role,
+                                secondaryRole: agent.secondaryRole,
+                                shiftDate: currentDayFormatted,
+                                shiftTime: '', breakTime: '', lunchBreak: '', totalHours: 0, remarks: '', swapStatus: ''
+                            };
+                            shiftScheduleData.push(updatedShift);
                         }
-                        combinedShiftInfoDiv.appendChild(span);
+
+                        const selectedShiftValue = e.target.value;
+                        const details = SHIFT_DETAILS_MAP.find(s => s.shift === selectedShiftValue);
+
+                        updatedShift.shiftTime = selectedShiftValue;
+                        updatedShift.breakTime = details?.break || '';
+                        updatedShift.lunchBreak = details?.lunch || '';
+                        updatedShift.totalHours = details?.hours || 0;
+
+                        // Immediately update the display of Break and Lunch in the same row
+                        const parentRow = e.target.closest('tr');
+                        const breakCell = parentRow.querySelector(`td[data-date="${currentDayFormatted}"] + td[data-break-for="${agent.fullName}-${currentDayFormatted}"]`);
+                        const lunchCell = parentRow.querySelector(`td[data-date="${currentDayFormatted}"] + td[data-break-for="${agent.fullName}-${currentDayFormatted}"] + td[data-lunch-for="${agent.fullName}-${currentDayFormatted}"]`);
+
+                        if (breakCell) breakCell.textContent = updatedShift.breakTime;
+                        if (lunchCell) lunchCell.textContent = updatedShift.lunchBreak;
+
+                        // Re-render the table and dashboard after an edit is technically a full refresh,
+                        // but for in-table updates, it might be too heavy.
+                        // For this iteration, let's keep the re-render for simplicity if user changes a shift.
+                        // Or, just update the local values as above without full re-render.
+                        // Let's re-render to ensure consistency in styling for `overtime-cell`/`compliant-cell`.
+                        renderShiftScheduleTable();
+                        updateShiftScheduleDashboard(shiftScheduleData.filter(shift => shift.shiftDate.startsWith(selectedMonthYear)));
+                    });
+                    shiftTimeTd.appendChild(shiftSelect);
+                    tr.appendChild(shiftTimeTd);
+
+                    // --- Break Cell (Span) ---
+                    const breakTd = document.createElement('td');
+                    breakTd.classList.add('daily-cell', 'break-display');
+                    breakTd.textContent = agentShiftForDay.breakTime;
+                    // Add data attributes to help locate this cell later for updates
+                    breakTd.dataset.breakFor = `${agent.fullName}-${currentDayFormatted}`;
+                    tr.appendChild(breakTd);
+
+                    // --- Lunch Cell (Span) ---
+                    const lunchTd = document.createElement('td');
+                    lunchTd.classList.add('daily-cell', 'lunch-display');
+                    lunchTd.textContent = agentShiftForDay.lunchBreak;
+                    // Add data attributes to help locate this cell later for updates
+                    lunchTd.dataset.lunchFor = `${agent.fullName}-${currentDayFormatted}`;
+                    tr.appendChild(lunchTd);
+
+                    // Apply styling to the cells if it's an overtime/compliant shift
+                    if (agentShiftForDay.totalHours > 9) {
+                        shiftTimeTd.classList.add('overtime-cell');
+                        breakTd.classList.add('overtime-cell');
+                        lunchTd.classList.add('overtime-cell');
+                    } else if (agentShiftForDay.totalHours >= 7 && agentShiftForDay.totalHours <= 9) {
+                        shiftTimeTd.classList.add('compliant-cell');
+                        breakTd.classList.add('compliant-cell');
+                        lunchTd.classList.add('compliant-cell');
                     }
-
-                    td.appendChild(combinedShiftInfoDiv);
-                    // *******************************************************************
-
-                    tr.appendChild(td); // Append the completed daily cell to the row
                 }
                 DOM.shiftScheduleTableBody.appendChild(tr);
             });
@@ -4133,7 +4227,8 @@
                     newShiftLunchInput.value = '';
                 }
             }
-            // No longer directly modifying table cells via this function, as they are static displays.
+            // No longer directly modifying table cells via this function for the main roster table, as they are static displays or
+            // are updated by the `renderShiftScheduleTable` function itself on dropdown change.
         }
 
 
@@ -4144,11 +4239,21 @@
          * @returns {Array<object>} Array of objects, each representing an agent's monthly shift assignments.
          */
         function generateSampleMonthlyShiftAssignments(agents) {
-            // Clear existing in-memory data that might not be for this month or agent
-            // This is a crucial step to avoid duplicate or stale data when re-generating.
-            // For a *persistent* solution, you'd fetch specific month's data from Firebase here.
-            shiftScheduleData.length = 0; // Clear the array
+            // Filter out shifts not for the current month/year or not for filtered agents
+            const currentMonthYear = currentShiftScheduleDate.toISOString().substring(0, 7);
+            const filteredShiftData = shiftScheduleData.filter(s =>
+                s.shiftDate.startsWith(currentMonthYear) &&
+                agents.some(agent => agent.fullName === s.agentName)
+            );
 
+            // Create a map for quick lookup of existing shifts for agents and dates
+            const existingShiftsMap = new Map();
+            filteredShiftData.forEach(shift => {
+                const key = `${shift.agentName}-${shift.shiftDate}`;
+                existingShiftsMap.set(key, shift);
+            });
+
+            const newMonthShiftAssignments = [];
             const year = currentShiftScheduleDate.getFullYear();
             const month = currentShiftScheduleDate.getMonth();
             const numDaysInMonth = new Date(year, month + 1, 0).getDate();
@@ -4157,47 +4262,60 @@
                 for (let day = 1; day <= numDaysInMonth; day++) {
                     const shiftDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                     const currentDayOfWeek = new Date(year, month, day).getDay(); // 0 for Sunday, 6 for Saturday
+                    const key = `${agent.fullName}-${shiftDate}`;
 
                     let assignedShift = '';
-                    let remarks = '';
-                    let swapStatus = '';
-                    let totalHours = 0;
                     let breakTime = '';
                     let lunchBreak = '';
+                    let totalHours = 0;
+                    let remarks = '';
+                    let swapStatus = '';
 
-                    // Generate random shift if no existing data (since we cleared shiftScheduleData)
-                    if (currentDayOfWeek === 0 || currentDayOfWeek === 6) { // Weekends
-                        assignedShift = 'Day Off';
-                        remarks = 'Weekend Day Off';
+                    const existingShift = existingShiftsMap.get(key);
+
+                    if (existingShift) {
+                        // Use existing data if available
+                        assignedShift = existingShift.shiftTime;
+                        breakTime = existingShift.breakTime;
+                        lunchBreak = existingShift.lunchBreak;
+                        totalHours = existingShift.totalHours;
+                        remarks = existingShift.remarks;
+                        swapStatus = existingShift.swapStatus;
                     } else {
-                        // Exclude "Day Off", "Public Holiday", "Leave", "Sick Off" from random daily assignment
-                        const assignableShifts = SHIFT_DETAILS_MAP.filter(s =>
-                            s.shift !== 'Day Off' && s.shift !== 'Public Holiday' && s.shift !== 'Leave' && s.shift !== 'Sick Off'
-                        );
-                        const randomShiftOption = assignableShifts[Math.floor(Math.random() * assignableShifts.length)];
-                        
-                        assignedShift = randomShiftOption.shift;
-                        breakTime = randomShiftOption.break;
-                        lunchBreak = randomShiftOption.lunch;
-                        totalHours = randomShiftOption.hours;
+                        // Generate random shift if no existing data (only for the initial render logic)
+                        if (currentDayOfWeek === 0 || currentDayOfWeek === 6) { // Weekends
+                            assignedShift = 'Day Off';
+                            remarks = 'Weekend Day Off';
+                        } else {
+                            const assignableShifts = SHIFT_DETAILS_MAP.filter(s =>
+                                s.shift !== 'Day Off' && s.shift !== 'Public Holiday' && s.shift !== 'Leave' && s.shift !== 'Sick Off'
+                            );
+                            const randomShiftOption = assignableShifts[Math.floor(Math.random() * assignableShifts.length)];
+                            
+                            assignedShift = randomShiftOption.shift;
+                            breakTime = randomShiftOption.break;
+                            lunchBreak = randomShiftOption.lunch;
+                            totalHours = randomShiftOption.hours;
 
-                        if (Math.random() < 0.05) { // 5% chance of a pending swap
-                            swapStatus = 'Swap Requested';
-                            remarks = 'Pending Swap Request';
-                        } else if (Math.random() < 0.02) { // 2% chance of an approved swap
-                            swapStatus = 'Swapped';
-                            remarks = 'Swapped with colleague';
-                        } else if (Math.random() < 0.01) { // 1% chance of leave/sick off
-                            const leaveType = Math.random() < 0.5 ? 'Leave' : 'Sick Off';
-                            assignedShift = leaveType;
-                            remarks = `${leaveType} assigned`;
-                            breakTime = '';
-                            lunchBreak = '';
-                            totalHours = 0;
+                            // Dummy swap/leave status for new random shifts
+                            if (Math.random() < 0.05) {
+                                swapStatus = 'Swap Requested';
+                                remarks = 'Pending Swap Request';
+                            } else if (Math.random() < 0.02) {
+                                swapStatus = 'Swapped';
+                                remarks = 'Swapped with colleague';
+                            } else if (Math.random() < 0.01) {
+                                const leaveType = Math.random() < 0.5 ? 'Leave' : 'Sick Off';
+                                assignedShift = leaveType;
+                                remarks = `${leaveType} assigned`;
+                                breakTime = '';
+                                lunchBreak = '';
+                                totalHours = 0;
+                            }
                         }
                     }
-                    // Add to in-memory data for future lookups
-                    shiftScheduleData.push({
+
+                    newMonthShiftAssignments.push({
                         agentName: agent.fullName,
                         role: agent.role,
                         secondaryRole: agent.secondaryRole,
@@ -4211,8 +4329,12 @@
                     });
                 }
             });
-            // Return only shifts for the current month for dashboard calculations
-            return shiftScheduleData.filter(s => s.shiftDate.startsWith(currentShiftScheduleDate.toISOString().substring(0, 7)));
+            // Update the global in-memory shiftScheduleData only with the current month's generated shifts
+            // This is crucial for consistency between render and dashboard.
+            shiftScheduleData.length = 0; // Clear it first
+            shiftScheduleData.push(...newMonthShiftAssignments); // Add the newly generated/filtered shifts
+
+            return shiftScheduleData; // Return the full current month's data
         }
 
 
