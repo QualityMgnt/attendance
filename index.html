@@ -3992,13 +3992,15 @@
                 <th rowspan="2">Name</th>
                 <th rowspan="2">Role</th>
                 <th rowspan="2">Secondary Role</th>
-                <th rowspan="2">Month</th> 
+                <th rowspan="2">Month</th>
             `;
             const headerRow2 = document.createElement('tr'); // Sub-headers for each day
 
             const numDaysInMonth = new Date(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth() + 1, 0).getDate();
-            // Removed 'Break' and 'Lunch' as separate daily headers
-            const dailyHeaders = ['Shift Details', 'Total Hours', 'Remarks', 'Swap Status']; 
+            // Now, each day column will directly contain "Shift Time", "Break", "Lunch", "Total Hours", "Remarks", "Swap Status"
+            // So, for the primary header row (headerRow1), each day will just have ONE column, not multiple sub-columns.
+            // The structure within the <td> will handle the different items.
+            const dailySubHeaders = ['Shift Time', 'Break', 'Lunch', 'Total Hours', 'Remarks', 'Swap Status']; // These are now implicit within the cell structure
 
             for (let day = 1; day <= numDaysInMonth; day++) {
                 const date = new Date(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth(), day);
@@ -4006,20 +4008,44 @@
                 const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 1);
 
                 const monthHeader = document.createElement('th');
-                monthHeader.colSpan = dailyHeaders.length;
+                // The top-level header for each day now spans only ONE column
+                monthHeader.colSpan = 1; // THIS IS THE KEY CHANGE for the colspan
                 monthHeader.textContent = `${dayOfMonth} (${dayOfWeek})`;
                 monthHeader.classList.add('month-header');
                 headerRow1.appendChild(monthHeader);
-
-                dailyHeaders.forEach(subHeader => {
-                    const th = document.createElement('th');
-                    th.textContent = subHeader;
-                    th.classList.add('sub-header');
-                    headerRow2.appendChild(th);
-                });
+                // No sub-headers are added to headerRow2 for each day anymore, as content is combined within the cell itself
             }
+            // Clear headerRow2 as it's no longer needed for daily sub-headers
+            headerRow2.innerHTML = ''; // Ensure it's empty if any previous content was there
+
             DOM.shiftScheduleTableHead.appendChild(headerRow1);
-            DOM.shiftScheduleTableHead.appendChild(headerRow2);
+            // We do NOT append headerRow2 if there are no sub-headers for days.
+            // If you still want the "Shift Time", "Break", "Lunch" etc. as header text for individual columns
+            // then the colspan would need to be re-evaluated and these would be put into headerRow2 for each day.
+            // But based on your request "Remove etea Columns design it the same way use table above to design"
+            // and the image, it seems you want them *within* the cell, not as column headers for each day.
+
+            // If you want a static "Shift Details", "Total Hours", "Remarks", "Swap Status" as headers,
+            // they would go into the main header row (headerRow1) and you would remove the dynamic daily headers from that row.
+            // The current approach assumes a single column per day showing all info combined.
+
+            // Let's assume you meant the headers "Shift Time", "Break", "Lunch" should appear ONCE
+            // as part of the fixed headers, not repeated for every single day.
+            // If you want "Shift Time", "Break", "Lunch" etc. as *sub-headers under each day*, you'd re-add headerRow2 content.
+
+            // Given your request to "design it the same way use table above to design", it implies
+            // a header structure like:
+            // | No | Name | Role | Secondary Role | Month | Day 1 | Day 2 | ...
+            // And then under Day 1, Day 2 etc., the cell contains the shift time, break, lunch details.
+            // So, there's no "Shift Details", "Total Hours", "Remarks", "Swap Status" as *daily sub-headers*.
+            // These will be rendered *within* the daily cell.
+
+            // The code below assumes this interpretation. So, headerRow2 will remain empty.
+            // If you actually wanted sub-headers for each day, then this part needs to change significantly.
+            // For this version, headerRow2 should effectively be removed or kept empty.
+            if (headerRow2.children.length > 0) { // Only append if there are actual sub-headers (e.g. fixed ones)
+                DOM.shiftScheduleTableHead.appendChild(headerRow2);
+            }
 
 
             // Populate Table Body
@@ -4042,15 +4068,16 @@
                     );
 
                     const td = document.createElement('td');
-                    td.classList.add('shift-cell-group');
+                    td.classList.add('shift-cell-group'); // Keep this class for general styling
 
-                    // --- Start of combined "Shift Details" column content ---
+
+                    // *** Combined Shift Details Display (Shift Time, Break, Lunch) ***
                     const combinedShiftInfo = document.createElement('div');
                     combinedShiftInfo.classList.add('combined-shift-info');
 
                     const shiftTimeDisplay = document.createElement('span');
                     shiftTimeDisplay.classList.add('shift-time-display');
-                    shiftTimeDisplay.textContent = agentShiftForDay ? agentShiftForDay.shiftTime : '-';
+                    shiftTimeDisplay.textContent = agentShiftForDay ? agentShiftForDay.shiftTime : '';
                     combinedShiftInfo.appendChild(shiftTimeDisplay);
 
                     const breakLunchDisplay = document.createElement('span');
@@ -4061,10 +4088,15 @@
                     combinedShiftInfo.appendChild(breakLunchDisplay);
 
                     td.appendChild(combinedShiftInfo);
-                    // --- End of combined "Shift Details" column content ---
+                    // *******************************************************************
 
 
-                    // Total Hours Span
+                    // Add Total Hours, Remarks, Swap Status as separate cells or integrate further if desired
+                    // Based on your images, it seems these were distinct cells.
+                    // For now, let's keep them as children within the *same* daily `<td>` but *below* the combinedShiftInfo.
+                    // If you want them as actual separate `<td>` elements FOR EACH DAY, this whole loop structure needs a major overhaul.
+                    // For this interpretation, they are part of the daily cell, but below the main shift info.
+
                     const totalHoursSpan = document.createElement('span');
                     totalHoursSpan.classList.add('total-hours');
                     totalHoursSpan.textContent = agentShiftForDay && agentShiftForDay.totalHours > 0 ? `${agentShiftForDay.totalHours} hrs` : '';
@@ -4078,16 +4110,14 @@
                             totalHoursSpan.title = "Compliant Hours";
                         }
                     }
-                    td.appendChild(totalHoursSpan); // Append to the daily cell
+                    td.appendChild(totalHoursSpan);
 
-                    // Remarks Input - now a display span
-                    const remarksSpan = document.createElement('span');
+                    const remarksSpan = document.createElement('span'); // Changed from input to span for display
                     remarksSpan.classList.add('remarks-display');
                     remarksSpan.textContent = agentShiftForDay ? agentShiftForDay.remarks : '';
                     td.appendChild(remarksSpan);
 
-                    // Swap Status Dropdown
-                    const swapStatusSelect = document.createElement('select');
+                    const swapStatusSelect = document.createElement('select'); // Still a select for interaction
                     swapStatusSelect.classList.add('swap-status-select');
                     swapStatusSelect.innerHTML = `
                         <option value="">-</option>
@@ -4120,9 +4150,10 @@
                     } else if (agentShiftForDay && agentShiftForDay.swapStatus === 'Declined') {
                         td.classList.add('declined-leave');
                     }
-                    td.appendChild(swapStatusSelect); // Append to the daily cell
+                    td.appendChild(swapStatusSelect);
 
-                    tr.appendChild(td);
+
+                    tr.appendChild(td); // Append the completed daily cell to the row
                 }
                 DOM.shiftScheduleTableBody.appendChild(tr);
             });
@@ -4139,16 +4170,39 @@
          * @param {HTMLSelectElement} shiftSelectElement - The dropdown element for shift time (or any element in the cell group that triggers update).
          */
         function updateShiftDetailsInTable(shiftSelectElement) {
+            // This function is mainly for the "Add New Shift Assignment" form inputs
+            // and the *initial rendering* of the table cells.
+            // If you want to *edit* shift details directly in the table, you'd need to
+            // make the display spans editable (e.g., convert to input fields on click).
+            // For the table display, the logic is now embedded in `renderShiftScheduleTable`.
+
+            // This function is still useful for the "Add New Shift Assignment" form auto-fill.
             const selectedShiftValue = shiftSelectElement.value; // Assuming it's still a select for shift time
-            const parentTd = shiftSelectElement.closest('td');
             
-            // Query for the display spans within the combined-shift-info div
-            const combinedShiftInfoDiv = parentTd.querySelector('.combined-shift-info');
+            // In the "Add New Shift Assignment" form, these are still separate inputs
+            const newShiftBreakInput = document.getElementById('newShiftBreak');
+            const newShiftLunchInput = document.getElementById('newShiftLunch');
+            
+            const shiftDetail = SHIFT_DETAILS_MAP.find(s => s.shift === selectedShiftValue);
+
+            if (newShiftBreakInput && newShiftLunchInput) { // Check if these elements exist (i.e., we are in the form)
+                if (shiftDetail) {
+                    newShiftBreakInput.value = shiftDetail.break;
+                    newShiftLunchInput.value = shiftDetail.lunch;
+                } else {
+                    newShiftBreakInput.value = '';
+                    newShiftLunchInput.value = '';
+                }
+            }
+
+            // For the table's *display* (if this function were triggered by an event in the table cell itself),
+            // you'd access the spans within the `combined-shift-info` div:
+            // (Example, if this function was called on an *in-table* dropdown change)
+            const parentTd = shiftSelectElement.closest('td');
+            const combinedShiftInfoDiv = parentTd?.querySelector('.combined-shift-info');
             const shiftTimeDisplay = combinedShiftInfoDiv?.querySelector('.shift-time-display');
             const breakLunchDisplay = combinedShiftInfoDiv?.querySelector('.break-lunch-display');
-            const totalHoursSpan = parentTd.querySelector('.total-hours'); // This is still a separate span
-
-            const shiftDetail = SHIFT_DETAILS_MAP.find(s => s.shift === selectedShiftValue);
+            const totalHoursSpan = parentTd?.querySelector('.total-hours');
 
             if (shiftTimeDisplay && breakLunchDisplay && totalHoursSpan) {
                 if (shiftDetail) {
@@ -4158,7 +4212,6 @@
                     breakLunchDisplay.textContent = [breakText, lunchText].filter(Boolean).join(' | ');
                     totalHoursSpan.textContent = shiftDetail.hours > 0 ? `${shiftDetail.hours} hrs` : '';
 
-                    // Apply compliance/overtime styling
                     totalHoursSpan.classList.remove('overtime', 'compliant');
                     if (shiftDetail.hours > 9) {
                         totalHoursSpan.classList.add('overtime');
@@ -4168,7 +4221,7 @@
                         totalHoursSpan.title = "Compliant Hours";
                     }
                 } else {
-                    shiftTimeDisplay.textContent = '-';
+                    shiftTimeDisplay.textContent = '';
                     breakLunchDisplay.textContent = '';
                     totalHoursSpan.textContent = '';
                     totalHoursSpan.classList.remove('overtime', 'compliant');
