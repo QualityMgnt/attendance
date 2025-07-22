@@ -1379,7 +1379,7 @@
         }
 
         /* Shift Schedule Specific Styles */
-        .shift-schedule-controls { /* Renamed from filters */
+        .shift-schedule-controls {
             display: flex;
             align-items: flex-end;
             gap: 20px;
@@ -1410,8 +1410,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
-            /* Adjusted min-width for the new static columns */
-            min-width: 700px;
+            min-width: 1200px; /* Adjusted min-width for dynamic daily columns */
         }
 
         .shift-schedule-table th,
@@ -1422,14 +1421,14 @@
             white-space: nowrap; /* Prevent wrapping for compact cells */
         }
 
-        /* Fixed left columns - Adjusted widths based on image's implied column sizes */
+        /* Fixed left columns */
         .shift-schedule-table th:nth-child(1),
         .shift-schedule-table td:nth-child(1) { /* No. column */
             position: sticky;
             left: 0;
             z-index: 4;
-            background-color: #f0f0f0; /* Consistent with header background */
-            width: 50px; /* Adjusted width */
+            background-color: #f0f0f0;
+            width: 50px;
             text-align: center;
         }
         .shift-schedule-table td:nth-child(1) {
@@ -1439,10 +1438,10 @@
         .shift-schedule-table th:nth-child(2),
         .shift-schedule-table td:nth-child(2) { /* Name column */
             position: sticky;
-            left: 50px; /* Adjusted based on width of first column */
+            left: 50px;
             z-index: 4;
             background-color: #f0f0f0;
-            width: 150px; /* Adjusted width */
+            width: 150px;
         }
         .shift-schedule-table td:nth-child(2) {
             background-color: #fff;
@@ -1451,10 +1450,10 @@
         .shift-schedule-table th:nth-child(3),
         .shift-schedule-table td:nth-child(3) { /* Role column */
             position: sticky;
-            left: 200px; /* Adjusted based on width of first two columns */
+            left: 200px;
             z-index: 4;
             background-color: #f0f0f0;
-            width: 120px; /* Adjusted width */
+            width: 120px;
         }
         .shift-schedule-table td:nth-child(3) {
             background-color: #fff;
@@ -1462,65 +1461,85 @@
         .shift-schedule-table th:nth-child(4),
         .shift-schedule-table td:nth-child(4) { /* Secondary Role */
             position: sticky;
-            left: 320px; /* Adjusted based on width of first three columns */
+            left: 320px;
             z-index: 4;
             background-color: #f0f0f0;
-            width: 150px; /* Adjusted width */
+            width: 150px;
         }
         .shift-schedule-table td:nth-child(4) {
             background-color: #fff;
         }
 
-        /* Remove specific styles for compliant/overtime cells if not used with static data */
-        .shift-schedule-table td.overtime-cell,
-        .shift-schedule-table td.compliant-cell {
-            background-color: initial; /* Reset background */
+        .shift-schedule-table thead th {
+            background-color: #3498db; /* Blue header as in image */
+            color: white;
+            font-weight: 600;
+            padding: 8px 10px;
+            font-size: 15px;
+            border-color: #2980b9;
+        }
+
+        /* Specific styling for the monthly headers (e.g., "1 (S)") */
+        .shift-schedule-table th.daily-main-header {
+            text-align: center;
+            background-color: #3498db;
+            color: white;
+            font-size: 15px;
+            border-color: #2980b9;
+        }
+
+        /* Sub-headers like Shift Time, Break, Lunch */
+        .shift-schedule-table th.daily-sub-header {
+            background-color: #87CEEB; /* Lighter blue for sub-headers */
+            color: #333;
+            font-weight: 500;
+            font-size: 13px;
+            text-align: center;
+            padding: 5px 8px;
+            border-color: #6495ED; /* Cornflower blue border */
+        }
+
+        .shift-schedule-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
         /* Styles for individual cells containing dropdown/spans */
-        .shift-schedule-table td select,
-        .shift-schedule-table td span {
-            font-size: 13px; /* Smaller font for inline elements */
-            padding: 2px 5px; /* Compact padding */
-            border-radius: 3px;
-            display: block; /* Each item on its own line */
-            width: 100%;
-            box-sizing: border-box; /* Include padding/border in width */
-            text-align: left; /* Align text left within cell */
-        }
-
         .shift-schedule-table td select {
+            font-size: 13px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
             border: 1px solid #ccc;
             background-color: #fdfdfd;
             cursor: pointer;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2C197.9c-3.2%2C3.2-8.3%2C3.2-11.5%2C0L146.2%2C68.9L16.9%2C197.9c-3.2%2C3.2-8.3%2C3.2-11.5%2C0c-3.2-3.2-3.2-8.3%2C0-11.5l135.5-135.5c3.2-3.2%2C8.3-3.2%2C11.5%2C0l135.5%2C135.5C290.2%2C189.6%2C290.2%2C194.7%2C287%2C197.9z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 5px top 50%;
+            background-size: 8px auto;
         }
-        /* No longer apply these styles since the content is simple text now */
-        /*
-        .shift-schedule-table td.daily-cell .shift-time-display {
-            font-weight: 600;
-            color: #007bff;
-            margin-bottom: 2px;
-        }
-        .shift-schedule-table td.daily-cell .break-display,
-        .shift-schedule-table td.daily-cell .lunch-display {
-            color: #555;
-            font-size: 12px;
-        }
-        */
 
-        .shift-schedule-table td.shift-cell { /* New class for the shift data cell */
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px; /* Adjusted overall font size for cell content */
-            color: #333;
-            line-height: 1.4;
+        /* Styles for combined Shift Time / Break / Lunch display in daily cells */
+        .shift-schedule-table td.daily-shift-cell { /* New class for daily content cells */
+            padding: 5px 8px; /* Compact padding for daily cells */
+            vertical-align: top; /* Align content to the top */
         }
-        .shift-schedule-table td.shift-cell strong {
+        .shift-schedule-table td.daily-shift-cell .shift-time-display {
             font-weight: 600;
-            color: #007bff;
+            color: #007bff; /* Blue for shift time */
+            margin-bottom: 2px; /* Small separation from breaks */
+            display: block;
         }
-        .shift-schedule-table td.shift-cell span {
-            display: block; /* Each part on its own line */
-            white-space: nowrap;
+        .shift-schedule-table td.daily-shift-cell .break-display,
+        .shift-schedule-table td.daily-shift-cell .lunch-display {
+            color: #555;
+            font-size: 12px; /* Smaller font for breaks */
+            display: block;
         }
 
         .shift-schedule-dashboard {
@@ -1531,6 +1550,38 @@
 
         .shift-schedule-dashboard .dashboard-card-new {
             min-height: 200px; /* Ensure cards have some height */
+        }
+
+        /* New table for shift counts */
+        .shift-counts-table-container {
+            margin-top: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .shift-counts-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .shift-counts-table th,
+        .shift-counts-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .shift-counts-table th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+        }
+        .shift-counts-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
     </style>
 </head>
@@ -1667,32 +1718,52 @@
             </div>
 
             <div id="shiftSchedulePage" class="content-module">
-                <h2>Shift Schedule Overview</h2>
+                <h2>Shift Schedule Management</h2>
                 <hr>
-                <p>This table displays the static shift schedule as provided in the image. This data is not dynamic or editable within the application.</p>
-                <div class="shift-schedule-controls" style="justify-content: flex-start;">
-                    <h3 style="display:inline-block; margin: 0 15px;">Predefined Shift Roster</h3>
-                    <button id="exportSchedulePdfBtn" class="btn btn-secondary" style="margin-left: auto;"><i class="fas fa-file-pdf"></i> Export PDF (Coming Soon)</button>
+
+                <div class="shift-schedule-controls">
+                    <button id="prevMonthShiftScheduleBtn" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i></button>
+                    <h3 style="display:inline-block; margin: 0 15px;" id="currentShiftScheduleMonthYear"></h3>
+                    <button id="nextMonthShiftScheduleBtn" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-right"></i></button>
+                    <div class="input-group" style="flex-basis: auto; flex-grow: 0; margin-left: auto;">
+                        <label for="scheduleRoleFilter">Filter by Role:</label>
+                        <select id="scheduleRoleFilter">
+                            <option value="">All Roles</option>
+                            <option value="Agent">Agent</option>
+                            <option value="QA">QA</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Team Leader">Team Leader</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="shift-schedule-table-container">
                     <table class="shift-schedule-table">
                         <thead id="shiftScheduleTableHead">
-                            </thead>
+                            <!-- Headers will be dynamically generated by JS -->
+                        </thead>
                         <tbody id="shiftScheduleTableBody">
-                            </tbody>
+                            <!-- Body will be dynamically generated by JS -->
+                        </tbody>
                     </table>
                 </div>
 
-                <h3 style="margin-top: 40px;">Shift Overview Dashboard</h3>
+                <h3 style="margin-top: 40px;">Shift & Break Counts for Current Month</h3>
                 <hr>
-                <div class="shift-schedule-dashboard">
-                    <div class="dashboard-card-new" style="grid-column: span 2;">
-                        <h3>Shift Data Insights</h3>
-                        <p>This dashboard is temporarily simplified due to static shift data. It would normally show dynamic calculations like average hours, break distribution, and repetition alerts if shifts were managed persistently.</p>
-                        <p>Total Staff in Roster: <span id="staticRosterTotalStaff"></span></p>
-                        <p>Total Shift Times Defined: <span id="staticRosterTotalShifts"></span></p>
-                    </div>
+                <div class="shift-counts-table-container">
+                    <table class="shift-counts-table" id="shiftCountsTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Item</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shiftCountsTableBody">
+                            <!-- Counts will be dynamically generated by JS -->
+                        </tbody>
+                    </table>
                 </div>
 
             </div>
@@ -2047,36 +2118,12 @@
         let activeAgents = []; // Array of active agent full names, derived from usersData
         let currentLeaveTrackerDate = new Date(); // Tracks the month/year for leave tracker
 
-        // NEW: Static Shift Schedule Data from the provided image
-        const staticShiftScheduleData = [
-            { "No.": 1, "Name": "Bonface Kipchirchir", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 2, "Name": "Linnet Njeru", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 3, "Name": "Cliff Kiyaki", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 4, "Name": "Maureen Ongola", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 5, "Name": "Melinda Omballa", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "7:00 am - 3:30 pm", "Break Time": "8:20 - 8:35AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 6, "Name": "Edith Watati", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "7:00 am - 3:30 pm", "Break Time": "8:20 - 8:35AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 7, "Name": "Phina Owiti", "Role": "Inbound/Email", "Secondary Role": "Social Media", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 8, "Name": "Faith Irungu", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "9:30 am - 6:00 pm", "Break Time": "10:45-11:45AM", "Lunch Time": "2:30-3:30PM" },
-            { "No.": 9, "Name": "Philly Osikeh", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 10, "Name": "Victor Kibet", "Role": "Inbound/Email", "Secondary Role": "Social Media", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 11, "Name": "Eunice Musembi", "Role": "Level 1 Escalations", "Secondary Role": "", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 12, "Name": "Ann Nyokabi", "Role": "Live chat / Social media/SMS/Inbound", "Secondary Role": "", "Shift Time": "9:30 am - 6:00 pm", "Break Time": "10:45-11:45AM", "Lunch Time": "2:30-3:30PM" },
-            { "No.": 13, "Name": "Margaret Mukulu", "Role": "Sales", "Secondary Role": "Inbound", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 14, "Name": "Nancy Wanjiku", "Role": "Sales", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 15, "Name": "Patricia Muimbi", "Role": "Email", "Secondary Role": "", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 16, "Name": "Lawrence Ochola", "Role": "LiveChat", "Secondary Role": "LiveChat", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
-            { "No.": 17, "Name": "Ian Wanyagi", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 18, "Name": "Kelvin Nyagaka", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 19, "Name": "Sharon Wambugu", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
-            { "No.": 20, "Name": "Harolod Njiru", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" }
-        ];
-
-        // This is no longer needed since we are using static data
-        // let shiftScheduleData = [];
+        // Shift Schedule Data (now dynamic, fetched from Firestore)
+        let shiftScheduleData = []; // This will hold the roster for the current month
 
         const leavePlannerData = {}; // Local cache for leave records from Firestore ({ 'Month YYYY': [{...}, {...}] })
 
-        let currentShiftScheduleDate = new Date(); // Tracks the month/year for shift schedule (will be less relevant for static data)
+        let currentShiftScheduleDate = new Date(); // Tracks the month/year for shift schedule
 
         const todayGlobal = new Date(); // Constant for today's date
 
@@ -2097,18 +2144,22 @@
             { value: 'SOF', text: 'Sick Off', colorClass: 'status-SOF' }
         ];
 
-        // New: Shift Time to Break/Lunch Mapping (Original data, kept for context but not used for static shifts)
+        // Shift Time to Break/Lunch Mapping (from provided image)
         const SHIFT_DETAILS_MAP = [
-            { shift: "8:00 am - 4:30 pm", break: "8:50-9:05AM", lunch: "12:30-1:30PM", hours: 8.5 },
-            { shift: "8:30 am - 5:00 pm", break: "9:50 - 10:05AM", lunch: "1:30 - 2:30PM", hours: 8.5 },
-            { shift: "7:00 am - 3:30 pm", break: "8:20 - 8:35AM", lunch: "12:30-1:30PM", hours: 8.5 },
-            { shift: "8:00 am - 4:30 pm - B", break: "8:50-9:05AM", lunch: "1:30-2:30PM", hours: 8.5 }, // Added from image
-            { shift: "9:30 am - 6:00 pm", break: "10:45-11:45AM", lunch: "2:30-3:30PM", hours: 8.5 },
-            { shift: "Day Off", break: "", lunch: "", hours: 0 },
-            { shift: "Public Holiday", break: "", lunch: "", hours: 0 },
-            { shift: "Leave", break: "", lunch: "", hours: 0 }, // For assigned leave days
-            { shift: "Sick Off", break: "", lunch: "", hours: 0 } // For assigned sick off days
+            { shift: "8:00 am - 4:30 pm", break: "8:50-9:05AM", lunch: "12:30-1:30PM" },
+            { shift: "8:30am - 5:00pm", break: "9:50 -10:05AM", lunch: "1:30 -2:30PM" },
+            { shift: "7:00 am - 3:30 pm", break: "8:20 - 8:35AM", lunch: "12:30-1:-30PM" },
+            { shift: "8:00 am - 4:30 pm - B", break: "8:50-9:05AM", lunch: "1:30-2:30PM" }, // Added from image
+            { shift: "9:30 am - 6:00 pm", break: "10:45-11:45AM", lunch: "2:30-3:30PM" },
+            // Add non-working shifts
+            { shift: "Day Off", break: "", lunch: "" },
+            { shift: "Public Holiday", break: "", lunch: "" },
+            { shift: "Leave", break: "", lunch: "" },
+            { shift: "Sick Off", break: "", lunch: "" }
         ];
+
+        const ALL_ROLES = ["Agent", "QA", "Supervisor", "Team Leader", "Admin"];
+        const ALL_SECONDARY_ROLES = ['Inbound', 'Inbound / Email', 'Social Media', 'LiveChat', 'Sales', 'Onboarding', 'Level 1 Escalations', 'Email']; // Expanded based on image and common roles
 
         // Helper to format date for Firestore document IDs
         const formatDate = (date) => date.toISOString().split('T')[0];
@@ -2120,25 +2171,19 @@
          * Also adds sample secondaryRole and period to usersData if they don't exist.
          */
         function updateActiveAgentsList() {
-            // Sample secondary roles and periods for demonstration purposes
-            const sampleSecondaryRoles = ['Inbound / Email', 'Social Media', 'LiveChat', 'Sales', 'Onboarding', 'Level 1 Escalations'];
-            const samplePeriods = ['July - December', 'Jan - June', 'Annual'];
-
-            // Ensure all users have sample secondaryRole and period for shift schedule display
+            // Ensure all users have secondaryRole and period for shift schedule display
             Object.keys(usersData).forEach(email => {
                 if (!usersData[email].secondaryRole) {
-                    usersData[email].secondaryRole = sampleSecondaryRoles[Math.floor(Math.random() * sampleSecondaryRoles.length)];
+                    usersData[email].secondaryRole = ''; // Default empty
                 }
                 if (!usersData[email].period) {
-                    usersData[email].period = samplePeriods[Math.floor(Math.random() * samplePeriods.length)];
+                    usersData[email].period = ''; // Default empty
                 }
             });
 
-
             activeAgents = Object.values(usersData)
                 .filter(user => user.isActive)
-                .map(user => user.fullName)
-                .sort(); // Keep sorted for consistent display
+                .sort((a, b) => a.fullName.localeCompare(b.fullName)); // Keep sorted by full name
             console.log("Active agents list updated:", activeAgents.length, "active agents.");
         }
 
@@ -2159,8 +2204,8 @@
                         isActive: userData.isActive,
                         email: userData.email,
                         openingLeaveBalance: userData.openingLeaveBalance || 20, // Default to 20 if not set
-                        secondaryRole: userData.secondaryRole || '', // Added for shift schedule
-                        period: userData.period || '' // Added for shift schedule
+                        secondaryRole: userData.secondaryRole || '',
+                        period: userData.period || ''
                     };
                 });
                 updateActiveAgentsList();
@@ -2220,6 +2265,104 @@
             }
         }
 
+        /**
+         * Fetches shift schedule data for a specific month and year from Firestore.
+         * If no data exists, it initializes a basic structure for active agents.
+         * @param {number} year
+         * @param {number} month (0-indexed)
+         * @returns {Promise<void>}
+         */
+        async function fetchShiftScheduleData(year, month) {
+            const monthYearDocId = `${year}-${(month + 1).toString().padStart(2, '0')}`; // e.g., "2025-07"
+            try {
+                const docRef = db.collection('shiftRosters').doc(monthYearDocId);
+                const doc = await docRef.get();
+
+                if (doc.exists) {
+                    shiftScheduleData = doc.data().roster || [];
+                    console.log(`Shift roster for ${monthYearDocId} loaded from Firestore.`);
+                } else {
+                    // If no roster exists for the month, create a default one for all active agents
+                    shiftScheduleData = activeAgents.map(agent => {
+                        const userProfile = Object.values(usersData).find(u => u.fullName === agent.fullName);
+                        const dailyShifts = {};
+                        const numDaysInMonth = new Date(year, month + 1, 0).getDate();
+                        for (let day = 1; day <= numDaysInMonth; day++) {
+                            const date = new Date(year, month, day);
+                            const dayOfWeek = date.getDay(); // 0 for Sunday, 6 for Saturday
+                            const dayKey = day.toString().padStart(2, '0');
+                            if (dayOfWeek === 0 || dayOfWeek === 6) { // Default to Day Off on weekends
+                                dailyShifts[dayKey] = { shiftTime: "Day Off", breakTime: "", lunchTime: "" };
+                            } else {
+                                // Default to empty shift for weekdays
+                                dailyShifts[dayKey] = { shiftTime: "", breakTime: "", lunchTime: "" };
+                            }
+                        }
+                        return {
+                            agentName: agent.fullName,
+                            role: userProfile ? userProfile.role : 'Agent',
+                            secondaryRole: userProfile ? userProfile.secondaryRole : '',
+                            dailyShifts: dailyShifts
+                        };
+                    });
+                    // Save the newly generated empty roster to Firestore
+                    await docRef.set({ roster: shiftScheduleData });
+                    console.log(`Initialized and saved new shift roster for ${monthYearDocId} to Firestore.`);
+                }
+                renderShiftScheduleTable(); // Re-render table with fetched/initialized data
+                updateShiftCountTable(); // Update shift counts
+            } catch (error) {
+                console.error("Error fetching/initializing shift schedule data:", error);
+                alert("Critical: Could not load shift schedule data. Check console and Firebase rules.");
+            }
+        }
+
+        /**
+         * Saves the updated shift data for a specific agent and day to Firestore.
+         * @param {string} agentName - The full name of the agent.
+         * @param {string} dayKey - The day of the month (e.g., "01", "15").
+         * @param {string} field - The field to update ('shiftTime', 'breakTime', 'lunchTime').
+         * @param {string} value - The new value.
+         */
+        async function updateAgentShiftData(agentName, dayKey, field, value) {
+            const monthYearDocId = `${currentShiftScheduleDate.getFullYear()}-${(currentShiftScheduleDate.getMonth() + 1).toString().padStart(2, '0')}`;
+            const docRef = db.collection('shiftRosters').doc(monthYearDocId);
+
+            // Find the agent's entry in the local cache
+            const agentEntryIndex = shiftScheduleData.findIndex(entry => entry.agentName === agentName);
+
+            if (agentEntryIndex === -1) {
+                console.error("Agent not found in current shift schedule data:", agentName);
+                return;
+            }
+
+            // Update local cache first
+            const updatedAgentEntry = { ...shiftScheduleData[agentEntryIndex] };
+            if (!updatedAgentEntry.dailyShifts[dayKey]) {
+                updatedAgentEntry.dailyShifts[dayKey] = {};
+            }
+            updatedAgentEntry.dailyShifts[dayKey][field] = value;
+            shiftScheduleData[agentEntryIndex] = updatedAgentEntry;
+
+            try {
+                // Update only the specific agent's data within the roster array in Firestore
+                // This requires updating the entire 'roster' array, which can be inefficient for very large rosters.
+                // For a real-time, highly concurrent system, consider subcollections for daily shifts.
+                // However, for typical monthly rosters, this approach is manageable.
+                await docRef.update({ roster: shiftScheduleData });
+                console.log(`Shift data for ${agentName} on day ${dayKey} (${field}) updated successfully in Firestore.`);
+                // Re-render table and update counts to reflect changes
+                renderShiftScheduleTable();
+                updateShiftCountTable();
+            } catch (error) {
+                console.error("Error updating agent shift data in Firestore:", error);
+                alert(`Failed to update shift for ${agentName}: ${error.message}`);
+                // Revert local change if Firestore update fails
+                await fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
+            }
+        }
+
+
         // --- UI State Management ---
 
         /**
@@ -2259,16 +2402,15 @@
                     Promise.all([
                         fetchAllUsersData(),
                         fetchAttendanceData(),
-                        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth())
+                        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth()),
+                        fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth())
                     ]).then(() => {
                         updateHomeStatistics();
                         populateEmployeeSelect();
                         populateIndividualSummarySelect();
                         updateDashboardData(DOM.employeeSelect.value);
                         renderStaffList();
-                        // Initialize Shift Schedule page content (now just rendering static data)
-                        renderShiftScheduleTable();
-                        updateShiftScheduleDashboard(); // Call with no arguments as it uses static data
+                        // Shift schedule is rendered by fetchShiftScheduleData
                     }).catch(err => {
                         console.error("Error during initial data fetch:", err);
                         alert("Failed to load initial application data.");
@@ -2282,9 +2424,8 @@
                     renderStaffList();
                     // Re-render Shift Schedule if active
                     if (DOM.shiftSchedulePage.classList.contains('active')) {
-                        renderShiftScheduleTable();
+                        fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
                     }
-                    updateShiftScheduleDashboard(); // Call with no arguments as it uses static data
                 }
 
             } else {
@@ -2335,11 +2476,8 @@
                 case 'leaveTrackerPage':
                     fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
                     break;
-                case 'shiftSchedulePage': // New case for Shift Schedule page
-                    // Removed populateNewShiftAgentNameDropdown, populateNewShiftTimeDropdown
-                    // Removed populateShiftScheduleMonthSelector
-                    renderShiftScheduleTable();
-                    updateShiftScheduleDashboard(); // Update the simplified dashboard
+                case 'shiftSchedulePage':
+                    fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
                     break;
                 case 'adminPage':
                     renderStaffList();
@@ -2383,8 +2521,8 @@
             const todayKey = formatDate(todayGlobal);
             const todayAttendance = attendanceData[todayKey];
             if (todayAttendance) {
-                activeAgents.forEach(agentName => {
-                    const status = todayAttendance[agentName];
+                activeAgents.forEach(agent => { // Iterate over activeAgents (objects)
+                    const status = todayAttendance[agent.fullName]; // Use fullName
                     if (status === 'WFO' || status === 'WFH') {
                         presentCountToday++;
                     }
@@ -2410,7 +2548,8 @@
                 if (date >= oneWeekAgo && date <= todayGlobal) { // Check dates within the last week
                     const dailyAttendance = attendanceData[dateKey];
                     for (const agentName in dailyAttendance) {
-                        if (activeAgents.includes(agentName)) { // Only consider active agents
+                        // Check if the agent is in the activeAgents list (by full name)
+                        if (activeAgents.some(agent => agent.fullName === agentName)) {
                             const status = dailyAttendance[agentName];
                             if (status === 'L' || status === 'CL' || status === 'UL') { // Include all types of leave here
                                 onLeaveNamesSet.add(agentName);
@@ -2496,16 +2635,16 @@
             DOM.modalAttendanceTableBody.innerHTML = '';
             const existingAttendance = attendanceData[selectedMarkingDate] || {};
 
-            activeAgents.forEach(agentName => {
+            activeAgents.forEach(agent => { // Iterate over activeAgents (objects)
                 const tr = document.createElement('tr');
                 const nameTd = document.createElement('td');
-                nameTd.textContent = agentName;
+                nameTd.textContent = agent.fullName; // Use fullName
                 tr.appendChild(nameTd);
 
                 const statusTd = document.createElement('td');
                 const select = document.createElement('select');
                 select.classList.add('attendance-status-select');
-                select.dataset.agent = agentName;
+                select.dataset.agent = agent.fullName; // Use fullName
 
                 ATTENDANCE_STATUSES.forEach(status => {
                     const option = document.createElement('option');
@@ -2515,9 +2654,9 @@
                 });
 
                 // Set existing status if available
-                if (existingAttendance[agentName]) {
-                    select.value = existingAttendance[agentName];
-                    const statusObj = ATTENDANCE_STATUSES.find(s => s.value === existingAttendance[agentName]);
+                if (existingAttendance[agent.fullName]) { // Use fullName
+                    select.value = existingAttendance[agent.fullName];
+                    const statusObj = ATTENDANCE_STATUSES.find(s => s.value === existingAttendance[agent.fullName]);
                     if (statusObj && statusObj.colorClass) {
                         select.classList.add(statusObj.colorClass);
                     }
@@ -2578,7 +2717,6 @@
 
                 DOM.attendanceMarkingModal.style.display = 'none';
                 DOM.attendanceDateInput.value = ''; // Clear input
-                // DOM.openAttendanceCalendarBtn.disabled = true; // No longer needed, as button opens calendar directly
                 selectedMarkingDate = null; // Clear selected date after saving
 
                 // Re-fetch and update all relevant UI components after saving attendance
@@ -2637,10 +2775,10 @@
             thead.appendChild(headerRow);
             table.appendChild(thead);
 
-            activeAgents.forEach(agentName => {
+            activeAgents.forEach(agent => { // Iterate over activeAgents (objects)
                 const tr = document.createElement('tr');
                 const nameTd = document.createElement('td');
-                nameTd.textContent = agentName;
+                nameTd.textContent = agent.fullName; // Use fullName
                 nameTd.classList.add('agent-name-cell');
                 tr.appendChild(nameTd);
 
@@ -2649,7 +2787,7 @@
                     td.classList.add('attendance-cell');
                     const dateKey = date.toISOString().split('T')[0];
 
-                    const status = attendanceData[dateKey] ? attendanceData[dateKey][agentName] : '';
+                    const status = attendanceData[dateKey] ? attendanceData[dateKey][agent.fullName] : ''; // Use fullName
                     td.textContent = status || '-'; // Display '-' if no status
                     const statusObj = ATTENDANCE_STATUSES.find(s => s.value === status);
                     if (statusObj && statusObj.colorClass) {
@@ -2770,12 +2908,12 @@
 
             let hasDataForTable = false; // Flag to check if any active agent has data
 
-            activeAgents.forEach((agentName, index) => {
+            activeAgents.forEach((agent, index) => { // Iterate over activeAgents (objects)
                 const tr = document.createElement('tr');
-                const agentLeaveData = currentMonthLeaveData.find(row => row.Name === agentName);
+                const agentLeaveData = currentMonthLeaveData.find(row => row.Name === agent.fullName); // Use fullName
 
                 // Get opening balance from usersData if available, otherwise default
-                const userProfile = Object.values(usersData).find(user => user.fullName === agentName);
+                const userProfile = Object.values(usersData).find(user => user.fullName === agent.fullName);
                 const openingBalance = (userProfile && userProfile.openingLeaveBalance !== undefined) ? userProfile.openingLeaveBalance : 20; // Default to 20 annual leave days
 
                 // Calculate current leave balance based on approved annual leaves in THIS MONTH
@@ -2792,9 +2930,9 @@
 
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${agentName}</td>
+                    <td>${agent.fullName}</td>
                     <td>${openingBalance}</td>
-                    <td class="current-leave-balance" data-agent="${agentName}">${leaveBalance}</td>
+                    <td class="current-leave-balance" data-agent="${agent.fullName}">${leaveBalance}</td>
                 `;
 
                 monthlyDateKeys.forEach((fullDateKey, dayIndex) => {
@@ -2806,7 +2944,7 @@
                     const td = document.createElement('td');
                     td.textContent = cellStatus;
                     td.dataset.date = fullDateKey;
-                    td.dataset.agent = agentName;
+                    td.dataset.agent = agent.fullName;
 
                     // Apply status classes for visual indication
                     // Check if it's a leave type that requires special styling or interaction
@@ -2816,8 +2954,8 @@
                         // Add interactive overlay for approval/decline only if it's pending
                         if (loggedInUserRole === 'Admin' || loggedInUserRole === 'Supervisor') { // Only admins/supervisors can approve
                             td.innerHTML = `<span style="display:none;" class="leave-approval-overlay">
-                                <button class="approve-btn" data-agent="${agentName}" data-date="${fullDateKey}" data-status="Approved">Approve</button>
-                                <button class="decline-btn" data-agent="${agentName}" data-date="${fullDateKey}" data-status="Declined">Decline</button>
+                                <button class="approve-btn" data-agent="${agent.fullName}" data-date="${fullDateKey}" data-status="Approved">Approve</button>
+                                <button class="decline-btn" data-agent="${agent.fullName}" data-date="${fullDateKey}" data-status="Declined">Decline</button>
                             </span>L`; // Keep 'L' visible
                             td.addEventListener('click', (event) => {
                                 // Show overlay if clicked, hide others
@@ -2854,7 +2992,7 @@
                         // Allow clicking empty cells to request leave (only if not a specific status)
                         if (!cellStatus && (loggedInUserRole === 'Agent' || loggedInUserRole === 'QA' || loggedInUserRole === 'Supervisor' || loggedInUserRole === 'Team Leader')) {
                             td.addEventListener('click', async (event) => {
-                                await updateLeaveStatus(agentName, fullDateKey, 'L'); // Request Annual Leave
+                                await updateLeaveStatus(agent.fullName, fullDateKey, 'L'); // Request Annual Leave
                             });
                         }
                     }
@@ -2974,7 +3112,7 @@
                     // If a leave status affects current attendance representation
                     if (newStatus === 'AP' || newStatus === 'L') { // If it's an approved or pending leave
                         attendanceStatusToSet = 'L'; // Always show as 'L' (Leave) in daily attendance overview if it's any kind of leave
-                    } else if (newStatus === 'D') { // If leave is declined, it might be an an absence
+                    } else if (newStatus === 'D') { // If leave is declined, it might be an absence
                         attendanceStatusToSet = 'UL'; // Assuming declined leave results in Unpaid Leave in attendance
                     }
                     // For other statuses (SOF, CL, UL, DO, NCNS, SO), they already have their own values
@@ -3070,7 +3208,7 @@
             }
 
             activeAgents.forEach(agent => {
-                agentAttendancePercentages[agent] = { totalDays: 0, presentDays: 0, percentage: 0 };
+                agentAttendancePercentages[agent.fullName] = { totalDays: 0, presentDays: 0, percentage: 0 };
             });
 
             // Iterate through attendance data
@@ -3082,11 +3220,11 @@
                     const dailyAttendance = attendanceData[dateKey];
                     const monthYear = dateKey.substring(0, 7); // YYYY-MM
 
-                    const agentsToProcess = selectedEmployee ? [selectedEmployee] : activeAgents;
+                    const agentsToProcess = selectedEmployee ? [selectedEmployee] : activeAgents.map(a => a.fullName); // Use fullNames
 
-                    agentsToProcess.forEach(agent => {
-                        if (dailyAttendance && dailyAttendance[agent]) {
-                            const status = dailyAttendance[agent];
+                    agentsToProcess.forEach(agentName => {
+                        if (dailyAttendance && dailyAttendance[agentName]) {
+                            const status = dailyAttendance[agentName];
 
                             // For Dashboard Header Cards (Absence Days)
                             if (status === 'UL' || status === 'NCNS') {
@@ -3104,7 +3242,7 @@
                             if (status === 'WFH') totalWFH++;
 
                             // For Overall Attendance Percentage Gauge
-                            if (activeAgents.includes(agent)) { // Ensure only active agents contribute to overall stats
+                            if (activeAgents.some(a => a.fullName === agentName)) { // Ensure only active agents contribute to overall stats
                                 overallTotalPossibleDays++;
                                 if (status === 'WFO' || status === 'WFH') {
                                     overallPresentDays++;
@@ -3129,10 +3267,10 @@
 
 
                             // For Top Employees by Attendance (Percentage)
-                            if (agentAttendancePercentages[agent]) {
-                                agentAttendancePercentages[agent].totalDays++;
+                            if (agentAttendancePercentages[agentName]) {
+                                agentAttendancePercentages[agentName].totalDays++;
                                 if (status === 'WFO' || status === 'WFH') {
-                                    agentAttendancePercentages[agent].presentDays++;
+                                    agentAttendancePercentages[agentName].presentDays++;
                                 }
                             }
                         }
@@ -3484,8 +3622,8 @@
                 };
 
                 if (dailyAttendance) {
-                    for (const agentName of activeAgents) { // Iterate over active agents to get counts
-                        const status = dailyAttendance[agentName] || ''; // Get status or empty string
+                    for (const agent of activeAgents) { // Iterate over activeAgents (objects)
+                        const status = dailyAttendance[agent.fullName] || ''; // Get status or empty string
 
                         switch (status) {
                             case 'WFO':
@@ -3519,7 +3657,7 @@
                                 break;
                             default:
                                 // If an agent is not marked, they are considered absent or expected to be present
-                                if (!status && activeAgents.includes(agentName)) { // If no status recorded for active agent
+                                if (!status && activeAgents.some(a => a.fullName === agent.fullName)) { // If no status recorded for active agent
                                     rowData.Absent++;
                                 }
                                 break;
@@ -3716,6 +3854,7 @@
                     populateIndividualSummarySelect();
                     updateHomeStatistics();
                     updateDashboardData(DOM.employeeSelect.value);
+                    fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth()); // Refresh shift schedule
                 } catch (error) {
                     console.error("Error toggling user status:", error);
                     alert(`Failed to change status for ${userToUpdate.fullName}: ${error.message}`);
@@ -3789,6 +3928,24 @@
                     }
                 });
 
+                // 4. Delete their shift schedule entries (if any)
+                const shiftRostersSnapshot = await db.collection('shiftRosters').get();
+                shiftRostersSnapshot.forEach(doc => {
+                    const monthRosterData = doc.data();
+                    if (monthRosterData.roster && Array.isArray(monthRosterData.roster)) {
+                        const originalRoster = monthRosterData.roster;
+                        const updatedRoster = originalRoster.filter(entry => entry.agentName !== userToDelete.fullName);
+                        if (updatedRoster.length !== originalRoster.length) { // If agent was in this roster
+                            if (updatedRoster.length > 0) {
+                                batch.update(db.collection('shiftRosters').doc(doc.id), { roster: updatedRoster });
+                            } else {
+                                batch.delete(db.collection('shiftRosters').doc(doc.id)); // Delete month doc if no agents left
+                            }
+                        }
+                    }
+                });
+
+
                 await batch.commit(); // Commit all batched operations
 
                 // Update local state and re-render UI
@@ -3800,6 +3957,7 @@
                 populateIndividualSummarySelect();
                 updateHomeStatistics();
                 updateDashboardData(DOM.employeeSelect.value);
+                fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth()); // Refresh shift schedule
                 alert(`User ${userToDelete.fullName} and their related data deleted from Firestore.`);
 
                 // IMPORTANT: The Firebase Auth user account for ${email} still exists.
@@ -3813,100 +3971,274 @@
 
         // --- Shift Schedule Page Functions ---
 
-        // Removed populateNewShiftAgentNameDropdown
-        // Removed populateNewShiftTimeDropdown
-        // Removed autoFillAgentDetailsForShiftForm
-        // Removed autoFillShiftTimesForShiftForm
-
         /**
-         * Removed populateShiftScheduleMonthSelector as there's no dynamic month selection for static data.
-         * The new renderShiftScheduleTable will directly use `staticShiftScheduleData`.
+         * Renders the shift schedule table for the currently selected month.
+         * Data is fetched from Firestore and made editable.
          */
-        // function populateShiftScheduleMonthSelector() { ... }
-
-        /**
-         * Renders the shift schedule table using the predefined staticShiftScheduleData.
-         * It adapts the table header and body generation to perfectly match the columns shown in your image.
-         */
-        function renderShiftScheduleTable() {
+        async function renderShiftScheduleTable() {
             DOM.shiftScheduleTableHead.innerHTML = '';
             DOM.shiftScheduleTableBody.innerHTML = '';
-            // No longer using currentShiftScheduleMonthYear display for static data
-            // DOM.currentShiftScheduleMonthYear.textContent = currentShiftScheduleDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            DOM.currentShiftScheduleMonthYear.textContent = currentShiftScheduleDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
-            // Headers from the image
-            const headers = ["No.", "Name", "Role", "Secondary Role", "Shift Time", "Break Time", "Lunch Time"];
+            const selectedMonthYear = `${currentShiftScheduleDate.getFullYear()}-${(currentShiftScheduleDate.getMonth() + 1).toString().padStart(2, '0')}`;
+            const selectedRoleFilter = DOM.scheduleRoleFilter.value;
 
-            const headerRow = document.createElement('tr');
-            headers.forEach(text => {
-                const th = document.createElement('th');
-                th.textContent = text;
-                headerRow.appendChild(th);
-            });
-            DOM.shiftScheduleTableHead.appendChild(headerRow);
+            // Filter agents based on the selected role filter
+            const filteredAgents = activeAgents.filter(agent =>
+                selectedRoleFilter === '' || agent.role === selectedRoleFilter
+            );
 
-            if (staticShiftScheduleData.length === 0) {
-                DOM.shiftScheduleTableBody.innerHTML = `<tr><td colspan="${headers.length}" style="text-align: center; padding: 20px;">No shift data available.</td></tr>`;
-                updateShiftScheduleDashboard();
+            if (filteredAgents.length === 0) {
+                DOM.shiftScheduleTableBody.innerHTML = `<tr><td colspan="100%" style="text-align: center; padding: 20px;">No active staff found for the selected criteria.</td></tr>`;
+                updateShiftCountTable(); // Clear counts if no staff
                 return;
             }
 
-            staticShiftScheduleData.forEach(row => {
-                const tr = document.createElement('tr');
-                headers.forEach(header => {
-                    const td = document.createElement('td');
-                    td.textContent = row[header];
-                    // Apply a specific class for the shift-related cells for consistent styling if needed
-                    if (header === "Shift Time" || header === "Break Time" || header === "Lunch Time") {
-                        td.classList.add('shift-cell');
-                    }
-                    tr.appendChild(td);
+            // Generate Header Rows
+            const headerRow1 = document.createElement('tr');
+            const headerRow2 = document.createElement('tr');
+
+            // Fixed columns headers
+            headerRow1.innerHTML = `
+                <th rowspan="2">No</th>
+                <th rowspan="2">Name</th>
+                <th rowspan="2">Role</th>
+                <th rowspan="2">Secondary Role</th>
+            `;
+            headerRow2.innerHTML = `
+                <th></th> <th></th> <th></th> <th></th>
+            `; // Empty cells for rowspan alignment
+
+            // Daily headers (Day Number + Day of Week)
+            const numDaysInMonth = new Date(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth() + 1, 0).getDate();
+            const dailySubHeaders = ['Shift Time', 'Break Time', 'Lunch Time'];
+
+            for (let day = 1; day <= numDaysInMonth; day++) {
+                const date = new Date(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth(), day);
+                const dayOfMonth = date.getDate().toString();
+                const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 1);
+
+                // Top-level daily header (e.g., "1 (S)")
+                const dailyMainHeaderCell = document.createElement('th');
+                dailyMainHeaderCell.classList.add('daily-main-header');
+                dailyMainHeaderCell.colSpan = dailySubHeaders.length;
+                dailyMainHeaderCell.textContent = `${dayOfMonth} (${dayOfWeek})`;
+                headerRow1.appendChild(dailyMainHeaderCell);
+
+                // Sub-headers for "Shift Time", "Break", "Lunch"
+                dailySubHeaders.forEach(subHeader => {
+                    const subHeaderCell = document.createElement('th');
+                    subHeaderCell.classList.add('daily-sub-header');
+                    subHeaderCell.textContent = subHeader;
+                    headerRow2.appendChild(subHeaderCell);
                 });
+            }
+
+            DOM.shiftScheduleTableHead.appendChild(headerRow1);
+            DOM.shiftScheduleTableHead.appendChild(headerRow2);
+
+            // Populate Table Body
+            filteredAgents.forEach((agent, index) => {
+                const tr = document.createElement('tr');
+                const agentRosterEntry = shiftScheduleData.find(entry => entry.agentName === agent.fullName);
+
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${agent.fullName}</td>
+                    <td></td> <!-- For Role Select -->
+                    <td></td> <!-- For Secondary Role Select -->
+                `;
+
+                // Populate Role Dropdown
+                const roleTd = tr.children[2];
+                const roleSelect = document.createElement('select');
+                roleSelect.dataset.agentEmail = agent.email; // Use email to identify user for update
+                roleSelect.dataset.field = 'role';
+                ALL_ROLES.forEach(role => {
+                    const option = document.createElement('option');
+                    option.value = role;
+                    option.textContent = role;
+                    if (agent.role === role) {
+                        option.selected = true;
+                    }
+                    roleSelect.appendChild(option);
+                });
+                roleSelect.addEventListener('change', async (e) => {
+                    const userEmail = e.target.dataset.agentEmail;
+                    const newRole = e.target.value;
+                    const userProfile = Object.values(usersData).find(u => u.email === userEmail);
+                    if (userProfile && userProfile.uid) {
+                        try {
+                            await db.collection('users').doc(userProfile.uid).update({ role: newRole });
+                            usersData[userEmail].role = newRole; // Update local cache
+                            updateActiveAgentsList(); // Re-sort/filter active agents if needed
+                            renderShiftScheduleTable(); // Re-render to reflect changes
+                            alert(`Role for ${userProfile.fullName} updated to ${newRole}.`);
+                        } catch (error) {
+                            console.error("Error updating role:", error);
+                            alert(`Failed to update role for ${userProfile.fullName}: ${error.message}`);
+                        }
+                    }
+                });
+                roleTd.appendChild(roleSelect);
+
+                // Populate Secondary Role Dropdown
+                const secondaryRoleTd = tr.children[3];
+                const secondaryRoleSelect = document.createElement('select');
+                secondaryRoleSelect.dataset.agentEmail = agent.email; // Use email to identify user for update
+                secondaryRoleSelect.dataset.field = 'secondaryRole';
+                secondaryRoleSelect.innerHTML = '<option value="">None</option>'; // Allow empty secondary role
+                ALL_SECONDARY_ROLES.forEach(secRole => {
+                    const option = document.createElement('option');
+                    option.value = secRole;
+                    option.textContent = secRole;
+                    if (agent.secondaryRole === secRole) {
+                        option.selected = true;
+                    }
+                    secondaryRoleSelect.appendChild(option);
+                });
+                secondaryRoleSelect.addEventListener('change', async (e) => {
+                    const userEmail = e.target.dataset.agentEmail;
+                    const newSecondaryRole = e.target.value;
+                    const userProfile = Object.values(usersData).find(u => u.email === userEmail);
+                    if (userProfile && userProfile.uid) {
+                        try {
+                            await db.collection('users').doc(userProfile.uid).update({ secondaryRole: newSecondaryRole });
+                            usersData[userEmail].secondaryRole = newSecondaryRole; // Update local cache
+                            renderShiftScheduleTable(); // Re-render to reflect changes
+                            alert(`Secondary Role for ${userProfile.fullName} updated to ${newSecondaryRole}.`);
+                        } catch (error) {
+                            console.error("Error updating secondary role:", error);
+                            alert(`Failed to update secondary role for ${userProfile.fullName}: ${error.message}`);
+                        }
+                    }
+                });
+                secondaryRoleTd.appendChild(secondaryRoleSelect);
+
+
+                // Populate Daily Shift Cells
+                for (let day = 1; day <= numDaysInMonth; day++) {
+                    const dayKey = day.toString().padStart(2, '0');
+                    const currentShiftForDay = agentRosterEntry?.dailyShifts[dayKey] || { shiftTime: "", breakTime: "", lunchTime: "" };
+
+                    const td = document.createElement('td');
+                    td.classList.add('daily-shift-cell'); // Add a class for styling the combined cell
+
+                    // Shift Time Dropdown
+                    const shiftTimeSelect = document.createElement('select');
+                    shiftTimeSelect.dataset.agent = agent.fullName;
+                    shiftTimeSelect.dataset.day = dayKey;
+                    shiftTimeSelect.dataset.field = 'shiftTime';
+                    shiftTimeSelect.innerHTML = '<option value="">- Select Shift -</option>';
+                    SHIFT_DETAILS_MAP.forEach(shiftOption => {
+                        const option = document.createElement('option');
+                        option.value = shiftOption.shift;
+                        option.textContent = shiftOption.shift;
+                        if (currentShiftForDay.shiftTime === shiftOption.shift) {
+                            option.selected = true;
+                        }
+                        shiftTimeSelect.appendChild(option);
+                    });
+
+                    // Event listener for Shift Time dropdown
+                    shiftTimeSelect.addEventListener('change', async (e) => {
+                        const selectedShiftValue = e.target.value;
+                        const agentName = e.target.dataset.agent;
+                        const day = e.target.dataset.day;
+                        const shiftDetail = SHIFT_DETAILS_MAP.find(s => s.shift === selectedShiftValue);
+
+                        const newBreakTime = shiftDetail ? shiftDetail.break : '';
+                        const newLunchTime = shiftDetail ? shiftDetail.lunch : '';
+
+                        // Update the local data model for this agent and day
+                        const currentAgentEntry = shiftScheduleData.find(entry => entry.agentName === agentName);
+                        if (currentAgentEntry) {
+                            currentAgentEntry.dailyShifts[day] = {
+                                shiftTime: selectedShiftValue,
+                                breakTime: newBreakTime,
+                                lunchTime: newLunchTime
+                            };
+                        }
+
+                        // Update Firestore
+                        await updateAgentShiftData(agentName, day, 'shiftTime', selectedShiftValue);
+                        await updateAgentShiftData(agentName, day, 'breakTime', newBreakTime);
+                        await updateAgentShiftData(agentName, day, 'lunchTime', newLunchTime);
+
+                        // Re-render the table and counts to reflect all changes
+                        renderShiftScheduleTable();
+                        updateShiftCountTable();
+                    });
+                    td.appendChild(shiftTimeSelect);
+
+                    // Break Time Display (as text)
+                    const breakTimeSpan = document.createElement('span');
+                    breakTimeSpan.classList.add('break-display');
+                    breakTimeSpan.textContent = currentShiftForDay.breakTime || '';
+                    td.appendChild(breakTimeSpan);
+
+                    // Lunch Time Display (as text)
+                    const lunchTimeSpan = document.createElement('span');
+                    lunchTimeSpan.classList.add('lunch-display');
+                    lunchTimeSpan.textContent = currentShiftForDay.lunchTime || '';
+                    td.appendChild(lunchTimeSpan);
+
+                    tr.appendChild(td);
+                }
                 DOM.shiftScheduleTableBody.appendChild(tr);
             });
-
-            // Update the simplified dashboard with counts from the static data
-            updateShiftScheduleDashboard();
+            updateShiftCountTable(); // Update counts after rendering the main table
         }
 
-        /**
-         * Removed updateShiftDetailsInTable as inline editing/auto-filling is no longer applicable.
-         */
-        // function updateShiftDetailsInTable(shiftSelectElement) { ... }
 
         /**
-         * Removed generateSampleMonthlyShiftAssignments.
-         * The `staticShiftScheduleData` array is now the source of truth for the shift schedule.
+         * Updates the metrics and charts in the Shift Schedule Dashboard section.
+         * (Now simplified to show counts from the current month's roster)
          */
-        // function generateSampleMonthlyShiftAssignments(agents) { ... }
+        function updateShiftCountTable() {
+            DOM.shiftCountsTableBody.innerHTML = '';
 
+            const shiftTimeCounts = {};
+            const breakTimeCounts = {};
+            const lunchTimeCounts = {};
 
-        /**
-         * Updates the metrics in the simplified Shift Schedule Dashboard section
-         * based on the static data.
-         */
-        function updateShiftScheduleDashboard() {
-            DOM.staticRosterTotalStaff.textContent = staticShiftScheduleData.length;
-
-            // Count unique shift times
-            const uniqueShiftTimes = new Set();
-            staticShiftScheduleData.forEach(shift => {
-                if (shift["Shift Time"]) {
-                    uniqueShiftTimes.add(shift["Shift Time"]);
+            shiftScheduleData.forEach(agentEntry => {
+                for (const dayKey in agentEntry.dailyShifts) {
+                    const shift = agentEntry.dailyShifts[dayKey];
+                    if (shift.shiftTime) {
+                        shiftTimeCounts[shift.shiftTime] = (shiftTimeCounts[shift.shiftTime] || 0) + 1;
+                    }
+                    if (shift.breakTime) {
+                        breakTimeCounts[shift.breakTime] = (breakTimeCounts[shift.breakTime] || 0) + 1;
+                    }
+                    if (shift.lunchTime) {
+                        lunchTimeCounts[shift.lunchTime] = (lunchTimeCounts[shift.lunchTime] || 0) + 1;
+                    }
                 }
             });
-            DOM.staticRosterTotalShifts.textContent = uniqueShiftTimes.size;
 
-            // Removed original dynamic dashboard elements, simplified content
-            DOM.avgHoursPerShift.textContent = 'N/A'; // No longer calculating dynamic averages
-            DOM.coverageSupervisors.textContent = 'N/A';
-            DOM.coverageQAs.textContent = 'N/A';
-            DOM.teaBreakSummary.textContent = 'N/A';
-            DOM.lunchBreakSummary.textContent = 'N/A';
-            DOM.pendingSwaps.textContent = 'N/A';
-            DOM.approvedSwaps.textContent = 'N/A';
-            DOM.declinedSwaps.textContent = 'N/A';
-            DOM.repetitionAlertsList.innerHTML = '<li>No dynamic alerts for static data.</li>';
+            const appendRow = (category, item, count) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${category}</td><td>${item}</td><td>${count}</td>`;
+                DOM.shiftCountsTableBody.appendChild(tr);
+            };
+
+            if (Object.keys(shiftTimeCounts).length === 0 && Object.keys(breakTimeCounts).length === 0 && Object.keys(lunchTimeCounts).length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="3" style="text-align: center; padding: 20px;">No shift data available for this month to count.</td>`;
+                DOM.shiftCountsTableBody.appendChild(tr);
+                return;
+            }
+
+            for (const shiftTime in shiftTimeCounts) {
+                appendRow('Shift Time', shiftTime, shiftTimeCounts[shiftTime]);
+            }
+            for (const breakTime in breakTimeCounts) {
+                appendRow('Break Time', breakTime, breakTimeCounts[breakTime]);
+            }
+            for (const lunchTime in lunchTimeCounts) {
+                appendRow('Lunch Time', lunchTime, lunchTimeCounts[lunchTime]);
+            }
         }
 
 
@@ -4028,20 +4360,20 @@
                 fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
             });
 
-            // Shift Schedule Page - Removed add shift form listeners
-            // DOM.newShiftAgentName.addEventListener('change', autoFillAgentDetailsForShiftForm);
-            // DOM.newShiftTime.addEventListener('change', autoFillShiftTimesForShiftForm);
-            // Removed DOM.addShiftForm listener
-
-            // Shift Schedule Page - Removed Monthly Navigation and Filters as data is static
-            // DOM.prevMonthShiftScheduleBtn.addEventListener('click', () => { ... });
-            // DOM.nextMonthShiftScheduleBtn.addEventListener('click', () => { ... });
-            // DOM.scheduleRoleFilter.addEventListener('change', renderShiftScheduleTable);
-
-            // Optional: Implement export functionality for PDF
-            DOM.exportSchedulePdfBtn.addEventListener('click', () => {
-                alert('Export to PDF functionality not yet implemented. This data is static and not dynamically generated.');
+            // Shift Schedule Page - Monthly Navigation and Filters
+            DOM.prevMonthShiftScheduleBtn.addEventListener('click', () => {
+                currentShiftScheduleDate.setMonth(currentShiftScheduleDate.getMonth() - 1);
+                fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
             });
+            DOM.nextMonthShiftScheduleBtn.addEventListener('click', () => {
+                currentShiftScheduleDate.setMonth(currentShiftScheduleDate.getMonth() + 1);
+                fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
+            });
+            DOM.scheduleRoleFilter.addEventListener('change', () => {
+                // Re-fetch data to re-render with the new filter applied
+                fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
+            });
+
 
             // Individual Summary
             DOM.individualSelectSummary.addEventListener('change', (e) => updateIndividualSummary(e.target.value));
@@ -4102,6 +4434,8 @@
                     populateIndividualSummarySelect();
                     updateHomeStatistics();
                     updateDashboardData(DOM.employeeSelect.value);
+                    // After creating a new user, ensure they appear in the current month's shift roster if active
+                    await fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
                 } catch (error) {
                     let errorMessage = 'Error creating user.';
                     switch (error.code) {
@@ -4153,7 +4487,7 @@
 
                 attendancePage: document.getElementById('attendancePage'),
                 attendanceDateInput: document.getElementById('attendanceDateInput'),
-                openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'), // Renamed
+                openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'),
                 attendanceMarkingMessage: document.getElementById('attendanceMarkingMessage'),
                 attendanceOverviewTableContainer: document.getElementById('attendanceOverviewTableContainer'),
                 deleteAttendanceDataBtn: document.getElementById('deleteAttendanceDataBtn'),
@@ -4174,7 +4508,7 @@
                 currentMonthYear: document.getElementById('currentMonthYear'),
                 calendarDaysGrid: document.getElementById('calendarDaysGrid'),
                 cancelCalendarSelection: document.getElementById('cancelCalendarSelection'),
-                selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'), // New button
+                selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'),
 
                 leaveTrackerPage: document.getElementById('leaveTrackerPage'),
                 prevMonthLeaveBtn: document.getElementById('prevMonthLeaveBtn'),
@@ -4182,41 +4516,19 @@
                 currentLeaveMonthYear: document.getElementById('currentLeaveMonthYear'),
                 leaveTrackerTableContainer: document.getElementById('leaveTrackerTableContainer'),
 
-                // Shift Schedule DOM elements (adjusted for static data)
+                // Shift Schedule DOM elements
                 shiftSchedulePage: document.getElementById('shiftSchedulePage'),
-                // Removed addShiftForm related elements
-                // newShiftAgentName: document.getElementById('newShiftAgentName'),
-                // newShiftRole: document.getElementById('newShiftRole'),
-                // newShiftSecondaryRole: document.getElementById('newShiftSecondaryRole'),
-                // newShiftDate: document.getElementById('newShiftDate'),
-                // newShiftTime: document.getElementById('newShiftTime'),
-                // newShiftBreak: document.getElementById('newShiftBreak'),
-                // newShiftLunch: document.getElementById('newShiftLunch'),
-                // newShiftRemarks: document.getElementById('newShiftRemarks'),
-                // newShiftSwapStatus: document.getElementById('newShiftSwapStatus'),
-                // addShiftMessage: document.getElementById('addShiftMessage'),
-
-                // Removed month navigation for static data
-                // prevMonthShiftScheduleBtn: document.getElementById('prevMonthShiftScheduleBtn'),
-                // nextMonthShiftScheduleBtn: document.getElementById('nextMonthShiftScheduleBtn'),
-                // currentShiftScheduleMonthYear: document.getElementById('currentShiftScheduleMonthYear'),
-                // scheduleRoleFilter: document.getElementById('scheduleRoleFilter'),
-                exportSchedulePdfBtn: document.getElementById('exportSchedulePdfBtn'),
+                prevMonthShiftScheduleBtn: document.getElementById('prevMonthShiftScheduleBtn'),
+                nextMonthShiftScheduleBtn: document.getElementById('nextMonthShiftScheduleBtn'),
+                currentShiftScheduleMonthYear: document.getElementById('currentShiftScheduleMonthYear'),
+                scheduleRoleFilter: document.getElementById('scheduleRoleFilter'),
+                // Removed exportSchedulePdfBtn as it's not implemented yet
                 shiftScheduleTableBody: document.getElementById('shiftScheduleTableBody'),
-                shiftScheduleTableHead: document.getElementById('shiftScheduleTableHead'), // New for dynamic headers
+                shiftScheduleTableHead: document.getElementById('shiftScheduleTableHead'),
 
-                // Shift schedule dashboard elements (simplified)
-                staticRosterTotalStaff: document.getElementById('staticRosterTotalStaff'),
-                staticRosterTotalShifts: document.getElementById('staticRosterTotalShifts'),
-                avgHoursPerShift: document.getElementById('avgHoursPerShift'), // Will now show N/A
-                coverageSupervisors: document.getElementById('coverageSupervisors'), // Will now show N/A
-                coverageQAs: document.getElementById('coverageQAs'), // Will now show N/A
-                teaBreakSummary: document.getElementById('teaBreakSummary'), // Will now show N/A
-                lunchBreakSummary: document.getElementById('lunchBreakSummary'), // Will now show N/A
-                repetitionAlertsList: document.getElementById('repetitionAlertsList'), // Will now show N/A
-                pendingSwaps: document.getElementById('pendingSwaps'), // Will now show N/A
-                approvedSwaps: document.getElementById('approvedSwaps'), // Will now show N/A
-                declinedSwaps: document.getElementById('declinedSwaps'), // Will now show N/A
+                // Shift counts table
+                shiftCountsTable: document.getElementById('shiftCountsTable'),
+                shiftCountsTableBody: document.getElementById('shiftCountsTableBody'),
 
 
                 individualSummaryPage: document.getElementById('individualSummaryPage'),
@@ -4266,9 +4578,6 @@
                 memberRoleSelect: document.getElementById('memberRole'),
                 addMemberMessage: document.getElementById('addMemberMessage'),
                 staffListTableBody: document.getElementById('staffListTableBody'),
-
-                // For the schedule month dropdown - this element is removed from HTML
-                // scheduleMonth: document.getElementById('scheduleMonth')
             };
 
             initializeEventListeners();
@@ -4297,10 +4606,6 @@
                     setLoggedInState(false);
                 }
             });
-
-            // Initial load based on hash (if user refreshed while logged in)
-            // This is handled by setLoggedInState now which is called by onAuthStateChanged
-            // No need for a separate call here. The onAuthStateChanged listener handles the initial page display.
         });
     </script>
 </body>
