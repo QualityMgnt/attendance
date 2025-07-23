@@ -13,27 +13,32 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+export const auth = firebase.auth();
+export const db = firebase.firestore();
 
 // --- Global Variables / Caches ---
-let loggedInUser = null;
-let loggedInUserRole = 'Agent';
-let usersData = {};
-const attendanceData = {};
-const markedDates = new Set();
-let activeAgents = [];
-let currentLeaveTrackerDate = new Date();
-const todayGlobal = new Date();
+// EXPORT these global variables so other modules can access them
+export let loggedInUser = null;
+export let loggedInUserRole = 'Agent';
+export let usersData = {};
+export const attendanceData = {};
+export const markedDates = new Set();
+export let activeAgents = [];
+export let currentLeaveTrackerDate = new Date();
+export const todayGlobal = new Date();
 
 // Helper to format date for Firestore document IDs
-const formatDate = (date) => date.toISOString().split('T')[0];
+export const formatDate = (date) => date.toISOString().split('T')[0];
 
 // --- Import functions from other modules ---
+// This is correct as is, assuming the functions exist in those files.
 import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus } from './leave_tracker.js';
 import { initializeShiftSchedule, renderShiftScheduleTable, updateShiftScheduleDashboard } from './shift_schedule.js';
 
+// ... (Keep the rest of the functions from your previous main.js) ...
+
 // --- Core Helper Functions (moved from index.html) ---
+// EXPORT these functions so other modules can call them
 export function updateActiveAgentsList() {
     const sampleSecondaryRoles = ['Inbound / Email', 'Social Media', 'LiveChat', 'Sales', 'Onboarding', 'Level 1 Escalations'];
     const samplePeriods = ['July - December', 'Jan - June', 'Annual'];
@@ -114,18 +119,17 @@ export function showPage(pageId) {
     });
     switch (pageId) {
         case 'homePage':
-            updateHomeStatistics();
+            // ...
             break;
         case 'attendancePage':
-            generateAttendanceOverviewTable();
-            DOM.attendanceDateInput.value = '';
-            DOM.openAttendanceCalendarBtn.disabled = false;
-            selectedMarkingDate = null;
+            // ...
             break;
         case 'leaveTrackerPage':
+            // Call the imported function from leave_tracker.js
             fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
             break;
         case 'shiftSchedulePage':
+            // Call the imported function from shift_schedule.js
             renderShiftScheduleTable();
             updateShiftScheduleDashboard();
             break;
