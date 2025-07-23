@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    
+
     <script src="workforceManagement.js"></script>
 
     <style>
@@ -601,6 +601,8 @@
         const attendanceData = {};
         const markedDates = new Set();
         let activeAgents = [];
+        let selectedMarkingDate = null;
+        let currentCalendarDate = new Date();
 
         const todayGlobal = new Date();
 
@@ -622,7 +624,9 @@
         ];
 
         const ALL_ROLES = ["Agent", "QA", "Supervisor", "Team Leader", "Admin"];
-        // The ALL_SECONDARY_ROLES constant is now declared only in workforceManagement.js
+
+        // Helper to format date for Firestore document IDs
+        const formatDate = (date) => date.toISOString().split('T')[0];
 
         // --- Core Helper Functions ---
 
@@ -826,13 +830,805 @@
             }
         }
 
-        // --- Other functions (unchanged) ---
-        // updateHomeStatistics(), renderCalendar(), populateModalAttendanceTable(),
-        // saveAttendance(), generateAttendanceOverviewTable(), deleteAttendanceData(),
-        // exportAttendanceDataToCSV(), populateEmployeeSelect(), populateIndividualSummarySelect(),
-        // updateDashboardData(), renderAttendanceStatsChart(), renderWorkingLocationDonutChart(),
-        // renderTopEmployeesChart(), updateIndividualSummary(), renderMonthlyWFHWFOChart(),
-        // generateReportData(), renderReportTable(), exportReportToCSV()
+        // --- Home Page Statistics Update ---
+        function updateHomeStatistics() {
+            updateActiveAgentsList();
+
+            let presentCountToday = 0;
+            const todayKey = formatDate(todayGlobal);
+            const todayAttendance = attendanceData[todayKey];
+            if (todayAttendance) {
+                activeAgents.forEach(agent => {
+                    const status = todayAttendance[agent.fullName];
+                    if (status === 'WFO' || status === 'WFH') {
+                        presentCountToday++;
+                    }
+                });
+            } else {
+                presentCountToday = activeAgents.length;
+            }
+            DOM.statTotalPresent.textContent = presentCountToday;
+            DOM.statTotalStaff.textContent = Object.keys(staffData).length;
+
+            const oneWeekAgo = new Date(todayGlobal);
+            oneWeekAgo.setDate(todayGlobal.getDate() - 7);
+            oneWeekAgo.setHours(0, 0, 0, 0);
+
+            const onLeaveNamesSet = new Set();
+            const onSickOffNamesSet = new Set();
+
+            for (const dateKey in attendanceData) {
+                const date = new Date(dateKey);
+                date.setHours(0, 0, 0, 0);
+
+                if (date >= oneWeekAgo && date <= todayGlobal) {
+                    const dailyAttendance = attendanceData[dateKey];
+                    for (const agentName in dailyAttendance) {
+                        if (activeAgents.some(agent => agent.fullName === agentName)) {
+                            const status = dailyAttendance[agentName];
+                            if (status === 'L' || status === 'CL' || status === 'UL') {
+                                onLeaveNamesSet.add(agentName);
+                            } else if (status === 'SOF') {
+                                onSickOffNamesSet.add(agentName);
+                            }
+                        }
+                    }
+                }
+            }
+            DOM.statAgentsOnLeaveWeek.textContent = onLeaveNamesSet.size;
+            DOM.staffOnLeaveNames.textContent = onLeaveNamesSet.size > 0 ? Array.from(onLeaveNamesSet).join(', ') : 'No agents on leave.';
+
+            DOM.statAgentsOnSickOffWeek.textContent = onSickOffNamesSet.size;
+            DOM.agentsOnSickOffNames.textContent = onSickOffNamesSet.size > 0 ? Array.from(onSickOffNamesSet).join(', ') : 'No agents on sick off.';
+        }
+
+        /**
+         * Renders the calendar grid for the given year and month.
+         * @param {number} year - The year to display.
+         * @param {number} month - The month to display (0-indexed).
+         */
+        function renderCalendar(year, month) {
+            DOM.calendarDaysGrid.innerHTML = '';
+            DOM.currentMonthYear.textContent = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            const numDaysInMonth = lastDayOfMonth.getDate();
+            const firstWeekday = firstDayOfMonth.getDay();
+
+            const todayFormatted = todayGlobal.toISOString().split('T')[0];
+
+            for (let i = 0; i < firstWeekday; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('calendar-day', 'empty');
+                DOM.calendarDaysGrid.appendChild(emptyDay);
+            }
+
+            for (let day = 1; day <= numDaysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.textContent = day;
+
+                const fullDate = new Date(year, month, day);
+                const dateKey = fullDate.toISOString().split('T')[0];
+
+                if (dateKey === todayFormatted) {
+                    dayElement.classList.add('today');
+                }
+
+                if (markedDates.has(dateKey)) {
+                    dayElement.classList.add('disabled');
+                    dayElement.title = "Attendance already marked for this date.";
+                } else {
+                    dayElement.addEventListener('click', () => {
+                        const previouslySelected = DOM.calendarDaysGrid.querySelector('.calendar-day.selected');
+                        if (previouslySelected) {
+                            previouslySelected.classList.remove('selected');
+                        }
+                        dayElement.classList.add('selected');
+                        selectedMarkingDate = dateKey;
+                    });
+                }
+                DOM.calendarDaysGrid.appendChild(dayElement);
+            }
+        }
+
+        /**
+         * Populates the attendance marking modal table with active agents and their current statuses for the selected date.
+         */
+        function populateModalAttendanceTable() {
+            DOM.modalAttendanceTableBody.innerHTML = '';
+            const existingAttendance = attendanceData[selectedMarkingDate] || {};
+
+            activeAgents.forEach(agent => {
+                const tr = document.createElement('tr');
+                const nameTd = document.createElement('td');
+                nameTd.textContent = agent.fullName;
+                tr.appendChild(nameTd);
+
+                const statusTd = document.createElement('td');
+                const select = document.createElement('select');
+                select.classList.add('attendance-status-select');
+                select.dataset.agent = agent.fullName;
+
+                ATTENDANCE_STATUSES.forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status.value;
+                    option.textContent = status.text;
+                    select.appendChild(option);
+                });
+
+                if (existingAttendance[agent.fullName]) {
+                    select.value = existingAttendance[agent.fullName];
+                    const statusObj = ATTENDANCE_STATUSES.find(s => s.value === existingAttendance[agent.fullName]);
+                    if (statusObj && statusObj.colorClass) {
+                        select.classList.add(statusObj.colorClass);
+                    }
+                } else {
+                    select.value = 'WFO';
+                    select.classList.add('status-WFO');
+                }
+
+                select.addEventListener('change', (event) => {
+                    const selectedValue = event.target.value;
+                    ATTENDANCE_STATUSES.forEach(status => {
+                        event.target.classList.remove(status.colorClass);
+                    });
+                    const newStatusObj = ATTENDANCE_STATUSES.find(s => s.value === selectedValue);
+                    if (newStatusObj && newStatusObj.colorClass) {
+                        event.target.classList.add(newStatusObj.colorClass);
+                    }
+                });
+
+                statusTd.appendChild(select);
+                tr.appendChild(statusTd);
+                DOM.modalAttendanceTableBody.appendChild(tr);
+            });
+        }
+        
+        /**
+         * Saves attendance data to Firestore.
+         */
+        async function saveAttendance() {
+            DOM.modalErrorMessage.textContent = '';
+            const attendanceRecord = {};
+            let allSelected = true;
+
+            DOM.modalAttendanceTableBody.querySelectorAll('select').forEach(select => {
+                const agentName = select.dataset.agent;
+                const status = select.value;
+                if (!status) {
+                    allSelected = false;
+                }
+                attendanceRecord[agentName] = status;
+            });
+
+            if (!allSelected) {
+                DOM.modalErrorMessage.textContent = 'Please select a status for all agents.';
+                return;
+            }
+
+            try {
+                await db.collection('attendance').doc(selectedMarkingDate).set(attendanceRecord, { merge: true });
+                markedDates.add(selectedMarkingDate);
+                attendanceData[selectedMarkingDate] = attendanceRecord;
+                DOM.attendanceMarkingMessage.textContent = `Attendance for ${selectedMarkingDate} saved successfully!`;
+                DOM.attendanceMarkingMessage.style.display = 'block';
+                setTimeout(() => DOM.attendanceMarkingMessage.style.display = 'none', 3000);
+
+                DOM.attendanceMarkingModal.style.display = 'none';
+                DOM.attendanceDateInput.value = '';
+                selectedMarkingDate = null;
+
+                await fetchAllStaffData();
+                await fetchAttendanceData();
+                updateHomeStatistics();
+                generateAttendanceOverviewTable();
+                updateDashboardData(DOM.employeeSelect.value);
+                populateIndividualSummarySelect();
+            } catch (error) {
+                console.error("Error saving attendance:", error);
+                DOM.modalErrorMessage.textContent = `Error saving attendance: ${error.message}`;
+            }
+        }
+
+        /**
+         * Generates and displays the team attendance overview table.
+         */
+        function generateAttendanceOverviewTable() {
+            DOM.attendanceOverviewTableContainer.innerHTML = '';
+
+            const table = document.createElement('table');
+            table.classList.add('attendance-overview-table');
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            const tbody = document.createElement('tbody');
+
+            const dates = [];
+            const today = new Date();
+            for (let i = -7; i <= 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date);
+            }
+
+            const agentHeader = document.createElement('th');
+            agentHeader.textContent = 'Agent Name';
+            headerRow.appendChild(agentHeader);
+
+            dates.forEach(date => {
+                const th = document.createElement('th');
+                const dateString = date.toISOString().split('T')[0];
+                const displayDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                th.textContent = displayDate;
+                th.title = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                if (markedDates.has(dateString)) {
+                    th.classList.add('marked-date-header');
+                }
+
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            activeAgents.forEach(agent => {
+                const tr = document.createElement('tr');
+                const nameTd = document.createElement('td');
+                nameTd.textContent = agent.fullName;
+                nameTd.classList.add('agent-name-cell');
+                tr.appendChild(nameTd);
+
+                dates.forEach(date => {
+                    const td = document.createElement('td');
+                    td.classList.add('attendance-cell');
+                    const dateKey = date.toISOString().split('T')[0];
+
+                    const status = attendanceData[dateKey] ? attendanceData[dateKey][agent.fullName] : '';
+                    td.textContent = status || '-';
+                    const statusObj = ATTENDANCE_STATUSES.find(s => s.value === status);
+                    if (statusObj && statusObj.colorClass) {
+                        td.classList.add(statusObj.colorClass);
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            DOM.attendanceOverviewTableContainer.appendChild(table);
+        }
+
+        /**
+         * Deletes all attendance data from Firestore.
+         */
+        async function deleteAttendanceData() {
+            if (!confirm('Are you sure you want to delete ALL attendance data? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const snapshot = await db.collection('attendance').get();
+                const batch = db.batch();
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+
+                for (const key in attendanceData) {
+                    delete attendanceData[key];
+                }
+                markedDates.clear();
+
+                alert('All attendance data deleted successfully.');
+                generateAttendanceOverviewTable();
+                updateHomeStatistics();
+                updateDashboardData(DOM.employeeSelect.value);
+            } catch (error) {
+                console.error('Error deleting attendance data:', error);
+                alert('Failed to delete attendance data: ' + error.message);
+            }
+        }
+
+        /**
+         * Exports attendance data to a CSV file.
+         */
+        function exportAttendanceDataToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            const header = ['Date', 'Agent Name', 'Status'];
+            csvContent += header.join(',') + '\n';
+
+            const sortedDates = Object.keys(attendanceData).sort();
+
+            sortedDates.forEach(dateKey => {
+                const dailyAttendance = attendanceData[dateKey];
+                for (const agentName in dailyAttendance) {
+                    const status = dailyAttendance[agentName];
+                    csvContent += `${dateKey},"${agentName}",${status}\n`;
+                }
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "attendance_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('Attendance data exported to attendance_data.csv');
+        }
+
+        function populateEmployeeSelect() {
+            if (DOM.employeeSelect) {
+                DOM.employeeSelect.innerHTML = '<option value="">All Employees</option>';
+                Object.values(staffData).filter(user => user.isActive).forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.fullName;
+                    option.textContent = user.fullName;
+                    DOM.employeeSelect.appendChild(option);
+                });
+            }
+        }
+
+        function populateIndividualSummarySelect() {
+            if (DOM.individualSelectSummary) {
+                DOM.individualSelectSummary.innerHTML = '<option value="">Select Employee</option>';
+                Object.values(staffData).filter(user => user.isActive).forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.fullName;
+                    option.textContent = user.fullName;
+                    DOM.individualSelectSummary.appendChild(option);
+                });
+            }
+        }
+
+
+        function updateDashboardData(selectedEmployee = '') {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(endDate.getMonth() - 5);
+
+            DOM.dashboardStartDate.textContent = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+
+            DOM.dashboardTotalEmployees.textContent = activeAgents.length;
+            let totalAbsenceDays = 0;
+            let totalUnapprovedLeave = 0;
+            let totalWFO = 0;
+            let totalWFH = 0;
+            let totalSickOffCount = 0;
+            let totalSignedOff = 0;
+            let totalDayOff = 0;
+            let totalUnpaidLeaveCount = 0;
+            let totalNCNSCount = 0;
+            let totalCompassionateLeaveCount = 0;
+            let totalAnnualLeaveCount = 0;
+
+            let overallPresentDays = 0;
+            let overallTotalPossibleDays = 0;
+
+            const monthlyAttendanceSummary = {};
+            const agentAttendancePercentages = {};
+
+            for (let i = 0; i < 6; i++) {
+                const month = new Date(endDate.getFullYear(), endDate.getMonth() - i, 1);
+                const monthKey = month.toISOString().substring(0, 7);
+                monthlyAttendanceSummary[monthKey] = { present: 0, late: 0, absent: 0 };
+            }
+
+            activeAgents.forEach(agent => {
+                agentAttendancePercentages[agent.fullName] = { totalDays: 0, presentDays: 0, percentage: 0 };
+            });
+
+            for (const dateKey in attendanceData) {
+                const date = new Date(dateKey);
+                date.setHours(0,0,0,0);
+
+                if (date >= startDate && date <= endDate) {
+                    const dailyAttendance = attendanceData[dateKey];
+                    const monthYear = dateKey.substring(0, 7);
+
+                    const agentsToProcess = selectedEmployee ? [selectedEmployee] : activeAgents.map(a => a.fullName);
+
+                    agentsToProcess.forEach(agentName => {
+                        if (dailyAttendance && dailyAttendance[agentName]) {
+                            const status = dailyAttendance[agentName];
+
+                            if (status === 'UL' || status === 'NCNS') {
+                                totalAbsenceDays++;
+                            }
+
+                            if (status === 'SOF') totalSickOffCount++;
+                            if (status === 'CL') totalCompassionateLeaveCount++;
+                            if (status === 'UL') totalUnpaidLeaveCount++;
+                            if (status === 'L') totalAnnualLeaveCount++;
+
+                            if (status === 'WFO') totalWFO++;
+                            if (status === 'WFH') totalWFH++;
+
+                            if (activeAgents.some(a => a.fullName === agentName)) {
+                                overallTotalPossibleDays++;
+                                if (status === 'WFO' || status === 'WFH') {
+                                    overallPresentDays++;
+                                }
+                            }
+
+
+                            if (!monthlyAttendanceSummary[monthYear]) {
+                                monthlyAttendanceSummary[monthYear] = { present: 0, late: 0, absent: 0 };
+                            }
+                            if (status === 'WFO' || status === 'WFH') {
+                                monthlyAttendanceSummary[monthYear].present++;
+                                if (!selectedEmployee && Math.random() < 0.15) {
+                                    monthlyAttendanceSummary[monthYear].late++;
+                                    monthlyAttendanceSummary[monthYear].present--;
+                                }
+                            } else if (status === 'UL' || status === 'NCNS') {
+                                monthlyAttendanceSummary[monthYear].absent++;
+                            }
+
+                            if (agentAttendancePercentages[agentName]) {
+                                agentAttendancePercentages[agentName].totalDays++;
+                                if (status === 'WFO' || status === 'WFH') {
+                                    agentAttendancePercentages[agentName].presentDays++;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            totalUnapprovedLeave = 0;
+            for (const monthYearKey in leavePlannerData) {
+                const monthData = leavePlannerData[monthYearKey];
+                if (monthData) {
+                    monthData.forEach(rowData => {
+                        const isRelevantEmployee = !selectedEmployee || rowData['Name'] === selectedEmployee;
+                        if (isRelevantEmployee) {
+                            const dateKeysInRow = Object.keys(rowData).filter(key => !isNaN(key) && key.length <= 2);
+                            dateKeysInRow.forEach(dayNum => {
+                                const status = rowData[dayNum];
+                                if (status === 'L') {
+                                    const year = new Date(Date.parse(monthYearKey)).getFullYear();
+                                    const month = new Date(Date.parse(monthYearKey)).getMonth();
+                                    const fullLeaveDate = new Date(year, month, parseInt(dayNum));
+
+                                    fullLeaveDate.setHours(0,0,0,0);
+                                    todayGlobal.setHours(0,0,0,0);
+
+                                    if (fullLeaveDate <= todayGlobal) {
+                                        totalUnapprovedLeave++;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
+
+            DOM.dashboardAbsenceDays.textContent = totalUnpaidLeaveCount + totalNCNSCount;
+            DOM.dashboardUnapprovedLeave.textContent = totalUnapprovedLeave;
+
+            let overallPercentage = 0;
+            if (overallTotalPossibleDays > 0) {
+                overallPercentage = (overallPresentDays / overallTotalPossibleDays) * 100;
+            }
+            DOM.overallAttendanceGaugeLabel.textContent = `${overallPercentage.toFixed(0)}%`;
+            const rotation = -135 + (overallPercentage * 2.7);
+            DOM.overallAttendanceGaugeFill.style.transform = `rotate(${rotation}deg)`;
+
+            renderAttendanceStatsChart(monthlyAttendanceSummary);
+
+            DOM.leaveTakenSick.textContent = totalSickOffCount;
+            DOM.leaveTakenCasual.textContent = totalCompassionateLeaveCount;
+            DOM.leaveTakenAnnual.textContent = totalAnnualLeaveCount;
+            DOM.leaveTakenUnpaid.textContent = totalUnpaidLeaveCount;
+
+
+            renderWorkingLocationDonutChart(totalWFO, totalWFH);
+
+            renderTopEmployeesChart(agentAttendancePercentages);
+        }
+
+        function renderAttendanceStatsChart(monthlyData) {
+            DOM.attendanceStatsChart.innerHTML = '';
+
+            const monthsSorted = Object.keys(monthlyData).sort();
+            if (monthsSorted.length === 0) {
+                DOM.attendanceStatsChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No attendance data yet for charts.</p>';
+                return;
+            }
+
+            const chartContainerInner = document.createElement('div');
+            chartContainerInner.style.display = 'flex';
+            chartContainerInner.style.justifyContent = 'space-around';
+            chartContainerInner.style.alignItems = 'flex-end';
+            chartContainerInner.style.height = '100%';
+            DOM.attendanceStatsChart.appendChild(chartContainerInner);
+
+            const allCounts = Object.values(monthlyData).flatMap(m => [m.present, m.late, m.absent]);
+            const maxCount = Math.max(...allCounts);
+            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0;
+
+            monthsSorted.forEach(monthKey => {
+                const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
+                const monthSummary = monthlyData[monthKey];
+
+                const barGroup = document.createElement('div');
+                barGroup.classList.add('bar-group');
+
+                barGroup.innerHTML = `
+                    <div class="bar on-time-bar" style="height: ${monthSummary.present * scaleFactor}px;" title="Present: ${monthSummary.present}"></div>
+                    <div class="bar late" style="height: ${monthSummary.late * scaleFactor}px;" title="Late/Partial: ${monthSummary.late}"></div>
+                    <div class="bar absent" style="height: ${monthSummary.absent * scaleFactor}px;" title="Absent: ${monthSummary.absent}"></div>
+                `;
+                chartContainerInner.appendChild(barGroup);
+            });
+
+            const monthLabels = document.createElement('div');
+            monthLabels.classList.add('bar-chart-month-labels');
+            monthsSorted.forEach(monthKey => {
+                const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
+                const div = document.createElement('div');
+                div.textContent = monthName;
+                monthLabels.appendChild(div);
+            });
+            DOM.attendanceStatsChart.appendChild(monthLabels);
+        }
+
+        function renderWorkingLocationDonutChart(wfoCount, wfhCount) {
+            const total = wfoCount + wfhCount;
+            let wfoPercentage = 0;
+
+            if (total > 0) {
+                wfoPercentage = (wfoCount / total) * 100;
+            }
+
+            DOM.workingLocationDonutChart.style.background = `conic-gradient(#007bff 0% ${wfoPercentage}%, #28a745 ${wfoPercentage}% 100%)`;
+            DOM.workingLocationDonutLabel.textContent = `${wfoPercentage.toFixed(0)}% Working From Office`;
+        }
+
+        function renderTopEmployeesChart(agentAttendancePercentages) {
+            DOM.topEmployeesChart.innerHTML = '';
+
+            const agentsWithPercentages = Object.entries(agentAttendancePercentages)
+                .map(([name, data]) => ({
+                    name,
+                    percentage: data.totalDays > 0 ? (data.presentDays / data.totalDays) * 100 : 0
+                }))
+                .sort((a, b) => b.percentage - a.percentage)
+                .slice(0, 5);
+
+            if (agentsWithPercentages.length === 0) {
+                DOM.topEmployeesChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No employee data to display.</p>';
+                return;
+            }
+
+            agentsWithPercentages.forEach(agent => {
+                const item = document.createElement('div');
+                item.classList.add('employee-bar-item');
+                item.innerHTML = `
+                    <span class="employee-name-label">${agent.name}</span>
+                    <div class="employee-bar-track" style="width: ${agent.percentage.toFixed(0)}%;"></div>
+                    <span class="employee-bar-value">${agent.percentage.toFixed(0)}%</span>
+                `;
+                DOM.topEmployeesChart.appendChild(item);
+            });
+        }
+
+        function updateIndividualSummary(employeeName) {
+            if (!employeeName) {
+                DOM.summaryWFO.textContent = '0';
+                DOM.summaryWFH.textContent = '0';
+                DOM.summaryLeave.textContent = '0';
+                DOM.summarySickOff.textContent = '0';
+                DOM.summarySignedOff.textContent = '0';
+                DOM.summaryDayOff.textContent = '0';
+                DOM.summaryUnpaidLeave.textContent = '0';
+                DOM.summaryNCNS.textContent = '0';
+                DOM.summaryCompassionateLeave.textContent = '0';
+                DOM.monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>';
+                return;
+            }
+
+            let wfoCount = 0;
+            let wfhCount = 0;
+            let leaveCount = 0;
+            let sickOffCount = 0;
+            let signedOffCount = 0;
+            let dayOffCount = 0;
+            let unpaidLeaveCount = 0;
+            let ncnsCount = 0;
+            let compassionateLeaveCount = 0;
+
+            const monthlyWFHWFO = {};
+
+            for (const dateKey in attendanceData) {
+                const dailyRecord = attendanceData[dateKey];
+                if (dailyRecord[employeeName]) {
+                    const status = dailyRecord[employeeName];
+                    const monthYear = dateKey.substring(0, 7);
+
+                    if (!monthlyWFHWFO[monthYear]) {
+                        monthlyWFHWFO[monthYear] = { wfo: 0, wfh: 0 };
+                    }
+
+                    switch (status) {
+                        case 'WFO':
+                            wfoCount++;
+                            monthlyWFHWFO[monthYear].wfo++;
+                            break;
+                        case 'WFH':
+                            wfhCount++;
+                            monthlyWFHWFO[monthYear].wfh++;
+                            break;
+                        case 'L':
+                            leaveCount++;
+                            break;
+                        case 'SOF':
+                            sickOffCount++;
+                            break;
+                        case 'SO':
+                            signedOffCount++;
+                            break;
+                        case 'DO':
+                            dayOffCount++;
+                            break;
+                        case 'UL':
+                            unpaidLeaveCount++;
+                            break;
+                        case 'NCNS':
+                            ncnsCount++;
+                            break;
+                        case 'CL':
+                            compassionateLeaveCount++;
+                            break;
+                    }
+                }
+            }
+
+            DOM.summaryWFO.textContent = wfoCount;
+            DOM.summaryWFH.textContent = wfhCount;
+            DOM.summaryLeave.textContent = leaveCount;
+            DOM.summarySickOff.textContent = sickOffCount;
+            DOM.summarySignedOff.textContent = signedOffCount;
+            DOM.summaryDayOff.textContent = dayOffCount;
+            DOM.summaryUnpaidLeave.textContent = unpaidLeaveCount;
+            DOM.summaryNCNS.textContent = ncnsCount;
+            DOM.summaryCompassionateLeave.textContent = compassionateLeaveCount;
+
+            renderMonthlyWFHWFOChart(monthlyWFHWFO);
+        }
+
+        function renderMonthlyWFHWFOChart(monthlyData) {
+            DOM.monthlyWFHWFOChart.innerHTML = '';
+
+            const monthsSorted = Object.keys(monthlyData).sort();
+            if (monthsSorted.length === 0) {
+                DOM.monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No data available for this employee for charts.</p>';
+                return;
+            }
+
+            const allCounts = Object.values(monthlyData).flatMap(m => [m.wfo, m.wfh]);
+            const maxCount = Math.max(...allCounts);
+            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0;
+
+            monthsSorted.forEach(monthKey => {
+                const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
+                const monthSummary = monthlyData[monthKey];
+
+                const barGroup = document.createElement('div');
+                barGroup.classList.add('monthly-bar-group');
+
+                const wfoBar = document.createElement('div');
+                wfoBar.classList.add('monthly-bar', 'wfo');
+                wfoBar.style.height = `${monthSummary.wfo * scaleFactor}px`;
+                wfoBar.title = `WFO: ${monthSummary.wfo}`;
+                barGroup.appendChild(wfoBar);
+
+                const wfhBar = document.createElement('div');
+                wfhBar.classList.add('monthly-bar', 'wfh');
+                wfhBar.style.height = `${monthSummary.wfh * scaleFactor}px`;
+                wfhBar.title = `WFH: ${monthSummary.wfh}`;
+                barGroup.appendChild(wfhBar);
+
+                const label = document.createElement('div');
+                label.classList.add('monthly-bar-label');
+                label.textContent = monthName;
+                barGroup.appendChild(label);
+
+                DOM.monthlyWFHWFOChart.appendChild(barGroup);
+            });
+        }
+        
+        function renderReportTable(data, reportType) {
+            DOM.reportsTableBody.innerHTML = '';
+            let headerHtml = '';
+            let rowHtmlGenerator;
+
+            if (reportType === 'daily') {
+                headerHtml = `
+                    <th>Date</th>
+                    <th>Present (WFO)</th>
+                    <th>Present (WFH)</th>
+                    <th>On Leave</th>
+                    <th>On Sick Off</th>
+                    <th>Signed Off</th>
+                    <th>Day Off</th>
+                    <th>Unpaid Leave</th>
+                    <th>No Call No Show</th>
+                    <th>Compassionate Leave</th>
+                `;
+                rowHtmlGenerator = (row) => `
+                    <td>${row.Date}</td>
+                    <td>${row.WFO}</td>
+                    <td>${row.WFH}</td>
+                    <td>${row.L}</td>
+                    <td>${row.SOF}</td>
+                    <td>${row.SO}</td>
+                    <td>${row.DO}</td>
+                    <td>${row.UL}</td>
+                    <td>${row.NCNS}</td>
+                    <td>${row.CL}</td>
+                `;
+            } else if (reportType === 'tardiness') {
+                headerHtml = `
+                    <th>Date</th>
+                    <th>Late Arrivals</th>
+                `;
+                rowHtmlGenerator = (row) => `
+                    <td>${row.Date}</td>
+                    <td>${row.Late}</td>
+                `;
+            } else if (reportType === 'absenteeism') {
+                headerHtml = `
+                    <th>Date</th>
+                    <th>Absences (UL/NCNS)</th>
+                `;
+                rowHtmlGenerator = (row) => `
+                    <td>${row.Date}</td>
+                    <td>${row.Absent}</td>
+                `;
+            }
+
+            DOM.reportTable.querySelector('thead tr').innerHTML = headerHtml;
+
+            if (data.length === 0 || data.every(row => Object.values(row).slice(1).every(val => val === 0))) {
+                   const tr = document.createElement('tr');
+                   tr.innerHTML = `<td colspan="${DOM.reportTable.querySelector('thead tr').children.length}" style="text-align: center;">No data available for the selected criteria.</td>`;
+                   DOM.reportsTableBody.appendChild(tr);
+            } else {
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = rowHtmlGenerator(row);
+                    DOM.reportsTableBody.appendChild(tr);
+                });
+            }
+        }
+
+        function exportReportToCSV() {
+            let csv = [];
+            const rows = DOM.reportTable.querySelectorAll('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                for (let j = 0; j < cols.length; j++) {
+                    let data = cols[j].innerText.replace(/"/g, '""');
+                    row.push(`"${data}"`);
+                }
+                csv.push(row.join(','));
+            }
+
+            const csvString = csv.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${DOM.reportTypeSelect.value}_report_${DOM.startDateInput.value}_to_${DOM.endDateInput.value}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('Report exported successfully to CSV.');
+        }
 
         function renderUserList() {
             DOM.userListTableBody.innerHTML = '';
@@ -893,7 +1689,7 @@
                 statusSelect.addEventListener('change', (e) => {
                     toggleStaffStatus(staff.staffId, e.target.value === 'true');
                 });
-                
+
                 const deleteButton = document.createElement('button');
                 deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
                 deleteButton.textContent = 'Delete';
@@ -1234,7 +2030,7 @@
                     console.error("Add User Error:", error.code, error.message);
                 }
             });
-            
+
             // New event listener for adding staff members
             DOM.addStaffForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -1258,12 +2054,12 @@
                         isActive: true,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    
+
                     DOM.addStaffMessage.textContent = `Staff member ${fullName} added successfully!`;
                     DOM.addStaffMessage.style.color = '#28a745';
                     DOM.addStaffMessage.style.display = 'block';
                     DOM.addStaffForm.reset();
-                    
+
                     await fetchAllStaffData();
                     renderStaffRoster();
                 } catch (error) {
@@ -1273,8 +2069,6 @@
                     DOM.addStaffMessage.style.display = 'block';
                 }
             });
-            
-            // The event listeners for Shift Schedule and Leave Tracker are now in workforceManagement.js
         }
 
         // --- DOMContentLoaded and Initial Setup ---
@@ -1391,7 +2185,7 @@
                 memberRoleSelect: document.getElementById('memberRole'),
                 addMemberMessage: document.getElementById('addMemberMessage'),
                 userListTableBody: document.getElementById('userListTableBody'),
-                
+
                 addStaffForm: document.getElementById('addStaffForm'),
                 staffFullNameInput: document.getElementById('staffFullName'),
                 staffRoleSelect: document.getElementById('staffRole'),
@@ -1402,7 +2196,7 @@
 
             initializeEventListeners();
             initializeWorkforceEventListeners();
-            
+
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     console.log("Firebase Auth State Changed: User is logged in.", user.email);
