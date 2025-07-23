@@ -1,6 +1,5 @@
 // shift_schedule.js
 
-// Import necessary global variables and functions
 import { db, activeAgents, usersData, showPage } from './main.js';
 
 const staticShiftScheduleData = [
@@ -23,15 +22,12 @@ export function initializeShiftSchedule() {
 export function renderShiftScheduleTable() {
     const tableBody = window.DOM.shiftScheduleTableBody;
     const tableHead = window.DOM.shiftScheduleTableHead;
-
     if (!tableBody || !tableHead) return;
     tableBody.innerHTML = '';
     tableHead.innerHTML = '';
-
     const headers = ["No.", "Agent Name", "Role", "Secondary Role", "Period", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const headerRow = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
     tableHead.innerHTML = headerRow;
-
     staticShiftScheduleData.forEach((row, index) => {
         const newRow = document.createElement('tr');
         const rowData = [
