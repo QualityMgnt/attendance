@@ -10,11 +10,1528 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-
-    <script src="workforceManagement.js"></script>
-
     <style>
-        /* ... (styles remain the same) ... */
+        /* Basic styles for demonstration, ideally these would be in style.css */
+        body {
+            font-family: 'Garamond', serif; /* Changed to Garamond */
+            margin: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Login page specific background color */
+        #loginPage.active {
+            background-color: #800080; /* Purple for login page */
+        }
+
+        /* Re-apply Poppins to specific elements where it enhances readability (e.g., buttons, smaller text) */
+        .btn, .main-nav a, .input-group label, .input-group input, .input-group select, .stat-card h3, .user-role, .dashboard-header-card .label, .dashboard-header-card .value, .dashboard-section-title, .dashboard-card-new h3, .gauge-label, .bar-chart-month-labels div, .chart-grid .label, .donut-chart-label, .donut-legend-item, .employee-bar-item, .summary-stat-card h4, .summary-stat-card .count, .monthly-bar-label, .chart-legend {
+            font-family: 'Poppins', sans-serif;
+        }
+
+
+        .page {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* Login Container */
+        .login-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 380px;
+            max-width: 90%;
+            margin: auto; /* Center it */
+        }
+
+        .login-container h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input[type="email"],
+        .input-group input[type="password"],
+        .input-group input[type="text"],
+        .input-group select,
+        .input-group input[type="date"],
+        .input-group input[type="time"] { /* Added time input */
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #28a745;
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* App Container Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px; /* Max width for the whole app */
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #800080; /* Changed to purple */
+            color: white;
+            padding: 25px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .logo {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: white; /* Changed to white as requested */
+        }
+
+        .main-nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .main-nav li {
+            margin-bottom: 10px;
+        }
+
+        .main-nav a {
+            display: flex;
+            align-items: center;
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 15px 30px;
+            font-size: 17px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .main-nav a i {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .main-nav a:hover,
+        .main-nav a.active {
+            background-color: #9932CC; /* Darker purple on hover/active */
+            color: #ffffff;
+            border-left: 5px solid #007bff;
+            padding-left: 25px; /* Adjust for border */
+        }
+
+        .logout-btn {
+            margin-top: auto; /* Pushes it to the bottom */
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-btn i {
+            margin-right: 10px;
+        }
+
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+
+        .top-system-bar {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            font-size: 28px; /* Changed font size */
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header {
+            background-color: #ffffff;
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .user-info {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .user-info strong {
+            color: #2c3e50;
+            margin-right: 5px;
+        }
+
+        .user-role {
+            background-color: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .content-module {
+            padding: 30px;
+            flex-grow: 1;
+            overflow-y: auto; /* Enable scrolling for content */
+            display: none; /* Hidden by default */
+        }
+
+        .content-module.active {
+            display: block; /* Shown when active */
+        }
+
+        .content-module h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .content-module hr {
+            border: 0;
+            height: 1px;
+            background-color: #eee;
+            margin-bottom: 25px;
+        }
+
+        /* Home Page Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #007bff;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        /* Notifications */
+        .notifications-list {
+            margin-top: 20px;
+        }
+
+        .notification-item {
+            background-color: #ffffff;
+            border-left: 5px solid;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+
+        .notification-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .notification-item.success { border-color: #28a745; }
+        .notification-item.info { border-color: #17a2b8; }
+        .notification-item.warning { border-color: #ffc107; }
+        .notification-item.danger { border-color: #dc3545; }
+
+        .notification-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            line-height: 1; /* Aligns icon better */
+        }
+
+        .notification-item.success .notification-icon { color: #28a745; }
+        .notification-item.info .notification-icon { color: #17a2b8; }
+        .notification-item.warning .notification-icon { color: #ffc107; }
+        .notification-item.danger .notification-icon { color: #dc3545; }
+
+        .notification-item p {
+            margin: 0;
+            color: #495057;
+            line-height: 1.4;
+        }
+
+        /* Styles for Attendance Marking Section */
+        .mark-attendance-section {
+            display: flex;
+            align-items: flex-end; /* Align button to bottom of input */
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .mark-attendance-section .input-group {
+            margin-bottom: 0; /* Remove default margin from input group */
+            flex-grow: 1; /* Allow input group to take available space */
+        }
+
+        /* Modal Styles (General for both attendance and calendar) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 22px;
+        }
+
+        .modal-table-container {
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            flex-grow: 1;
+        }
+
+        #modalAttendanceTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #modalAttendanceTable th,
+        #modalAttendanceTable td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        #modalAttendanceTable th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        #modalAttendanceTable td:last-child select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .modal-buttons .btn {
+            margin-left: 10px;
+        }
+
+        /* Calendar Modal Specific Styles */
+        #calendarModal .modal-content {
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-header button {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .calendar-header button:hover {
+            background-color: #e9ecef;
+        }
+
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .calendar-weekdays div {
+            padding: 8px 0;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .calendar-day {
+            padding: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .calendar-day:hover:not(.empty):not(.disabled):not(.selected) {
+            background-color: #e9ecef;
+        }
+
+        .calendar-day.empty {
+            visibility: hidden;
+        }
+
+        .calendar-day.today {
+            background-color: #007bff;
+            color: white;
+            font-weight: 700;
+        }
+
+        .calendar-day.selected {
+            background-color: #28a745;
+            color: white;
+            font-weight: 700;
+        }
+
+        .calendar-day.disabled {
+            background-color: #f0f0f0;
+            color: #a0a0a0;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+
+        /* Toolbar for Attendance Table */
+        .attendance-table-toolbar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Attendance Table */
+        .attendance-table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .attendance-overview-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1000px;
+        }
+
+        .attendance-overview-table th,
+        .attendance-overview-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+        }
+
+        .attendance-overview-table th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .attendance-overview-table td:last-child,
+        .attendance-overview-table th:last-child {
+            border-right: none;
+        }
+
+        .attendance-overview-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .attendance-overview-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .attendance-cell {
+            position: relative;
+            padding: 0;
+            background-color: #fcfcfc;
+        }
+
+        .attendance-status-select {
+            width: 100%;
+            height: 100%;
+            padding: 8px 10px;
+            border: none;
+            background-color: transparent;
+            font-size: 15px;
+            color: #333;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+
+        /* Status Guide */
+        .attendance-status-guide {
+            background-color: #f1f7fe;
+            border: 1px solid #d0e7ff;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .attendance-status-guide h3 {
+            width: 100%;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #007bff;
+            font-size: 18px;
+        }
+
+        .attendance-status-guide p {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .status-indicator-guide {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Status Colors for table cells and guide */
+        .status-WFO { background-color: #28a745; color: white; } /* Present, Work From Office */
+        .status-WFH { background-color: #17a2b8; color: white; } /* Present, Work From Home (changed from info to match UI) */
+        .status-SO { background-color: #6f42c1; color: white; }
+        .status-L { background-color: #ffc107; color: #333; } /* Leave (changed from info to warning) */
+        .status-DO { background-color: #6c757d; color: white; }
+        .status-UL { background-color: #dc3545; color: white; }
+        .status-NCNS { background-color: #fd7e14; color: white; } /* No Call No Show (changed from warning to orange) */
+        .status-CL { background-color: #20c997; color: white; } /* Compassionate Leave (changed to a different green) */
+        .status-SOF { background-color: #dc3545; color: white; } /* Sick Off (changed from danger for consistency) */
+
+
+        /* Dashboard Styles (New) */
+        .dashboard-container {
+            padding: 20px;
+            background-color: #f4f7f6;
+            display: grid;
+            gap: 2mm; /* Changed to 2mm as requested */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            align-items: start;
+        }
+
+        .dashboard-header-row {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-header-card {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header-card.employee-name {
+            background-color: #28a745;
+        }
+
+        .dashboard-header-card i {
+            font-size: 30px;
+        }
+
+        .dashboard-header-card div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-header-card .label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .dashboard-header-card .value {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .dashboard-header-card select {
+            /* Styles for the Employee Name dropdown to look presentable */
+            background-color: rgba(255, 255, 255, 0.3); /* Slightly transparent white */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Lighter border */
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            flex-grow: 1;
+            /* Custom arrow for select (optional, but makes it look nicer) */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2C197.9c-3.2%2C3.2-8.3%2C3.2-11.5%2C0L146.2%2C68.9L16.9%2C197.9c-3.2%2C3.2-8.3%2C3.2-11.5%2C0c-3.2-3.2-3.2-8.3%2C0-11.5l135.5-135.5c3.2-3.2%2C8.3-3.2%2C11.5%2C0l135.5%2C135.5C290.2%2C189.6%2C290.2%2C194.7%2C287%2C197.9z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+        }
+
+        .dashboard-header-card select option {
+            background-color: #28a745; /* Background for options in the dropdown */
+            color: white;
+        }
+
+        .dashboard-section-title {
+            grid-column: 1 / -1;
+            font-size: 22px;
+            color: #2c3e50;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .dashboard-card-new {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card-new h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* Gauge styles (simplified static representation) */
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .gauge {
+            width: 100px;
+            height: 50px;
+            border-radius: 100px 100px 0 0;
+            border: 5px solid #e0e0e0;
+            border-bottom: none;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: bottom center;
+            transition: transform 0.5s ease-in-out;
+            background-color: #007bff;
+            border-radius: 100px 100px 0 0;
+        }
+
+        .gauge-label {
+            font-size: 14px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        /* Specific gauge colors */
+        /* These transforms will be set dynamically by JS based on calculated percentage */
+        .gauge-overall .gauge-fill { background-color: #007bff; }
+
+
+        /* Bar Chart styles (simplified static representation) */
+        .bar-chart-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 5px;
+            height: 200px;
+            padding-top: 10px;
+            position: relative;
+        }
+
+        .bar-chart-month-labels {
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+        }
+
+        .bar-chart-month-labels > div {
+            flex: 1;
+            text-align: center;
+        }
+
+        .bar-group {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            border-left: 1px solid #eee;
+            padding-left: 5px;
+        }
+
+        .bar {
+            width: 15px;
+            background-color: #007bff;
+            margin: 0 2px;
+            transition: height 0.3s ease;
+            position: relative;
+        }
+
+        .bar.late { background-color: #dc3545; }
+        .bar.absent { background-color: #ffc107; }
+        .bar.on-time-bar { background-color: #007bff; }
+
+
+        /* Specific chart layouts */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .chart-grid > div {
+            text-align: center;
+        }
+        .chart-grid .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .chart-grid .label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Donut Chart (simplified static representation) */
+        .donut-chart-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            /* background will be set dynamically by JS */
+            margin: 0 auto 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .donut-chart-center {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+        .donut-chart-label {
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+        }
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .donut-legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .donut-legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        /* Top Employees Bar Chart */
+        .top-employees-chart {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding-top: 10px;
+        }
+        .employee-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #495057;
+        }
+        .employee-name-label {
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .employee-bar-track {
+            flex-grow: 1;
+            height: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            width: 0%; /* Will be set by JS */
+            transition: width 0.5s ease-out;
+        }
+        .employee-bar-value {
+            margin-left: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 30px;
+        }
+        /* Remove hardcoded percentages, will be dynamic */
+
+
+        /* Leave Tracker Specific Styles */
+        .leave-tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .leave-tracker-header h3 {
+            margin: 0;
+            font-size: 22px;
+            color: #2c3e50;
+        }
+
+        .leave-tracker-table-container {
+            overflow-x: auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+        }
+
+        .leave-planner-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1200px; /* Ensure enough width for all days */
+        }
+
+        .leave-planner-table th,
+        .leave-planner-table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 5px;
+            text-align: center;
+            white-space: nowrap; /* Prevent wrapping in date cells */
+            position: relative; /* For overlay */
+        }
+
+        .leave-planner-table thead th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .leave-planner-table tbody td {
+            background-color: #fff;
+            color: #555;
+        }
+
+        .leave-planner-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .leave-planner-table td:first-child, /* No. column */
+        .leave-planner-table td:nth-child(2), /* Name column */
+        .leave-planner-table td:nth-child(3), /* Opening Balance */
+        .leave-planner-table td:nth-child(4) { /* Leave Balance */
+            text-align: left;
+            padding-left: 10px;
+            font-weight: 500;
+            background-color: #e9f5ff; /* Light blue for fixed columns */
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        .leave-planner-table th:first-child,
+        .leave-planner-table th:nth-child(2),
+        .leave-planner-table th:nth-child(3),
+        .leave-planner-table th:nth-child(4) {
+            text-align: left;
+            padding-left: 10px;
+            background-color: #d0e7ff; /* Darker blue for fixed headers */
+            position: sticky;
+            left: 0;
+            z-index: 3; /* Higher z-index to stay on top of scrolling content */
+        }
+
+        /* Specific styling for 'L' cells */
+        .leave-planner-table td.leave-cell {
+            background-color: #d4edda; /* Light green for leave */
+            font-weight: bold;
+            color: #155724;
+        }
+        /* Styling for total leaves row */
+        .leave-planner-table tfoot td {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+            border-top: 2px solid #ccc;
+        }
+        .leave-planner-table tfoot td:nth-child(-n+4) {
+            background-color: #d0e7ff; /* Match fixed header background */
+        }
+
+        /* Leave Approval Overlay */
+        .leave-approval-overlay {
+            position: absolute;
+            top: -35px; /* Position above the cell */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 10; /* Above table content */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            pointer-events: auto; /* Allow interaction */
+        }
+        .leave-approval-overlay button {
+            background: none;
+            border: 1px solid white;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .leave-approval-overlay button:hover {
+            background-color: white;
+            color: #000;
+        }
+        .leave-approval-overlay .approve-btn { border-color: #28a745; color: #28a45; }
+        .leave-approval-overlay .approve-btn:hover { background-color: #28a745; color: white; }
+        .leave-approval-overlay .decline-btn { border-color: #dc3545; color: #dc3545; }
+        .leave-approval-overlay .decline-btn:hover { background-color: #dc3545; color: white; }
+
+        .leave-planner-table td.approved-leave {
+            background-color: #c3e6cb; /* Lighter green for approved */
+            color: #155724;
+            font-weight: bold;
+            cursor: not-allowed;
+        }
+        .leave-planner-table td.declined-leave {
+            background-color: #f8d7da; /* Light red for declined */
+            color: #721c24;
+            font-weight: bold;
+            cursor: not-allowed;
+        }
+        .leave-planner-table td.pending-leave {
+            background-color: #ffeeba; /* Light yellow for pending */
+            color: #856404;
+        }
+
+
+        /* Admin Staff Management */
+        .staff-management-section {
+            margin-top: 40px;
+        }
+
+        .staff-list-table-container {
+            overflow-x: auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+        }
+
+        .staff-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .staff-list-table th,
+        .staff-list-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .staff-list-table th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+        }
+
+        .staff-list-table td select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .staff-list-table td .btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        .staff-status-active { color: #28a745; font-weight: 600;}
+        .staff-status-inactive { color: #dc3545; font-weight: 600;}
+
+        /* Individual Summary Page */
+        .individual-summary-controls {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .individual-summary-controls .input-group {
+            margin-bottom: 0;
+            flex-grow: 1;
+        }
+
+        .summary-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-stat-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        .summary-stat-card h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #555;
+        }
+        .summary-stat-card .count {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+
+        .individual-summary-chart-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .individual-summary-chart-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 20px;
+        }
+        .monthly-bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            width: 100%;
+            height: 200px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            gap: 10px;
+        }
+        .monthly-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            flex: 1;
+        }
+        .monthly-bar {
+            width: 25px;
+            margin-bottom: 2px;
+            transition: height 0.3s ease-out;
+        }
+        .monthly-bar.wfo { background-color: #007bff; }
+        .monthly-bar.wfh { background-color: #28a745; }
+        .monthly-bar-label {
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+            text-align: center;
+        }
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .report-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .report-filters .input-group {
+            margin-bottom: 0;
+            flex-basis: 180px; /* Adjust as needed for layout */
+            flex-grow: 1;
+        }
+
+        .report-filters button {
+            align-self: flex-end; /* Align buttons to the bottom of the flex container */
+            padding: 10px 20px;
+            height: fit-content;
+        }
+
+        .report-results table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden; /* Ensures rounded corners apply to content */
+        }
+
+        .report-results th,
+        .report-results td {
+            border: 1px solid #eee;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .report-results th {
+            background-color: #e9ecef;
+            color: #343a40;
+            font-weight: 600;
+        }
+
+        .report-results tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .report-results tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Shift Schedule Specific Styles */
+        .shift-schedule-controls { /* Renamed from filters */
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            flex-wrap: wrap;
+        }
+
+        .shift-schedule-controls .input-group {
+            margin-bottom: 0;
+            flex-grow: 1;
+            min-width: 150px;
+        }
+
+        .shift-schedule-table-container {
+            overflow-x: auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .shift-schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            /* Adjusted min-width for the new static columns */
+            min-width: 700px;
+        }
+
+        .shift-schedule-table th,
+        .shift-schedule-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+            white-space: nowrap; /* Prevent wrapping for compact cells */
+        }
+
+        /* Fixed left columns - Adjusted widths based on image's implied column sizes */
+        .shift-schedule-table th:nth-child(1),
+        .shift-schedule-table td:nth-child(1) { /* No. column */
+            position: sticky;
+            left: 0;
+            z-index: 4;
+            background-color: #f0f0f0; /* Consistent with header background */
+            width: 50px; /* Adjusted width */
+            text-align: center;
+        }
+        .shift-schedule-table td:nth-child(1) {
+            background-color: #fff;
+        }
+
+        .shift-schedule-table th:nth-child(2),
+        .shift-schedule-table td:nth-child(2) { /* Name column */
+            position: sticky;
+            left: 50px; /* Adjusted based on width of first column */
+            z-index: 4;
+            background-color: #f0f0f0;
+            width: 150px; /* Adjusted width */
+        }
+        .shift-schedule-table td:nth-child(2) {
+            background-color: #fff;
+        }
+
+        .shift-schedule-table th:nth-child(3),
+        .shift-schedule-table td:nth-child(3) { /* Role column */
+            position: sticky;
+            left: 200px; /* Adjusted based on width of first two columns */
+            z-index: 4;
+            background-color: #f0f0f0;
+            width: 120px; /* Adjusted width */
+        }
+        .shift-schedule-table td:nth-child(3) {
+            background-color: #fff;
+        }
+        .shift-schedule-table th:nth-child(4),
+        .shift-schedule-table td:nth-child(4) { /* Secondary Role */
+            position: sticky;
+            left: 320px; /* Adjusted based on width of first three columns */
+            z-index: 4;
+            background-color: #f0f0f0;
+            width: 150px; /* Adjusted width */
+        }
+        .shift-schedule-table td:nth-child(4) {
+            background-color: #fff;
+        }
+
+        /* Remove specific styles for compliant/overtime cells if not used with static data */
+        .shift-schedule-table td.overtime-cell,
+        .shift-schedule-table td.compliant-cell {
+            background-color: initial; /* Reset background */
+        }
+
+        /* Styles for individual cells containing dropdown/spans */
+        .shift-schedule-table td select,
+        .shift-schedule-table td span {
+            font-size: 13px; /* Smaller font for inline elements */
+            padding: 2px 5px; /* Compact padding */
+            border-radius: 3px;
+            display: block; /* Each item on its own line */
+            width: 100%;
+            box-sizing: border-box; /* Include padding/border in width */
+            text-align: left; /* Align text left within cell */
+        }
+
+        .shift-schedule-table td select {
+            border: 1px solid #ccc;
+            background-color: #fdfdfd;
+            cursor: pointer;
+        }
+        /* No longer apply these styles since the content is simple text now */
+        /*
+        .shift-schedule-table td.daily-cell .shift-time-display {
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 2px;
+        }
+        .shift-schedule-table td.daily-cell .break-display,
+        .shift-schedule-table td.daily-cell .lunch-display {
+            color: #555;
+            font-size: 12px;
+        }
+        */
+
+        .shift-schedule-table td.shift-cell { /* New class for the shift data cell */
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px; /* Adjusted overall font size for cell content */
+            color: #333;
+            line-height: 1.4;
+        }
+        .shift-schedule-table td.shift-cell strong {
+            font-weight: 600;
+            color: #007bff;
+        }
+        .shift-schedule-table td.shift-cell span {
+            display: block; /* Each part on its own line */
+            white-space: nowrap;
+        }
+
+        .shift-schedule-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .shift-schedule-dashboard .dashboard-card-new {
+            min-height: 200px; /* Ensure cards have some height */
+        }
     </style>
 </head>
 <body>
@@ -150,24 +1667,12 @@
             </div>
 
             <div id="shiftSchedulePage" class="content-module">
-                <h2>Shift Schedule Management</h2>
+                <h2>Shift Schedule Overview</h2>
                 <hr>
-
-                <div class="shift-schedule-controls">
-                    <button id="prevMonthShiftScheduleBtn" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i></button>
-                    <h3 style="display:inline-block; margin: 0 15px;" id="currentShiftScheduleMonthYear"></h3>
-                    <button id="nextMonthShiftScheduleBtn" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-right"></i></button>
-                    <div class="input-group" style="flex-basis: auto; flex-grow: 0; margin-left: auto;">
-                        <label for="scheduleRoleFilter">Filter by Role:</label>
-                        <select id="scheduleRoleFilter">
-                            <option value="">All Roles</option>
-                            <option value="Agent">Agent</option>
-                            <option value="QA">QA</option>
-                            <option value="Supervisor">Supervisor</option>
-                            <option value="Team Leader">Team Leader</option>
-                            <option value="Admin">Admin</option>
-                        </select>
-                    </div>
+                <p>This table displays the static shift schedule as provided in the image. This data is not dynamic or editable within the application.</p>
+                <div class="shift-schedule-controls" style="justify-content: flex-start;">
+                    <h3 style="display:inline-block; margin: 0 15px;">Predefined Shift Roster</h3>
+                    <button id="exportSchedulePdfBtn" class="btn btn-secondary" style="margin-left: auto;"><i class="fas fa-file-pdf"></i> Export PDF (Coming Soon)</button>
                 </div>
 
                 <div class="shift-schedule-table-container">
@@ -179,20 +1684,15 @@
                     </table>
                 </div>
 
-                <h3 style="margin-top: 40px;">Shift & Break Counts for Current Month</h3>
+                <h3 style="margin-top: 40px;">Shift Overview Dashboard</h3>
                 <hr>
-                <div class="shift-counts-table-container">
-                    <table class="shift-counts-table" id="shiftCountsTable">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Item</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody id="shiftCountsTableBody">
-                            </tbody>
-                    </table>
+                <div class="shift-schedule-dashboard">
+                    <div class="dashboard-card-new" style="grid-column: span 2;">
+                        <h3>Shift Data Insights</h3>
+                        <p>This dashboard is temporarily simplified due to static shift data. It would normally show dynamic calculations like average hours, break distribution, and repetition alerts if shifts were managed persistently.</p>
+                        <p>Total Staff in Roster: <span id="staticRosterTotalStaff"></span></p>
+                        <p>Total Shift Times Defined: <span id="staticRosterTotalShifts"></span></p>
+                    </div>
                 </div>
 
             </div>
@@ -417,7 +1917,7 @@
 
             <div id="adminPage" class="content-module">
                 <h2>Create System User Account</h2>
-                <p>Use this section to create new user accounts that can log in to the Attendance Management System. These users can then be assigned roles and added as staff members to be managed in the attendance register.</p>
+                <p>Use this section to create new user accounts that can log in to the Attendance Management System. Once created, these users can be managed in the "Manage Attendance Roster" section below to control their visibility in attendance tracking.</p>
                 <hr>
                 <form id="addMemberForm">
                     <div class="input-group">
@@ -440,8 +1940,7 @@
                             <option value="QA">QA</option>
                             <option value="Supervisor">Supervisor</option>
                             <option value="Admin">Admin</option>
-                            <option value="Team Leader">Team Leader</option>
-                        </select>
+                            <option value="Team Leader">Team Leader</option> </select>
                     </div>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create System User</button>
                     <p id="addMemberMessage" class="success-message" style="display:none; margin-top:15px;"></p>
@@ -449,45 +1948,8 @@
 
                 <div class="staff-management-section">
                     <h2>Manage Attendance Roster</h2>
-                    <p>This section allows you to add and manage staff members. Staff members are the people who appear on the attendance, leave, and shift schedule rosters. They are separate from system users who have login access.</p>
+                    <p>This table lists all system users. You can activate or deactivate staff members to control whether they appear in the daily attendance marking and reports. You can also permanently delete their system account.</p>
                     <hr>
-
-                    <h3>Add New Staff Member</h3>
-                    <form id="addStaffForm">
-                        <div class="input-group">
-                            <label for="staffFullName">Full Name:</label>
-                            <input type="text" id="staffFullName" placeholder="e.g., Bob Williams" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="staffRole">Role:</label>
-                            <select id="staffRole" required>
-                                <option value="">Select Role</option>
-                                <option value="Agent">Agent</option>
-                                <option value="QA">QA</option>
-                                <option value="Supervisor">Supervisor</option>
-                                <option value="Team Leader">Team Leader</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="staffSecondaryRole">Secondary Role:</label>
-                            <select id="staffSecondaryRole">
-                                <option value="">None</option>
-                                <option value="Inbound">Inbound</option>
-                                <option value="Inbound / Email">Inbound / Email</option>
-                                <option value="Social Media">Social Media</option>
-                                <option value="LiveChat">LiveChat</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Onboarding">Onboarding</option>
-                                <option value="Level 1 Escalations">Level 1 Escalations</option>
-                                <option value="Email">Email</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Staff Member</button>
-                        <p id="addStaffMessage" class="success-message" style="display:none; margin-top:15px;"></p>
-                    </form>
-
-                    <h3>System Users</h3>
                     <div class="staff-list-table-container">
                         <table class="staff-list-table">
                             <thead>
@@ -499,31 +1961,13 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="userListTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h3 style="margin-top: 40px;">Staff Roster</h3>
-                    <p>This table contains the staff members who can be selected in the attendance, leave, and shift schedule pages. Inactive staff members will not appear in the main application. You can only delete staff members who are not system users.</p>
-                    <div class="staff-list-table-container">
-                        <table class="staff-list-table">
-                            <thead>
-                                <tr>
-                                    <th>Full Name</th>
-                                    <th>Role</th>
-                                    <th>Secondary Role</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="staffRosterTableBody">
+                            <tbody id="staffListTableBody">
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </main>
+            </main>
     </div>
 
     <div id="attendanceMarkingModal" class="modal">
@@ -576,6 +2020,7 @@
         </div>
     </div>
 
+
     <script>
         // Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG)
         const firebaseConfig ={
@@ -590,24 +2035,53 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        const auth = firebase.auth(); // Initialize Firebase Authentication
         const db = firebase.firestore();
 
         // --- Global Variables / Caches ---
-        let loggedInUser = null;
-        let loggedInUserRole = 'Agent';
-        let usersData = {};
-        let staffData = {};
-        const attendanceData = {};
-        const markedDates = new Set();
-        let activeAgents = [];
-        let selectedMarkingDate = null;
-        let currentCalendarDate = new Date();
+        let loggedInUser = null; // Stores the Firebase Auth user object
+        let loggedInUserRole = 'Agent'; // Stores the role fetched from Firestore user profile
+        let usersData = {}; // Local cache for all user profiles from Firestore (email -> {uid, fullName, role, isActive, email, openingLeaveBalance, secondaryRole, period})
+        const attendanceData = {}; // Local cache for attendance records from Firestore (date -> {agentName: status})
+        const markedDates = new Set(); // Local cache for dates with marked attendance
+        let activeAgents = []; // Array of active agent full names, derived from usersData
+        let currentLeaveTrackerDate = new Date(); // Tracks the month/year for leave tracker
 
-        const todayGlobal = new Date();
+        // NEW: Static Shift Schedule Data from the provided image
+        const staticShiftScheduleData = [
+            { "No.": 1, "Name": "Bonface Kipchirchir", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 2, "Name": "Linnet Njeru", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 3, "Name": "Cliff Kiyaki", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 4, "Name": "Maureen Ongola", "Role": "Inbound/Email", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 5, "Name": "Melinda Omballa", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "7:00 am - 3:30 pm", "Break Time": "8:20 - 8:35AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 6, "Name": "Edith Watati", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "7:00 am - 3:30 pm", "Break Time": "8:20 - 8:35AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 7, "Name": "Phina Owiti", "Role": "Inbound/Email", "Secondary Role": "Social Media", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 8, "Name": "Faith Irungu", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "9:30 am - 6:00 pm", "Break Time": "10:45-11:45AM", "Lunch Time": "2:30-3:30PM" },
+            { "No.": 9, "Name": "Philly Osikeh", "Role": "Inbound/Email", "Secondary Role": "LiveChat", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 10, "Name": "Victor Kibet", "Role": "Inbound/Email", "Secondary Role": "Social Media", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 11, "Name": "Eunice Musembi", "Role": "Level 1 Escalations", "Secondary Role": "", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 12, "Name": "Ann Nyokabi", "Role": "Live chat / Social media/SMS/Inbound", "Secondary Role": "", "Shift Time": "9:30 am - 6:00 pm", "Break Time": "10:45-11:45AM", "Lunch Time": "2:30-3:30PM" },
+            { "No.": 13, "Name": "Margaret Mukulu", "Role": "Sales", "Secondary Role": "Inbound", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 14, "Name": "Nancy Wanjiku", "Role": "Sales", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 15, "Name": "Patricia Muimbi", "Role": "Email", "Secondary Role": "", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 16, "Name": "Lawrence Ochola", "Role": "LiveChat", "Secondary Role": "LiveChat", "Shift Time": "8:00 am - 4:30 pm", "Break Time": "8:50-9:05AM", "Lunch Time": "12:30-1:30PM" },
+            { "No.": 17, "Name": "Ian Wanyagi", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 18, "Name": "Kelvin Nyagaka", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 19, "Name": "Sharon Wambugu", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" },
+            { "No.": 20, "Name": "Harolod Njiru", "Role": "Onboarding", "Secondary Role": "Inbound", "Shift Time": "8:30 am - 5:00 pm", "Break Time": "9:50 -10:05AM", "Lunch Time": "1:30 - 2:30PM" }
+        ];
+
+        // This is no longer needed since we are using static data
+        // let shiftScheduleData = [];
+
+        const leavePlannerData = {}; // Local cache for leave records from Firestore ({ 'Month YYYY': [{...}, {...}] })
+
+        let currentShiftScheduleDate = new Date(); // Tracks the month/year for shift schedule (will be less relevant for static data)
+
+        const todayGlobal = new Date(); // Constant for today's date
 
         // --- DOM Element References ---
-        let DOM = {};
+        let DOM = {}; // Centralize DOM element references
 
         // --- Constants and Utility Data ---
         const ATTENDANCE_STATUSES = [
@@ -615,7 +2089,7 @@
             { value: 'WFO', text: 'Work From Office', colorClass: 'status-WFO' },
             { value: 'WFH', text: 'Work From Home', colorClass: 'status-WFH' },
             { value: 'SO', text: 'Signed Off', colorClass: 'status-SO' },
-            { value: 'L', text: 'Leave (Annual)', colorClass: 'status-L' },
+            { value: 'L', text: 'Leave (Annual)', colorClass: 'status-L' }, // Changed text for clarity
             { value: 'DO', text: 'Day Off', colorClass: 'status-DO' },
             { value: 'UL', text: 'Unpaid Leave', colorClass: 'status-UL' },
             { value: 'NCNS', text: 'No Call No Show', colorClass: 'status-NCNS' },
@@ -623,65 +2097,86 @@
             { value: 'SOF', text: 'Sick Off', colorClass: 'status-SOF' }
         ];
 
-        const ALL_ROLES = ["Agent", "QA", "Supervisor", "Team Leader", "Admin"];
+        // New: Shift Time to Break/Lunch Mapping (Original data, kept for context but not used for static shifts)
+        const SHIFT_DETAILS_MAP = [
+            { shift: "8:00 am - 4:30 pm", break: "8:50-9:05AM", lunch: "12:30-1:30PM", hours: 8.5 },
+            { shift: "8:30 am - 5:00 pm", break: "9:50 - 10:05AM", lunch: "1:30 - 2:30PM", hours: 8.5 },
+            { shift: "7:00 am - 3:30 pm", break: "8:20 - 8:35AM", lunch: "12:30-1:30PM", hours: 8.5 },
+            { shift: "8:00 am - 4:30 pm - B", break: "8:50-9:05AM", lunch: "1:30-2:30PM", hours: 8.5 }, // Added from image
+            { shift: "9:30 am - 6:00 pm", break: "10:45-11:45AM", lunch: "2:30-3:30PM", hours: 8.5 },
+            { shift: "Day Off", break: "", lunch: "", hours: 0 },
+            { shift: "Public Holiday", break: "", lunch: "", hours: 0 },
+            { shift: "Leave", break: "", lunch: "", hours: 0 }, // For assigned leave days
+            { shift: "Sick Off", break: "", lunch: "", hours: 0 } // For assigned sick off days
+        ];
 
         // Helper to format date for Firestore document IDs
         const formatDate = (date) => date.toISOString().split('T')[0];
 
         // --- Core Helper Functions ---
 
+        /**
+         * Updates the global activeAgents list based on the current usersData cache.
+         * Also adds sample secondaryRole and period to usersData if they don't exist.
+         */
         function updateActiveAgentsList() {
-            activeAgents = Object.values(staffData)
-                .filter(staff => staff.isActive)
-                .sort((a, b) => a.fullName.localeCompare(b.fullName));
+            // Sample secondary roles and periods for demonstration purposes
+            const sampleSecondaryRoles = ['Inbound / Email', 'Social Media', 'LiveChat', 'Sales', 'Onboarding', 'Level 1 Escalations'];
+            const samplePeriods = ['July - December', 'Jan - June', 'Annual'];
+
+            // Ensure all users have sample secondaryRole and period for shift schedule display
+            Object.keys(usersData).forEach(email => {
+                if (!usersData[email].secondaryRole) {
+                    usersData[email].secondaryRole = sampleSecondaryRoles[Math.floor(Math.random() * sampleSecondaryRoles.length)];
+                }
+                if (!usersData[email].period) {
+                    usersData[email].period = samplePeriods[Math.floor(Math.random() * samplePeriods.length)];
+                }
+            });
+
+
+            activeAgents = Object.values(usersData)
+                .filter(user => user.isActive)
+                .map(user => user.fullName)
+                .sort(); // Keep sorted for consistent display
             console.log("Active agents list updated:", activeAgents.length, "active agents.");
         }
 
+        /**
+         * Fetches all user profiles from Firestore and populates the usersData cache.
+         * @returns {Promise<void>}
+         */
         async function fetchAllUsersData() {
-            usersData = {};
+            usersData = {}; // Clear existing data to ensure fresh load
             try {
                 const usersSnapshot = await db.collection('users').get();
                 usersSnapshot.forEach(doc => {
                     const userData = doc.data();
-                    usersData[doc.id] = {
-                        uid: doc.id,
+                    usersData[userData.email] = {
+                        uid: doc.id, // Firestore Document ID (should match Auth UID)
                         fullName: userData.fullName,
                         role: userData.role,
+                        isActive: userData.isActive,
                         email: userData.email,
-                        isActive: userData.isActive
+                        openingLeaveBalance: userData.openingLeaveBalance || 20, // Default to 20 if not set
+                        secondaryRole: userData.secondaryRole || '', // Added for shift schedule
+                        period: userData.period || '' // Added for shift schedule
                     };
                 });
-                console.log("All system user data loaded from Firestore.");
+                updateActiveAgentsList();
+                console.log("All user data loaded from Firestore.");
             } catch (error) {
                 console.error("Error fetching users from Firestore:", error.code, error.message);
                 alert("Critical: Could not load user list from database. Check console and Firebase rules.");
             }
         }
 
-        async function fetchAllStaffData() {
-            staffData = {};
-            try {
-                const staffSnapshot = await db.collection('staff').get();
-                staffSnapshot.forEach(doc => {
-                    const staffMember = doc.data();
-                    staffData[doc.id] = {
-                        staffId: doc.id,
-                        fullName: staffMember.fullName,
-                        role: staffMember.role,
-                        secondaryRole: staffMember.secondaryRole,
-                        isActive: staffMember.isActive,
-                        userId: staffMember.userId || null
-                    };
-                });
-                updateActiveAgentsList();
-                console.log("All staff data loaded from Firestore.");
-            } catch (error) {
-                console.error("Error fetching staff from Firestore:", error.code, error.message);
-                alert("Critical: Could not load staff list from database. Check console and Firebase rules.");
-            }
-        }
-
+        /**
+         * Fetches all attendance records from Firestore and populates the attendanceData and markedDates caches.
+         * @returns {Promise<void>}
+         */
         async function fetchAttendanceData() {
+            // Clear existing local cache before fetching fresh data
             for (const key in attendanceData) {
                 delete attendanceData[key];
             }
@@ -690,7 +2185,7 @@
             try {
                 const attendanceSnapshot = await db.collection('attendance').get();
                 attendanceSnapshot.forEach(doc => {
-                    attendanceData[doc.id] = doc.data();
+                    attendanceData[doc.id] = doc.data(); // doc.id is the date string (e.g., "YYYY-MM-DD")
                     markedDates.add(doc.id);
                 });
                 console.log("Attendance data loaded from Firestore.");
@@ -700,10 +2195,43 @@
             }
         }
 
+        /**
+         * Fetches leave data for a specific month and year from Firestore.
+         * @param {number} year
+         * @param {number} month (0-indexed)
+         * @returns {Promise<void>}
+         */
+        async function fetchLeaveData(year, month) {
+            const monthYearKey = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            try {
+                const docRef = db.collection('leaves').doc(monthYearKey);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    leavePlannerData[monthYearKey] = doc.data().data || [];
+                    console.log(`Leave data for ${monthYearKey} loaded from Firestore.`);
+                } else {
+                    leavePlannerData[monthYearKey] = []; // Initialize empty if no data in Firestore
+                    console.log(`No leave data found for ${monthYearKey} in Firestore, initialized locally.`);
+                }
+                renderLeavePlannerTable(); // Re-render table after fetching data
+            } catch (error) {
+                console.error("Error fetching leave data:", error);
+                alert("Critical: Could not load leave data. Check console and Firebase rules.");
+            }
+        }
+
+        // --- UI State Management ---
+
+        /**
+         * Sets the logged-in state of the application and updates UI visibility.
+         * @param {boolean} loggedIn - True if user is logged in, false otherwise.
+         * @param {object | null} user - The Firebase Auth user object, or null.
+         * @param {object | null} userProfile - The user's profile data from Firestore, or null.
+         */
         function setLoggedInState(loggedIn, user = null, userProfile = null) {
             if (loggedIn && user && userProfile) {
                 loggedInUser = user;
-                loggedInUserRole = userProfile.role;
+                loggedInUserRole = userProfile.role; // Set the global role from Firestore profile
 
                 DOM.loginPage.classList.remove('active');
                 DOM.appContainer.classList.add('active');
@@ -711,12 +2239,14 @@
                 DOM.loggedInUserName.textContent = userProfile.fullName || user.email;
                 DOM.loggedInUserRoleDisplay.textContent = userProfile.role;
 
+                // Show Admin link only if the user is an Admin
                 if (loggedInUserRole === 'Admin') {
                     DOM.adminNavLink.style.display = 'list-item';
                 } else {
                     DOM.adminNavLink.style.display = 'none';
                 }
 
+                // Determine which page to show after login based on hash or default
                 const currentPageHash = window.location.hash.substring(1);
                 let targetPageId = 'homePage';
                 if (currentPageHash && DOM[currentPageHash + 'Page']) {
@@ -724,49 +2254,57 @@
                 }
                 showPage(targetPageId);
 
-                if (Object.keys(usersData).length === 0 || Object.keys(staffData).length === 0 || Object.keys(attendanceData).length === 0) {
+                // Initial data load and UI updates (only if not already fetched by onAuthStateChanged listener)
+                if (Object.keys(usersData).length === 0 || Object.keys(attendanceData).length === 0) {
                     Promise.all([
                         fetchAllUsersData(),
-                        fetchAllStaffData(),
                         fetchAttendanceData(),
-                        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth()),
-                        fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth())
+                        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth())
                     ]).then(() => {
                         updateHomeStatistics();
                         populateEmployeeSelect();
                         populateIndividualSummarySelect();
                         updateDashboardData(DOM.employeeSelect.value);
-                        renderUserList();
-                        renderStaffRoster();
+                        renderStaffList();
+                        // Initialize Shift Schedule page content (now just rendering static data)
+                        renderShiftScheduleTable();
+                        updateShiftScheduleDashboard(); // Call with no arguments as it uses static data
                     }).catch(err => {
                         console.error("Error during initial data fetch:", err);
                         alert("Failed to load initial application data.");
                     });
                 } else {
+                    // Data already loaded, just refresh UI based on it
                     updateHomeStatistics();
                     populateEmployeeSelect();
                     populateIndividualSummarySelect();
                     updateDashboardData(DOM.employeeSelect.value);
-                    renderUserList();
-                    renderStaffRoster();
+                    renderStaffList();
+                    // Re-render Shift Schedule if active
                     if (DOM.shiftSchedulePage.classList.contains('active')) {
-                        fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
+                        renderShiftScheduleTable();
                     }
+                    updateShiftScheduleDashboard(); // Call with no arguments as it uses static data
                 }
+
             } else {
                 loggedInUser = null;
-                loggedInUserRole = 'Agent';
+                loggedInUserRole = 'Agent'; // Reset role on logout
 
                 DOM.loginPage.classList.add('active');
                 DOM.appContainer.classList.remove('active');
                 DOM.loginForm.reset();
                 DOM.loginError.textContent = '';
-                DOM.loggedInUserName.textContent = '';
-                DOM.loggedInUserRoleDisplay.textContent = '';
-                DOM.adminNavLink.style.display = 'none';
+                DOM.loggedInUserName.textContent = ''; // Clear user info
+                DOM.loggedInUserRoleDisplay.textContent = ''; // Clear user role
+                DOM.adminNavLink.style.display = 'none'; // Hide admin link on logout
             }
         }
 
+        /**
+         * Shows the specified content page and updates navigation links.
+         * @param {string} pageId - The ID of the page to show (e.g., 'homePage').
+         */
         function showPage(pageId) {
             document.querySelectorAll('.content-module').forEach(page => {
                 page.classList.remove('active');
@@ -781,29 +2319,34 @@
                 }
             });
 
+            // Trigger data updates/rendering specific to each page
             switch (pageId) {
                 case 'attendancePage':
                     generateAttendanceOverviewTable();
+                    // Reset attendance date input and disable button on page load
                     DOM.attendanceDateInput.value = '';
-                    DOM.openAttendanceCalendarBtn.disabled = false;
-                    selectedMarkingDate = null;
+                    DOM.openAttendanceCalendarBtn.disabled = false; // Enable calendar button
+                    selectedMarkingDate = null; // Clear selected date
                     break;
                 case 'dashboardPage':
                     populateEmployeeSelect();
-                    updateDashboardData(DOM.employeeSelect.value);
+                    updateDashboardData(DOM.employeeSelect.value); // Pass current selection
                     break;
                 case 'leaveTrackerPage':
                     fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
                     break;
-                case 'shiftSchedulePage':
-                    fetchShiftScheduleData(currentShiftScheduleDate.getFullYear(), currentShiftScheduleDate.getMonth());
+                case 'shiftSchedulePage': // New case for Shift Schedule page
+                    // Removed populateNewShiftAgentNameDropdown, populateNewShiftTimeDropdown
+                    // Removed populateShiftScheduleMonthSelector
+                    renderShiftScheduleTable();
+                    updateShiftScheduleDashboard(); // Update the simplified dashboard
                     break;
                 case 'adminPage':
-                    renderUserList();
-                    renderStaffRoster();
+                    renderStaffList();
                     break;
                 case 'individualSummaryPage':
                     populateIndividualSummarySelect();
+                    // Clear individual summary stats when page is first loaded without selection
                     DOM.summaryWFO.textContent = '0';
                     DOM.summaryWFH.textContent = '0';
                     DOM.summaryLeave.textContent = '0';
@@ -814,15 +2357,16 @@
                     DOM.summaryNCNS.textContent = '0';
                     DOM.summaryCompassionateLeave.textContent = '0';
                     DOM.monthlyWFHWFOChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">Select an employee to view chart data.</p>';
-                    DOM.individualSelectSummary.value = '';
+                    DOM.individualSelectSummary.value = ''; // Reset dropdown
                     break;
                 case 'reportsPage':
+                    // Initialize date inputs for reports to current month
                     const today = new Date();
                     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
                     const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
                     DOM.startDateInput.value = firstDayOfMonth;
                     DOM.endDateInput.value = lastDayOfMonth;
-                    DOM.reportsTableBody.innerHTML = '';
+                    DOM.reportsTableBody.innerHTML = ''; // Clear existing report data
                     break;
                 case 'homePage':
                     updateHomeStatistics();
@@ -834,21 +2378,23 @@
         function updateHomeStatistics() {
             updateActiveAgentsList();
 
+            // Total Present - assuming all active agents are present unless marked otherwise for today
             let presentCountToday = 0;
             const todayKey = formatDate(todayGlobal);
             const todayAttendance = attendanceData[todayKey];
             if (todayAttendance) {
-                activeAgents.forEach(agent => {
-                    const status = todayAttendance[agent.fullName];
+                activeAgents.forEach(agentName => {
+                    const status = todayAttendance[agentName];
                     if (status === 'WFO' || status === 'WFH') {
                         presentCountToday++;
                     }
                 });
             } else {
+                // If no attendance marked for today, assume all active agents are present by default for this stat
                 presentCountToday = activeAgents.length;
             }
             DOM.statTotalPresent.textContent = presentCountToday;
-            DOM.statTotalStaff.textContent = Object.keys(staffData).length;
+            DOM.statTotalStaff.textContent = Object.keys(usersData).length;
 
             const oneWeekAgo = new Date(todayGlobal);
             oneWeekAgo.setDate(todayGlobal.getDate() - 7);
@@ -861,12 +2407,12 @@
                 const date = new Date(dateKey);
                 date.setHours(0, 0, 0, 0);
 
-                if (date >= oneWeekAgo && date <= todayGlobal) {
+                if (date >= oneWeekAgo && date <= todayGlobal) { // Check dates within the last week
                     const dailyAttendance = attendanceData[dateKey];
                     for (const agentName in dailyAttendance) {
-                        if (activeAgents.some(agent => agent.fullName === agentName)) {
+                        if (activeAgents.includes(agentName)) { // Only consider active agents
                             const status = dailyAttendance[agentName];
-                            if (status === 'L' || status === 'CL' || status === 'UL') {
+                            if (status === 'L' || status === 'CL' || status === 'UL') { // Include all types of leave here
                                 onLeaveNamesSet.add(agentName);
                             } else if (status === 'SOF') {
                                 onSickOffNamesSet.add(agentName);
@@ -881,6 +2427,10 @@
             DOM.statAgentsOnSickOffWeek.textContent = onSickOffNamesSet.size;
             DOM.agentsOnSickOffNames.textContent = onSickOffNamesSet.size > 0 ? Array.from(onSickOffNamesSet).join(', ') : 'No agents on sick off.';
         }
+
+        // --- Calendar Modal Logic ---
+        let currentCalendarDate = new Date(); // To track calendar month/year
+        let selectedMarkingDate = null; // Stores the date selected in the calendar
 
         /**
          * Renders the calendar grid for the given year and month.
@@ -898,12 +2448,14 @@
 
             const todayFormatted = todayGlobal.toISOString().split('T')[0];
 
+            // Render empty cells for days before the 1st of the month
             for (let i = 0; i < firstWeekday; i++) {
                 const emptyDay = document.createElement('div');
                 emptyDay.classList.add('calendar-day', 'empty');
                 DOM.calendarDaysGrid.appendChild(emptyDay);
             }
 
+            // Render days of the month
             for (let day = 1; day <= numDaysInMonth; day++) {
                 const dayElement = document.createElement('div');
                 dayElement.classList.add('calendar-day');
@@ -916,6 +2468,7 @@
                     dayElement.classList.add('today');
                 }
 
+                // Mark dates already attended as disabled
                 if (markedDates.has(dateKey)) {
                     dayElement.classList.add('disabled');
                     dayElement.title = "Attendance already marked for this date.";
@@ -927,11 +2480,14 @@
                         }
                         dayElement.classList.add('selected');
                         selectedMarkingDate = dateKey;
+                        // The "Select Date" button in the calendar will handle setting attendanceDateInput.value
                     });
                 }
                 DOM.calendarDaysGrid.appendChild(dayElement);
             }
         }
+
+        // --- Attendance Marking Modal Logic ---
 
         /**
          * Populates the attendance marking modal table with active agents and their current statuses for the selected date.
@@ -940,16 +2496,16 @@
             DOM.modalAttendanceTableBody.innerHTML = '';
             const existingAttendance = attendanceData[selectedMarkingDate] || {};
 
-            activeAgents.forEach(agent => {
+            activeAgents.forEach(agentName => {
                 const tr = document.createElement('tr');
                 const nameTd = document.createElement('td');
-                nameTd.textContent = agent.fullName;
+                nameTd.textContent = agentName;
                 tr.appendChild(nameTd);
 
                 const statusTd = document.createElement('td');
                 const select = document.createElement('select');
                 select.classList.add('attendance-status-select');
-                select.dataset.agent = agent.fullName;
+                select.dataset.agent = agentName;
 
                 ATTENDANCE_STATUSES.forEach(status => {
                     const option = document.createElement('option');
@@ -958,17 +2514,20 @@
                     select.appendChild(option);
                 });
 
-                if (existingAttendance[agent.fullName]) {
-                    select.value = existingAttendance[agent.fullName];
-                    const statusObj = ATTENDANCE_STATUSES.find(s => s.value === existingAttendance[agent.fullName]);
+                // Set existing status if available
+                if (existingAttendance[agentName]) {
+                    select.value = existingAttendance[agentName];
+                    const statusObj = ATTENDANCE_STATUSES.find(s => s.value === existingAttendance[agentName]);
                     if (statusObj && statusObj.colorClass) {
                         select.classList.add(statusObj.colorClass);
                     }
                 } else {
+                    // Default to WFO for new entries if not explicitly set
                     select.value = 'WFO';
                     select.classList.add('status-WFO');
                 }
 
+                // Add event listener to update class on change
                 select.addEventListener('change', (event) => {
                     const selectedValue = event.target.value;
                     ATTENDANCE_STATUSES.forEach(status => {
@@ -985,7 +2544,7 @@
                 DOM.modalAttendanceTableBody.appendChild(tr);
             });
         }
-        
+
         /**
          * Saves attendance data to Firestore.
          */
@@ -1009,19 +2568,22 @@
             }
 
             try {
+                // Use set with merge: true to avoid overwriting the entire document if new agents are added later
                 await db.collection('attendance').doc(selectedMarkingDate).set(attendanceRecord, { merge: true });
-                markedDates.add(selectedMarkingDate);
-                attendanceData[selectedMarkingDate] = attendanceRecord;
+                markedDates.add(selectedMarkingDate); // Update local cache
+                attendanceData[selectedMarkingDate] = attendanceRecord; // Update local cache
                 DOM.attendanceMarkingMessage.textContent = `Attendance for ${selectedMarkingDate} saved successfully!`;
                 DOM.attendanceMarkingMessage.style.display = 'block';
                 setTimeout(() => DOM.attendanceMarkingMessage.style.display = 'none', 3000);
 
                 DOM.attendanceMarkingModal.style.display = 'none';
-                DOM.attendanceDateInput.value = '';
-                selectedMarkingDate = null;
+                DOM.attendanceDateInput.value = ''; // Clear input
+                // DOM.openAttendanceCalendarBtn.disabled = true; // No longer needed, as button opens calendar directly
+                selectedMarkingDate = null; // Clear selected date after saving
 
-                await fetchAllStaffData();
+                // Re-fetch and update all relevant UI components after saving attendance
                 await fetchAttendanceData();
+                await fetchAllUsersData(); // Ensure active agents list is fresh
                 updateHomeStatistics();
                 generateAttendanceOverviewTable();
                 updateDashboardData(DOM.employeeSelect.value);
@@ -1031,6 +2593,8 @@
                 DOM.modalErrorMessage.textContent = `Error saving attendance: ${error.message}`;
             }
         }
+
+        // --- Team Attendance Overview Table Generation ---
 
         /**
          * Generates and displays the team attendance overview table.
@@ -1047,7 +2611,7 @@
 
             const dates = [];
             const today = new Date();
-            for (let i = -7; i <= 7; i++) {
+            for (let i = -7; i <= 7; i++) { // Display 7 days before and 7 days after today
                 const date = new Date(today);
                 date.setDate(today.getDate() + i);
                 dates.push(date);
@@ -1073,10 +2637,10 @@
             thead.appendChild(headerRow);
             table.appendChild(thead);
 
-            activeAgents.forEach(agent => {
+            activeAgents.forEach(agentName => {
                 const tr = document.createElement('tr');
                 const nameTd = document.createElement('td');
-                nameTd.textContent = agent.fullName;
+                nameTd.textContent = agentName;
                 nameTd.classList.add('agent-name-cell');
                 tr.appendChild(nameTd);
 
@@ -1085,8 +2649,8 @@
                     td.classList.add('attendance-cell');
                     const dateKey = date.toISOString().split('T')[0];
 
-                    const status = attendanceData[dateKey] ? attendanceData[dateKey][agent.fullName] : '';
-                    td.textContent = status || '-';
+                    const status = attendanceData[dateKey] ? attendanceData[dateKey][agentName] : '';
+                    td.textContent = status || '-'; // Display '-' if no status
                     const statusObj = ATTENDANCE_STATUSES.find(s => s.value === status);
                     if (statusObj && statusObj.colorClass) {
                         td.classList.add(statusObj.colorClass);
@@ -1115,13 +2679,14 @@
                 });
                 await batch.commit();
 
+                // Clear local caches
                 for (const key in attendanceData) {
                     delete attendanceData[key];
                 }
                 markedDates.clear();
 
                 alert('All attendance data deleted successfully.');
-                generateAttendanceOverviewTable();
+                generateAttendanceOverviewTable(); // Re-render empty table
                 updateHomeStatistics();
                 updateDashboardData(DOM.employeeSelect.value);
             } catch (error) {
@@ -1138,6 +2703,7 @@
             const header = ['Date', 'Agent Name', 'Status'];
             csvContent += header.join(',') + '\n';
 
+            // Get sorted dates
             const sortedDates = Object.keys(attendanceData).sort();
 
             sortedDates.forEach(dateKey => {
@@ -1158,10 +2724,289 @@
             alert('Attendance data exported to attendance_data.csv');
         }
 
+        // --- Leave Tracker Functions ---
+
+        /**
+         * Renders the leave planner table for the current month.
+         */
+        function renderLeavePlannerTable() {
+            DOM.leaveTrackerTableContainer.innerHTML = '';
+            DOM.currentLeaveMonthYear.textContent = currentLeaveTrackerDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+            if (activeAgents.length === 0) {
+                DOM.leaveTrackerTableContainer.innerHTML = '<p style="text-align: center; padding: 20px;">No active staff members to display in the leave tracker. Please add active staff via the Admin page.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.classList.add('leave-planner-table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            const tfoot = document.createElement('tfoot');
+
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = '<th>No.</th><th>Name</th><th>Opening Balance</th><th>Leave Balance</th>'; // Fixed headers
+
+            const numDaysInMonth = new Date(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth() + 1, 0).getDate();
+            const monthlyDateKeys = [];
+            for (let i = 1; i <= numDaysInMonth; i++) {
+                const date = new Date(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth(), i);
+                const dayOfMonth = date.getDate().toString();
+                const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 1); // Get first letter of weekday
+                const fullDateKey = `${currentLeaveTrackerDate.getFullYear()}-${(currentLeaveTrackerDate.getMonth() + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                monthlyDateKeys.push(fullDateKey);
+
+                const th = document.createElement('th');
+                th.innerHTML = `${dayOfMonth}<br>${dayOfWeek}`; // Day number and first letter of weekday
+                headerRow.appendChild(th);
+            }
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const monthYearKey = currentLeaveTrackerDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            const currentMonthLeaveData = leavePlannerData[monthYearKey] || [];
+
+            const totalMonthlyLeave = Array(numDaysInMonth).fill(0); // For footer totals
+
+            let hasDataForTable = false; // Flag to check if any active agent has data
+
+            activeAgents.forEach((agentName, index) => {
+                const tr = document.createElement('tr');
+                const agentLeaveData = currentMonthLeaveData.find(row => row.Name === agentName);
+
+                // Get opening balance from usersData if available, otherwise default
+                const userProfile = Object.values(usersData).find(user => user.fullName === agentName);
+                const openingBalance = (userProfile && userProfile.openingLeaveBalance !== undefined) ? userProfile.openingLeaveBalance : 20; // Default to 20 annual leave days
+
+                // Calculate current leave balance based on approved annual leaves in THIS MONTH
+                let approvedAnnualLeavesInMonth = 0;
+                if (agentLeaveData) {
+                    for (let i = 1; i <= numDaysInMonth; i++) {
+                        const dayKey = i.toString().padStart(2, '0');
+                        if (agentLeaveData[dayKey] === 'AP') { // Only count approved annual leaves
+                            approvedAnnualLeavesInMonth++;
+                        }
+                    }
+                }
+                const leaveBalance = Math.max(0, openingBalance - approvedAnnualLeavesInMonth); // Ensure balance doesn't go negative
+
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${agentName}</td>
+                    <td>${openingBalance}</td>
+                    <td class="current-leave-balance" data-agent="${agentName}">${leaveBalance}</td>
+                `;
+
+                monthlyDateKeys.forEach((fullDateKey, dayIndex) => {
+                    const dateObj = new Date(fullDateKey);
+                    const dayOnly = dateObj.getDate().toString().padStart(2, '0'); // 'DD' format
+
+                    let cellStatus = agentLeaveData ? agentLeaveData[dayOnly] : ''; // Status (L, AP, D, SOF, CL, etc.)
+
+                    const td = document.createElement('td');
+                    td.textContent = cellStatus;
+                    td.dataset.date = fullDateKey;
+                    td.dataset.agent = agentName;
+
+                    // Apply status classes for visual indication
+                    // Check if it's a leave type that requires special styling or interaction
+                    if (cellStatus === 'L') {
+                        td.classList.add('pending-leave');
+                        td.title = "Pending Annual Leave Request";
+                        // Add interactive overlay for approval/decline only if it's pending
+                        if (loggedInUserRole === 'Admin' || loggedInUserRole === 'Supervisor') { // Only admins/supervisors can approve
+                            td.innerHTML = `<span style="display:none;" class="leave-approval-overlay">
+                                <button class="approve-btn" data-agent="${agentName}" data-date="${fullDateKey}" data-status="Approved">Approve</button>
+                                <button class="decline-btn" data-agent="${agentName}" data-date="${fullDateKey}" data-status="Declined">Decline</button>
+                            </span>L`; // Keep 'L' visible
+                            td.addEventListener('click', (event) => {
+                                // Show overlay if clicked, hide others
+                                document.querySelectorAll('.leave-approval-overlay').forEach(overlay => {
+                                    if (overlay !== event.currentTarget.querySelector('.leave-approval-overlay')) {
+                                        overlay.style.display = 'none';
+                                    }
+                                });
+                                const overlay = event.currentTarget.querySelector('.leave-approval-overlay');
+                                if (overlay) {
+                                    overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
+                                    event.stopPropagation(); // Prevent document click from immediately closing
+                                }
+                            });
+                        }
+                        hasDataForTable = true;
+                    } else if (cellStatus === 'AP') {
+                        td.classList.add('approved-leave');
+                        td.title = "Approved Annual Leave";
+                        hasDataForTable = true;
+                    } else if (cellStatus === 'D') {
+                        td.classList.add('declined-leave');
+                        td.title = "Declined Annual Leave";
+                        hasDataForTable = true;
+                    } else {
+                            // Apply general status colors for other attendance types
+                        const statusObj = ATTENDANCE_STATUSES.find(s => s.value === cellStatus);
+                        if (statusObj && statusObj.colorClass) {
+                            td.classList.add(statusObj.colorClass);
+                            td.title = statusObj.text;
+                            hasDataForTable = true; // Mark as having data if any status is present
+                        }
+
+                        // Allow clicking empty cells to request leave (only if not a specific status)
+                        if (!cellStatus && (loggedInUserRole === 'Agent' || loggedInUserRole === 'QA' || loggedInUserRole === 'Supervisor' || loggedInUserRole === 'Team Leader')) {
+                            td.addEventListener('click', async (event) => {
+                                await updateLeaveStatus(agentName, fullDateKey, 'L'); // Request Annual Leave
+                            });
+                        }
+                    }
+
+                    // Count approved/pending annual leaves for total footer
+                    if (cellStatus === 'L' || cellStatus === 'AP') {
+                        totalMonthlyLeave[dayIndex]++;
+                    }
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+
+            // Footer for total leaves per day
+            const tfootRow = document.createElement('tr');
+            tfootRow.innerHTML = `<td colspan="4" style="text-align: right;">Total Leaves (Annual/Pending):</td>`;
+            totalMonthlyLeave.forEach(count => {
+                const td = document.createElement('td');
+                td.textContent = count > 0 ? count : '';
+                tfootRow.appendChild(td);
+            });
+            tfoot.appendChild(tfootRow);
+            table.appendChild(tfoot);
+
+            if (activeAgents.length > 0 && !hasDataForTable && currentMonthLeaveData.length === 0) {
+                        DOM.leaveTrackerTableContainer.innerHTML = '<p style="text-align: center; padding: 20px;">No leave data found for this month. Click on a day to request leave.</p>';
+            } else if (activeAgents.length > 0) {
+                DOM.leaveTrackerTableContainer.appendChild(table);
+            }
+
+
+            // Add event listeners for approve/decline buttons after rendering
+            document.querySelectorAll('.leave-approval-overlay button').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    event.stopPropagation(); // Prevent triggering cell click
+                    const agent = event.target.dataset.agent;
+                    const date = event.target.dataset.date;
+                    const status = event.target.dataset.status === 'Approved' ? 'AP' : 'D'; // AP for Approved, D for Declined
+
+                    await updateLeaveStatus(agent, date, status);
+                });
+            });
+        }
+
+
+        /**
+         * Updates the leave status for a specific agent on a specific date in Firestore.
+         * Handles creation of new leave entries if none exist for the agent in that month.
+         * @param {string} agentName - The full name of the agent.
+         * @param {string} fullDateKey - The date in YYYY-MM-DD format.
+         * @param {string} newStatus - The new status ('L' for pending, 'AP' for approved, 'D' for declined, etc.).
+         */
+        async function updateLeaveStatus(agentName, fullDateKey, newStatus) {
+            const dateParts = fullDateKey.split('-');
+            const year = parseInt(dateParts[0]);
+            const monthIndex = parseInt(dateParts[1]) - 1; // Month is 0-indexed for Date
+            const day = parseInt(dateParts[2]);
+
+            const monthYearKey = new Date(year, monthIndex).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            const dayOnly = day.toString().padStart(2, '0'); // Ensure 'DD' format
+
+            try {
+                const docRef = db.collection('leaves').doc(monthYearKey);
+                const doc = await docRef.get();
+                let currentData = doc.exists ? (doc.data().data || []) : [];
+                let agentRowIndex = currentData.findIndex(row => row.Name === agentName);
+                let agentRow = agentRowIndex !== -1 ? { ...currentData[agentRowIndex] } : null;
+
+                const userProfile = Object.values(usersData).find(user => user.fullName === agentName);
+                const defaultOpeningBalance = (userProfile && userProfile.openingLeaveBalance !== undefined) ? userProfile.openingLeaveBalance : 20;
+
+                // If agent row doesn't exist, create a new one
+                if (!agentRow) {
+                    agentRow = {
+                        "Name": agentName,
+                        "Opening Balance": defaultOpeningBalance,
+                        "Leave Balance": defaultOpeningBalance // Initially, leave balance is opening balance
+                    };
+                    // Ensure the day key is initialized if it's a new entry
+                    agentRow[dayOnly] = newStatus;
+                    currentData.push(agentRow);
+                    console.log("Created new leave entry for agent:", agentName);
+                } else {
+                    const oldStatus = agentRow[dayOnly]; // Capture old status for comparison
+
+                    // Update the status for the specific day
+                    agentRow[dayOnly] = newStatus;
+
+                    // Logic to adjust Leave Balance, only for Annual Leave ('L' or 'AP')
+                    if (['L', 'AP'].includes(oldStatus) && newStatus === 'AP' && oldStatus === 'L') { // Pending to Approved
+                        agentRow['Leave Balance'] = Math.max(0, (agentRow['Leave Balance'] || agentRow['Opening Balance'] || defaultOpeningBalance) - 1);
+                    } else if (oldStatus === 'AP' && newStatus === 'L') { // Approved to Pending
+                        agentRow['Leave Balance'] = (agentRow['Leave Balance'] || agentRow['Opening Balance'] || defaultOpeningBalance) + 1;
+                    } else if (oldStatus === 'AP' && newStatus === 'D') { // Approved to Declined
+                            agentRow['Leave Balance'] = (agentRow['Leave Balance'] || agentRow['Opening Balance'] || defaultOpeningBalance) + 1;
+                    }
+                    // No change to Leave Balance for other statuses (SOF, CL, UL, DO, SO, NCNS)
+                    // If an 'L' is changed to something other than 'AP', the balance is not affected unless it was 'AP' before.
+
+                    currentData[agentRowIndex] = agentRow; // Update the array with modified row
+                }
+
+                // Save updated data to Firestore
+                await docRef.set({ data: currentData }, { merge: true });
+                leavePlannerData[monthYearKey] = currentData; // Update local cache
+
+                renderLeavePlannerTable(); // Re-render the table to show changes
+
+                // Also update attendanceData if it's for today or a recent date
+                // This logic needs to align with how attendance is marked and how it should reflect leave statuses.
+                // For simplicity, if leave is approved/declined, update the daily attendance if applicable.
+                if (attendanceData[fullDateKey]) { // Only if daily attendance for this date exists
+                    let attendanceStatusToSet = attendanceData[fullDateKey][agentName] || ''; // Get current daily attendance status
+
+                    // If a leave status affects current attendance representation
+                    if (newStatus === 'AP' || newStatus === 'L') { // If it's an approved or pending leave
+                        attendanceStatusToSet = 'L'; // Always show as 'L' (Leave) in daily attendance overview if it's any kind of leave
+                    } else if (newStatus === 'D') { // If leave is declined, it might be an an absence
+                        attendanceStatusToSet = 'UL'; // Assuming declined leave results in Unpaid Leave in attendance
+                    }
+                    // For other statuses (SOF, CL, UL, DO, NCNS, SO), they already have their own values
+
+                    if (attendanceStatusToSet) { // Only update if a status is determined
+                            await db.collection('attendance').doc(fullDateKey).update({
+                                [agentName]: attendanceStatusToSet
+                            });
+                            attendanceData[fullDateKey][agentName] = attendanceStatusToSet; // Update local cache
+                    }
+                }
+                updateHomeStatistics(); // Update home stats if relevant
+                updateDashboardData(DOM.employeeSelect.value); // Update dashboard if relevant
+
+                alert(`Leave for ${agentName} on ${fullDateKey} updated to ${newStatus === 'AP' ? 'Approved' : (newStatus === 'D' ? 'Declined' : 'Pending')}.`);
+
+            } catch (error) {
+                console.error("Error updating leave status:", error);
+                alert(`Failed to update leave status: ${error.message}`);
+            }
+        }
+
+
+        // --- Dashboard Data and Charting Functions ---
+
+        /**
+         * Populates the employee dropdown for the dashboard.
+         */
         function populateEmployeeSelect() {
             if (DOM.employeeSelect) {
                 DOM.employeeSelect.innerHTML = '<option value="">All Employees</option>';
-                Object.values(staffData).filter(user => user.isActive).forEach(user => {
+                Object.values(usersData).filter(user => user.isActive).forEach(user => {
                     const option = document.createElement('option');
                     option.value = user.fullName;
                     option.textContent = user.fullName;
@@ -1170,10 +3015,13 @@
             }
         }
 
+        /**
+         * Populates the employee dropdown for the Individual Summary page.
+         */
         function populateIndividualSummarySelect() {
             if (DOM.individualSelectSummary) {
                 DOM.individualSelectSummary.innerHTML = '<option value="">Select Employee</option>';
-                Object.values(staffData).filter(user => user.isActive).forEach(user => {
+                Object.values(usersData).filter(user => user.isActive).forEach(user => {
                     const option = document.createElement('option');
                     option.value = user.fullName;
                     option.textContent = user.fullName;
@@ -1183,13 +3031,18 @@
         }
 
 
+        /**
+         * Updates all dashboard statistics and charts based on selected employee and attendance data.
+         * @param {string} selectedEmployee - The full name of the selected employee, or empty string for all.
+         */
         function updateDashboardData(selectedEmployee = '') {
             const endDate = new Date();
             const startDate = new Date();
-            startDate.setMonth(endDate.getMonth() - 5);
+            startDate.setMonth(endDate.getMonth() - 5); // Last 6 months including current
 
             DOM.dashboardStartDate.textContent = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
 
+            // Initialize all counts
             DOM.dashboardTotalEmployees.textContent = activeAgents.length;
             let totalAbsenceDays = 0;
             let totalUnapprovedLeave = 0;
@@ -1201,14 +3054,15 @@
             let totalUnpaidLeaveCount = 0;
             let totalNCNSCount = 0;
             let totalCompassionateLeaveCount = 0;
-            let totalAnnualLeaveCount = 0;
+            let totalAnnualLeaveCount = 0; // For 'L' status
 
-            let overallPresentDays = 0;
-            let overallTotalPossibleDays = 0;
+            let overallPresentDays = 0; // For gauge
+            let overallTotalPossibleDays = 0; // For gauge
 
-            const monthlyAttendanceSummary = {};
-            const agentAttendancePercentages = {};
+            const monthlyAttendanceSummary = {}; // { 'YYYY-MM': { present: 0, late: 0, absent: 0 } }
+            const agentAttendancePercentages = {}; // { 'Agent Name': { totalDays: 0, presentDays: 0, percentage: 0 } }
 
+            // Initialize monthlyAttendanceSummary for the last 6 months
             for (let i = 0; i < 6; i++) {
                 const month = new Date(endDate.getFullYear(), endDate.getMonth() - i, 1);
                 const monthKey = month.toISOString().substring(0, 7);
@@ -1216,36 +3070,41 @@
             }
 
             activeAgents.forEach(agent => {
-                agentAttendancePercentages[agent.fullName] = { totalDays: 0, presentDays: 0, percentage: 0 };
+                agentAttendancePercentages[agent] = { totalDays: 0, presentDays: 0, percentage: 0 };
             });
 
+            // Iterate through attendance data
             for (const dateKey in attendanceData) {
                 const date = new Date(dateKey);
                 date.setHours(0,0,0,0);
 
                 if (date >= startDate && date <= endDate) {
                     const dailyAttendance = attendanceData[dateKey];
-                    const monthYear = dateKey.substring(0, 7);
+                    const monthYear = dateKey.substring(0, 7); // YYYY-MM
 
-                    const agentsToProcess = selectedEmployee ? [selectedEmployee] : activeAgents.map(a => a.fullName);
+                    const agentsToProcess = selectedEmployee ? [selectedEmployee] : activeAgents;
 
-                    agentsToProcess.forEach(agentName => {
-                        if (dailyAttendance && dailyAttendance[agentName]) {
-                            const status = dailyAttendance[agentName];
+                    agentsToProcess.forEach(agent => {
+                        if (dailyAttendance && dailyAttendance[agent]) {
+                            const status = dailyAttendance[agent];
 
+                            // For Dashboard Header Cards (Absence Days)
                             if (status === 'UL' || status === 'NCNS') {
                                 totalAbsenceDays++;
                             }
 
+                            // For Leave Taken counts
                             if (status === 'SOF') totalSickOffCount++;
                             if (status === 'CL') totalCompassionateLeaveCount++;
                             if (status === 'UL') totalUnpaidLeaveCount++;
-                            if (status === 'L') totalAnnualLeaveCount++;
+                            if (status === 'L') totalAnnualLeaveCount++; // Assuming 'L' in attendance is Annual Leave
 
+                            // For Working Location Distribution Donut Chart
                             if (status === 'WFO') totalWFO++;
                             if (status === 'WFH') totalWFH++;
 
-                            if (activeAgents.some(a => a.fullName === agentName)) {
+                            // For Overall Attendance Percentage Gauge
+                            if (activeAgents.includes(agent)) { // Ensure only active agents contribute to overall stats
                                 overallTotalPossibleDays++;
                                 if (status === 'WFO' || status === 'WFH') {
                                     overallPresentDays++;
@@ -1253,23 +3112,27 @@
                             }
 
 
-                            if (!monthlyAttendanceSummary[monthYear]) {
+                            // For Monthly Attendance Statistics Bar Chart
+                            if (!monthlyAttendanceSummary[monthYear]) { // Should be initialized above, but good for safety
                                 monthlyAttendanceSummary[monthYear] = { present: 0, late: 0, absent: 0 };
                             }
                             if (status === 'WFO' || status === 'WFH') {
                                 monthlyAttendanceSummary[monthYear].present++;
-                                if (!selectedEmployee && Math.random() < 0.15) {
+                                // Simulate 'late' randomly if not a specific employee selection
+                                if (!selectedEmployee && Math.random() < 0.15) { // 15% chance to be considered 'late' for general view
                                     monthlyAttendanceSummary[monthYear].late++;
-                                    monthlyAttendanceSummary[monthYear].present--;
+                                    monthlyAttendanceSummary[monthYear].present--; // Deduct from present if marked late
                                 }
                             } else if (status === 'UL' || status === 'NCNS') {
                                 monthlyAttendanceSummary[monthYear].absent++;
                             }
 
-                            if (agentAttendancePercentages[agentName]) {
-                                agentAttendancePercentages[agentName].totalDays++;
+
+                            // For Top Employees by Attendance (Percentage)
+                            if (agentAttendancePercentages[agent]) {
+                                agentAttendancePercentages[agent].totalDays++;
                                 if (status === 'WFO' || status === 'WFH') {
-                                    agentAttendancePercentages[agentName].presentDays++;
+                                    agentAttendancePercentages[agent].presentDays++;
                                 }
                             }
                         }
@@ -1277,25 +3140,27 @@
                 }
             }
 
+            // Calculate Unapproved Leave from leavePlannerData for dates up to today
             totalUnapprovedLeave = 0;
             for (const monthYearKey in leavePlannerData) {
                 const monthData = leavePlannerData[monthYearKey];
                 if (monthData) {
                     monthData.forEach(rowData => {
+                        // Filter by selected employee if applicable
                         const isRelevantEmployee = !selectedEmployee || rowData['Name'] === selectedEmployee;
                         if (isRelevantEmployee) {
-                            const dateKeysInRow = Object.keys(rowData).filter(key => !isNaN(key) && key.length <= 2);
+                            const dateKeysInRow = Object.keys(rowData).filter(key => !isNaN(key) && key.length <= 2); // Numeric day keys like "01", "15"
                             dateKeysInRow.forEach(dayNum => {
                                 const status = rowData[dayNum];
-                                if (status === 'L') {
+                                if (status === 'L') { // 'L' represents pending leave in the planner
                                     const year = new Date(Date.parse(monthYearKey)).getFullYear();
                                     const month = new Date(Date.parse(monthYearKey)).getMonth();
                                     const fullLeaveDate = new Date(year, month, parseInt(dayNum));
 
                                     fullLeaveDate.setHours(0,0,0,0);
-                                    todayGlobal.setHours(0,0,0,0);
+                                    todayGlobal.setHours(0,0,0,0); // Ensure comparison is only by date
 
-                                    if (fullLeaveDate <= todayGlobal) {
+                                    if (fullLeaveDate <= todayGlobal) { // Count only pending leaves up to and including today
                                         totalUnapprovedLeave++;
                                     }
                                 }
@@ -1309,16 +3174,18 @@
             DOM.dashboardAbsenceDays.textContent = totalUnpaidLeaveCount + totalNCNSCount;
             DOM.dashboardUnapprovedLeave.textContent = totalUnapprovedLeave;
 
+            // Overall Attendance Gauge
             let overallPercentage = 0;
             if (overallTotalPossibleDays > 0) {
                 overallPercentage = (overallPresentDays / overallTotalPossibleDays) * 100;
             }
             DOM.overallAttendanceGaugeLabel.textContent = `${overallPercentage.toFixed(0)}%`;
-            const rotation = -135 + (overallPercentage * 2.7);
+            const rotation = -135 + (overallPercentage * 2.7); // Adjust rotation for 0-100% over a semi-circle
             DOM.overallAttendanceGaugeFill.style.transform = `rotate(${rotation}deg)`;
 
             renderAttendanceStatsChart(monthlyAttendanceSummary);
 
+            // Update Leave Taken stats
             DOM.leaveTakenSick.textContent = totalSickOffCount;
             DOM.leaveTakenCasual.textContent = totalCompassionateLeaveCount;
             DOM.leaveTakenAnnual.textContent = totalAnnualLeaveCount;
@@ -1330,8 +3197,12 @@
             renderTopEmployeesChart(agentAttendancePercentages);
         }
 
+        /**
+         * Renders the monthly attendance statistics bar chart.
+         * @param {object} monthlyData - An object where keys are 'YYYY-MM' and values are { present, late, absent }.
+         */
         function renderAttendanceStatsChart(monthlyData) {
-            DOM.attendanceStatsChart.innerHTML = '';
+            DOM.attendanceStatsChart.innerHTML = ''; // Clear previous chart
 
             const monthsSorted = Object.keys(monthlyData).sort();
             if (monthsSorted.length === 0) {
@@ -1346,9 +3217,10 @@
             chartContainerInner.style.height = '100%';
             DOM.attendanceStatsChart.appendChild(chartContainerInner);
 
+            // Calculate max count for scaling bars
             const allCounts = Object.values(monthlyData).flatMap(m => [m.present, m.late, m.absent]);
             const maxCount = Math.max(...allCounts);
-            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0;
+            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Max height of chart area is 200px (minus padding)
 
             monthsSorted.forEach(monthKey => {
                 const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
@@ -1376,6 +3248,11 @@
             DOM.attendanceStatsChart.appendChild(monthLabels);
         }
 
+        /**
+         * Renders the working location distribution donut chart.
+         * @param {number} wfoCount - Count of Work From Office days.
+         * @param {number} wfhCount - Count of Work From Home days.
+         */
         function renderWorkingLocationDonutChart(wfoCount, wfhCount) {
             const total = wfoCount + wfhCount;
             let wfoPercentage = 0;
@@ -1385,9 +3262,13 @@
             }
 
             DOM.workingLocationDonutChart.style.background = `conic-gradient(#007bff 0% ${wfoPercentage}%, #28a745 ${wfoPercentage}% 100%)`;
-            DOM.workingLocationDonutLabel.textContent = `${wfoPercentage.toFixed(0)}% Working From Office`;
+            DOM.workingLocationDonutLabel.textContent = `${wfoPercentage.toFixed(0)}% Working From Office`; // Round to whole number
         }
 
+        /**
+         * Renders the top employees by attendance bar chart.
+         * @param {object} agentAttendancePercentages - An object mapping agent names to { totalDays, presentDays, percentage }.
+         */
         function renderTopEmployeesChart(agentAttendancePercentages) {
             DOM.topEmployeesChart.innerHTML = '';
 
@@ -1396,8 +3277,8 @@
                     name,
                     percentage: data.totalDays > 0 ? (data.presentDays / data.totalDays) * 100 : 0
                 }))
-                .sort((a, b) => b.percentage - a.percentage)
-                .slice(0, 5);
+                .sort((a, b) => b.percentage - a.percentage) // Sort descending by percentage
+                .slice(0, 5); // Take top 5
 
             if (agentsWithPercentages.length === 0) {
                 DOM.topEmployeesChart.innerHTML = '<p style="text-align: center; width: 100%; margin-top: 50px;">No employee data to display.</p>';
@@ -1409,15 +3290,24 @@
                 item.classList.add('employee-bar-item');
                 item.innerHTML = `
                     <span class="employee-name-label">${agent.name}</span>
-                    <div class="employee-bar-track" style="width: ${agent.percentage.toFixed(0)}%;"></div>
+                    <div class="employee-bar-track">
+                        <div class="employee-bar-fill" style="width: ${agent.percentage.toFixed(0)}%;"></div>
+                    </div>
                     <span class="employee-bar-value">${agent.percentage.toFixed(0)}%</span>
                 `;
                 DOM.topEmployeesChart.appendChild(item);
             });
         }
 
+
+        // --- Individual Summary Page Functions ---
+        /**
+         * Updates individual summary statistics and chart for the selected employee.
+         * @param {string} employeeName - The full name of the employee to summarize.
+         */
         function updateIndividualSummary(employeeName) {
             if (!employeeName) {
+                // Clear all stats and chart if no employee is selected
                 DOM.summaryWFO.textContent = '0';
                 DOM.summaryWFH.textContent = '0';
                 DOM.summaryLeave.textContent = '0';
@@ -1441,8 +3331,9 @@
             let ncnsCount = 0;
             let compassionateLeaveCount = 0;
 
-            const monthlyWFHWFO = {};
+            const monthlyWFHWFO = {}; // { 'YYYY-MM': { wfo: 0, wfh: 0 } }
 
+            // Aggregate data from attendanceData
             for (const dateKey in attendanceData) {
                 const dailyRecord = attendanceData[dateKey];
                 if (dailyRecord[employeeName]) {
@@ -1500,6 +3391,10 @@
             renderMonthlyWFHWFOChart(monthlyWFHWFO);
         }
 
+        /**
+         * Renders the monthly WFO vs WFH bar chart for an individual employee.
+         * @param {object} monthlyData - An object where keys are 'YYYY-MM' and values are { wfo, wfh }.
+         */
         function renderMonthlyWFHWFOChart(monthlyData) {
             DOM.monthlyWFHWFOChart.innerHTML = '';
 
@@ -1509,9 +3404,10 @@
                 return;
             }
 
+            // Determine max value for scaling
             const allCounts = Object.values(monthlyData).flatMap(m => [m.wfo, m.wfh]);
             const maxCount = Math.max(...allCounts);
-            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0;
+            const scaleFactor = maxCount > 0 ? 180 / maxCount : 0; // Chart height is 200px
 
             monthsSorted.forEach(monthKey => {
                 const monthName = new Date(monthKey + '-01').toLocaleString('en-US', { month: 'short' });
@@ -1520,18 +3416,21 @@
                 const barGroup = document.createElement('div');
                 barGroup.classList.add('monthly-bar-group');
 
+                // WFO Bar
                 const wfoBar = document.createElement('div');
                 wfoBar.classList.add('monthly-bar', 'wfo');
                 wfoBar.style.height = `${monthSummary.wfo * scaleFactor}px`;
                 wfoBar.title = `WFO: ${monthSummary.wfo}`;
                 barGroup.appendChild(wfoBar);
 
+                // WFH Bar
                 const wfhBar = document.createElement('div');
                 wfhBar.classList.add('monthly-bar', 'wfh');
                 wfhBar.style.height = `${monthSummary.wfh * scaleFactor}px`;
                 wfhBar.title = `WFH: ${monthSummary.wfh}`;
                 barGroup.appendChild(wfhBar);
 
+                // Month Label
                 const label = document.createElement('div');
                 label.classList.add('monthly-bar-label');
                 label.textContent = monthName;
@@ -1540,7 +3439,111 @@
                 DOM.monthlyWFHWFOChart.appendChild(barGroup);
             });
         }
-        
+
+
+        // --- Reports Generation Logic ---
+
+        /**
+         * Generates and displays report data based on selected filters.
+         * @param {string} reportType - Type of report ('daily', 'tardiness', 'absenteeism').
+         * @param {string} startDateStr - Start date in YYYY-MM-DD format.
+         * @param {string} endDateStr - End date in YYYY-MM-DD format.
+         */
+        function generateReportData(reportType, startDateStr, endDateStr) {
+            DOM.reportsTableBody.innerHTML = '';
+
+            const start = new Date(startDateStr);
+            const end = new Date(endDateStr);
+            end.setHours(23,59,59,999); // Set to end of the day for inclusive range
+
+            if (start > end) {
+                alert("Start date cannot be after end date.");
+                return;
+            }
+
+            let currentDate = new Date(start);
+            let reportData = [];
+
+            while (currentDate <= end) {
+                const dateKey = formatDate(currentDate);
+                const dailyAttendance = attendanceData[dateKey];
+
+                const rowData = {
+                    Date: dateKey,
+                    WFO: 0,
+                    WFH: 0,
+                    L: 0,
+                    SOF: 0,
+                    SO: 0,
+                    DO: 0,
+                    UL: 0,
+                    NCNS: 0,
+                    CL: 0,
+                    Late: 0, // For tardiness report
+                    Absent: 0 // For absenteeism report
+                };
+
+                if (dailyAttendance) {
+                    for (const agentName of activeAgents) { // Iterate over active agents to get counts
+                        const status = dailyAttendance[agentName] || ''; // Get status or empty string
+
+                        switch (status) {
+                            case 'WFO':
+                                rowData.WFO++;
+                                break;
+                            case 'WFH':
+                                rowData.WFH++;
+                                break;
+                            case 'L':
+                                rowData.L++;
+                                break;
+                            case 'SOF':
+                                rowData.SOF++;
+                                break;
+                            case 'SO':
+                                rowData.SO++;
+                                break;
+                            case 'DO':
+                                rowData.DO++;
+                                break;
+                            case 'UL':
+                                rowData.UL++;
+                                rowData.Absent++; // Count as absent for report
+                                break;
+                            case 'NCNS':
+                                rowData.NCNS++;
+                                rowData.Absent++; // Count as absent for report
+                                break;
+                            case 'CL':
+                                rowData.CL++;
+                                break;
+                            default:
+                                // If an agent is not marked, they are considered absent or expected to be present
+                                if (!status && activeAgents.includes(agentName)) { // If no status recorded for active agent
+                                    rowData.Absent++;
+                                }
+                                break;
+                        }
+
+                        // Simulate late entries for tardiness report (if not a specific status like leave/day off)
+                        if ((status === 'WFO' || status === 'WFH') && Math.random() < 0.1) { // 10% chance of being late
+                            rowData.Late++;
+                        }
+                    }
+                }
+
+                reportData.push(rowData);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            renderReportTable(reportData, reportType);
+        }
+
+        /**
+         * Renders the report table based on the generated data and report type.
+         * @param {Array<object>} data - The report data.
+         * @param {string} reportType - The type of report.
+         */
         function renderReportTable(data, reportType) {
             DOM.reportsTableBody.innerHTML = '';
             let headerHtml = '';
@@ -1606,6 +3609,10 @@
             }
         }
 
+
+        /**
+         * Exports the currently displayed report data to a CSV file.
+         */
         function exportReportToCSV() {
             let csv = [];
             const rows = DOM.reportTable.querySelectorAll('tr');
@@ -1613,7 +3620,8 @@
             for (let i = 0; i < rows.length; i++) {
                 const row = [], cols = rows[i].querySelectorAll('td, th');
                 for (let j = 0; j < cols.length; j++) {
-                    let data = cols[j].innerText.replace(/"/g, '""');
+                    // Handle commas within data by enclosing in quotes
+                    let data = cols[j].innerText.replace(/"/g, '""'); // Escape double quotes
                     row.push(`"${data}"`);
                 }
                 csv.push(row.join(','));
@@ -1630,31 +3638,41 @@
             alert('Report exported successfully to CSV.');
         }
 
-        function renderUserList() {
-            DOM.userListTableBody.innerHTML = '';
+
+        // --- Admin Add/Manage User Logic ---
+
+        /**
+         * Renders the staff list table in the Admin page.
+         */
+        function renderStaffList() {
+            DOM.staffListTableBody.innerHTML = '';
+
             const sortedUsers = Object.values(usersData).sort((a, b) => a.fullName.localeCompare(b.fullName));
 
             if (sortedUsers.length === 0) {
-                DOM.userListTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No system users found.</td></tr>`;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="5" style="text-align: center;">No staff members found.</td>`;
+                DOM.staffListTableBody.appendChild(tr);
                 return;
             }
 
             sortedUsers.forEach(user => {
                 const tr = document.createElement('tr');
+
                 const statusSelect = document.createElement('select');
                 statusSelect.innerHTML = `
                     <option value="true" ${user.isActive ? 'selected' : ''}>Active</option>
                     <option value="false" ${!user.isActive ? 'selected' : ''}>Inactive</option>
                 `;
                 statusSelect.addEventListener('change', (e) => {
-                    toggleUserStatus(user.uid, e.target.value === 'true');
+                    toggleUserStatus(user.email, e.target.value === 'true');
                 });
 
                 const deleteButton = document.createElement('button');
                 deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
                 deleteButton.textContent = 'Delete';
                 deleteButton.addEventListener('click', () => {
-                    deleteUser(user.uid);
+                    deleteUser(user.email);
                 });
 
                 tr.innerHTML = `
@@ -1666,63 +3684,38 @@
                 `;
                 tr.children[3].appendChild(statusSelect);
                 tr.children[4].appendChild(deleteButton);
-                DOM.userListTableBody.appendChild(tr);
+
+                DOM.staffListTableBody.appendChild(tr);
             });
         }
 
-        function renderStaffRoster() {
-            DOM.staffRosterTableBody.innerHTML = '';
-            const sortedStaff = Object.values(staffData).sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-            if (sortedStaff.length === 0) {
-                DOM.staffRosterTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No staff members found.</td></tr>`;
-                return;
-            }
-
-            sortedStaff.forEach(staff => {
-                const tr = document.createElement('tr');
-                const statusSelect = document.createElement('select');
-                statusSelect.innerHTML = `
-                    <option value="true" ${staff.isActive ? 'selected' : ''}>Active</option>
-                    <option value="false" ${!staff.isActive ? 'selected' : ''}>Inactive</option>
-                `;
-                statusSelect.addEventListener('change', (e) => {
-                    toggleStaffStatus(staff.staffId, e.target.value === 'true');
-                });
-
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', () => {
-                    deleteStaff(staff.staffId);
-                });
-
-                tr.innerHTML = `
-                    <td>${staff.fullName}</td>
-                    <td>${staff.role}</td>
-                    <td>${staff.secondaryRole}</td>
-                    <td></td>
-                    <td></td>
-                `;
-                tr.children[3].appendChild(statusSelect);
-                tr.children[4].appendChild(deleteButton);
-                DOM.staffRosterTableBody.appendChild(tr);
-            });
-        }
-        
-        async function toggleUserStatus(uid, isActive) {
-            const userToUpdate = usersData[uid];
-            if (userToUpdate) {
-                if (loggedInUser.uid === uid && !isActive) {
+        /**
+         * Toggles the active status of a user in Firestore.
+         * @param {string} email - The email of the user to update.
+         * @param {boolean} isActive - The new active status.
+         */
+        async function toggleUserStatus(email, isActive) {
+            const userToUpdate = usersData[email];
+            if (userToUpdate && userToUpdate.uid) {
+                if (loggedInUser.email === email && !isActive) {
                     alert("You cannot deactivate your own account while logged in.");
-                    renderUserList();
+                    renderStaffList(); // Re-render to revert selection
                     return;
                 }
                 try {
-                    await db.collection('users').doc(uid).update({ isActive: isActive });
-                    usersData[uid].isActive = isActive;
-                    renderUserList();
-                    alert(`User status for ${userToUpdate.fullName} updated to ${isActive ? 'Active' : 'Inactive'}.`);
+                    await db.collection('users').doc(userToUpdate.uid).update({
+                        isActive: isActive
+                    });
+                    userToUpdate.isActive = isActive; // Update local state
+                    updateActiveAgentsList(); // Rebuild active agents list
+                    renderStaffList(); // Re-render table
+
+                    // Refresh relevant sections that depend on active agents
+                    generateAttendanceOverviewTable();
+                    populateEmployeeSelect();
+                    populateIndividualSummarySelect();
+                    updateHomeStatistics();
+                    updateDashboardData(DOM.employeeSelect.value);
                 } catch (error) {
                     console.error("Error toggling user status:", error);
                     alert(`Failed to change status for ${userToUpdate.fullName}: ${error.message}`);
@@ -1731,119 +3724,191 @@
                 alert("User not found or UID is missing.");
             }
         }
-        
-        async function toggleStaffStatus(staffId, isActive) {
-            const staffToUpdate = staffData[staffId];
-            if (staffToUpdate) {
-                try {
-                    await db.collection('staff').doc(staffId).update({ isActive: isActive });
-                    staffData[staffId].isActive = isActive;
-                    updateActiveAgentsList();
-                    renderStaffRoster();
-                    alert(`Staff member status for ${staffToUpdate.fullName} updated to ${isActive ? 'Active' : 'Inactive'}.`);
-                } catch (error) {
-                    console.error("Error toggling staff status:", error);
-                    alert(`Failed to change status for ${staffToUpdate.fullName}: ${error.message}`);
-                }
-            } else {
-                alert("Staff member not found.");
-            }
-        }
-        
-        async function deleteUser(uid) {
-            const userToDelete = usersData[uid];
+
+        /**
+         * Deletes a user's profile and related data from Firestore.
+         * NOTE: Deleting a Firebase Auth user from the client is generally not allowed for other users.
+         * For a production app, this would require a Firebase Cloud Function.
+         * Here, we delete their Firestore profile and data, but the Auth user might persist unless manually deleted in Firebase Console or via Cloud Function.
+         * @param {string} email - The email of the user to delete.
+         */
+        async function deleteUser(email) {
+            const userToDelete = usersData[email];
             if (!userToDelete) {
                 alert("User not found.");
                 return;
             }
-            if (loggedInUser.uid === uid) {
-                alert("You cannot delete your own account while logged in.");
+
+            if (loggedInUser.email === email) {
+                alert("You cannot delete your own account while logged in. Please log out and ask another administrator to delete your account, or delete it via Firebase Console.");
                 return;
             }
-            const confirmDelete = confirm(`Are you sure you want to delete the system user account for ${userToDelete.fullName}? This will permanently remove their login access.`);
-            if (!confirmDelete) return;
 
-            try {
-                await db.collection('users').doc(uid).delete();
-                delete usersData[uid];
-                renderUserList();
-                alert(`System user account for ${userToDelete.fullName} deleted successfully.`);
-            } catch (error) {
-                console.error("Error deleting user:", error);
-                alert(`Failed to delete user account: ${error.message}`);
-            }
-        }
-
-        async function deleteStaff(staffId) {
-            const staffToDelete = staffData[staffId];
-            if (!staffToDelete) {
-                alert("Staff member not found.");
+            const confirmDelete = confirm(`Are you sure you want to delete user ${userToDelete.fullName} (${email})? This action will also delete their attendance and leave records and cannot be undone.`);
+            if (!confirmDelete) {
                 return;
             }
-            const confirmDelete = confirm(`Are you sure you want to delete the staff member ${staffToDelete.fullName}? This will also remove them from all attendance, leave, and shift schedule rosters.`);
-            if (!confirmDelete) return;
 
             try {
                 const batch = db.batch();
-                
-                batch.delete(db.collection('staff').doc(staffId));
-                
+
+                // 1. Delete user data from Firestore 'users' collection
+                if (userToDelete.uid) {
+                    batch.delete(db.collection('users').doc(userToDelete.uid));
+                }
+
+                // 2. Delete their attendance records for this agent
                 const attendanceSnapshot = await db.collection('attendance').get();
                 attendanceSnapshot.forEach(doc => {
                     const docData = doc.data();
-                    if (docData[staffToDelete.fullName]) {
+                    if (docData[userToDelete.fullName]) {
                         const updatedData = { ...docData };
-                        delete updatedData[staffToDelete.fullName];
+                        delete updatedData[userToDelete.fullName]; // Remove agent's specific attendance for this day
                         if (Object.keys(updatedData).length > 0) {
                             batch.update(db.collection('attendance').doc(doc.id), updatedData);
                         } else {
-                            batch.delete(db.collection('attendance').doc(doc.id));
+                            batch.delete(db.collection('attendance').doc(doc.id)); // Delete doc if no agents left for that day
                         }
                     }
                 });
 
+                // 3. Delete their leave records (simplified, assumes flat structure in month docs)
                 const leavesSnapshot = await db.collection('leaves').get();
                 leavesSnapshot.forEach(doc => {
                     const monthDocData = doc.data();
                     if (monthDocData.data && Array.isArray(monthDocData.data)) {
-                        const updatedData = monthDocData.data.filter(row => row.Name !== staffToDelete.fullName);
-                        if (updatedData.length !== monthDocData.data.length) {
+                        const originalData = monthDocData.data;
+                        const updatedData = originalData.filter(row => row.Name !== userToDelete.fullName);
+                        if (updatedData.length !== originalData.length) { // If something was filtered out
                             if (updatedData.length > 0) {
                                 batch.update(db.collection('leaves').doc(doc.id), { data: updatedData });
                             } else {
-                                batch.delete(db.collection('leaves').doc(doc.id));
+                                batch.delete(db.collection('leaves').doc(doc.id)); // Delete month doc if no agents left
                             }
                         }
                     }
                 });
-                
-                const shiftRostersSnapshot = await db.collection('shiftRosters').get();
-                shiftRostersSnapshot.forEach(doc => {
-                    const monthRosterData = doc.data();
-                    if (monthRosterData.roster && Array.isArray(monthRosterData.roster)) {
-                        const updatedRoster = monthRosterData.roster.filter(entry => entry.agentName !== staffToDelete.fullName);
-                        if (updatedRoster.length !== monthRosterData.roster.length) {
-                            if (updatedRoster.length > 0) {
-                                batch.update(db.collection('shiftRosters').doc(doc.id), { roster: updatedRoster });
-                            } else {
-                                batch.delete(db.collection('shiftRosters').doc(doc.id));
-                            }
-                        }
-                    }
-                });
-                
-                await batch.commit();
-                
-                delete staffData[staffId];
+
+                await batch.commit(); // Commit all batched operations
+
+                // Update local state and re-render UI
+                delete usersData[email];
                 updateActiveAgentsList();
-                renderStaffRoster();
-                alert(`Staff member ${staffToDelete.fullName} and their associated data deleted successfully.`);
-                
+                renderStaffList();
+                generateAttendanceOverviewTable();
+                populateEmployeeSelect();
+                populateIndividualSummarySelect();
+                updateHomeStatistics();
+                updateDashboardData(DOM.employeeSelect.value);
+                alert(`User ${userToDelete.fullName} and their related data deleted from Firestore.`);
+
+                // IMPORTANT: The Firebase Auth user account for ${email} still exists.
+                console.warn(`Firebase Auth user for ${email} was NOT deleted client-side. Please delete it manually in Firebase Console or via a Cloud Function.`);
+
             } catch (error) {
-                console.error("Error deleting staff member:", error);
-                alert(`Failed to delete staff member: ${error.message}`);
+                console.error("Error deleting user and associated data:", error);
+                alert(`Failed to delete user ${userToDelete.fullName}: ${error.message}`);
             }
         }
+
+        // --- Shift Schedule Page Functions ---
+
+        // Removed populateNewShiftAgentNameDropdown
+        // Removed populateNewShiftTimeDropdown
+        // Removed autoFillAgentDetailsForShiftForm
+        // Removed autoFillShiftTimesForShiftForm
+
+        /**
+         * Removed populateShiftScheduleMonthSelector as there's no dynamic month selection for static data.
+         * The new renderShiftScheduleTable will directly use `staticShiftScheduleData`.
+         */
+        // function populateShiftScheduleMonthSelector() { ... }
+
+        /**
+         * Renders the shift schedule table using the predefined staticShiftScheduleData.
+         * It adapts the table header and body generation to perfectly match the columns shown in your image.
+         */
+        function renderShiftScheduleTable() {
+            DOM.shiftScheduleTableHead.innerHTML = '';
+            DOM.shiftScheduleTableBody.innerHTML = '';
+            // No longer using currentShiftScheduleMonthYear display for static data
+            // DOM.currentShiftScheduleMonthYear.textContent = currentShiftScheduleDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+            // Headers from the image
+            const headers = ["No.", "Name", "Role", "Secondary Role", "Shift Time", "Break Time", "Lunch Time"];
+
+            const headerRow = document.createElement('tr');
+            headers.forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            DOM.shiftScheduleTableHead.appendChild(headerRow);
+
+            if (staticShiftScheduleData.length === 0) {
+                DOM.shiftScheduleTableBody.innerHTML = `<tr><td colspan="${headers.length}" style="text-align: center; padding: 20px;">No shift data available.</td></tr>`;
+                updateShiftScheduleDashboard();
+                return;
+            }
+
+            staticShiftScheduleData.forEach(row => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.textContent = row[header];
+                    // Apply a specific class for the shift-related cells for consistent styling if needed
+                    if (header === "Shift Time" || header === "Break Time" || header === "Lunch Time") {
+                        td.classList.add('shift-cell');
+                    }
+                    tr.appendChild(td);
+                });
+                DOM.shiftScheduleTableBody.appendChild(tr);
+            });
+
+            // Update the simplified dashboard with counts from the static data
+            updateShiftScheduleDashboard();
+        }
+
+        /**
+         * Removed updateShiftDetailsInTable as inline editing/auto-filling is no longer applicable.
+         */
+        // function updateShiftDetailsInTable(shiftSelectElement) { ... }
+
+        /**
+         * Removed generateSampleMonthlyShiftAssignments.
+         * The `staticShiftScheduleData` array is now the source of truth for the shift schedule.
+         */
+        // function generateSampleMonthlyShiftAssignments(agents) { ... }
+
+
+        /**
+         * Updates the metrics in the simplified Shift Schedule Dashboard section
+         * based on the static data.
+         */
+        function updateShiftScheduleDashboard() {
+            DOM.staticRosterTotalStaff.textContent = staticShiftScheduleData.length;
+
+            // Count unique shift times
+            const uniqueShiftTimes = new Set();
+            staticShiftScheduleData.forEach(shift => {
+                if (shift["Shift Time"]) {
+                    uniqueShiftTimes.add(shift["Shift Time"]);
+                }
+            });
+            DOM.staticRosterTotalShifts.textContent = uniqueShiftTimes.size;
+
+            // Removed original dynamic dashboard elements, simplified content
+            DOM.avgHoursPerShift.textContent = 'N/A'; // No longer calculating dynamic averages
+            DOM.coverageSupervisors.textContent = 'N/A';
+            DOM.coverageQAs.textContent = 'N/A';
+            DOM.teaBreakSummary.textContent = 'N/A';
+            DOM.lunchBreakSummary.textContent = 'N/A';
+            DOM.pendingSwaps.textContent = 'N/A';
+            DOM.approvedSwaps.textContent = 'N/A';
+            DOM.declinedSwaps.textContent = 'N/A';
+            DOM.repetitionAlertsList.innerHTML = '<li>No dynamic alerts for static data.</li>';
+        }
+
 
         // --- Event Listener Initialization ---
         function initializeEventListeners() {
@@ -1910,7 +3975,7 @@
 
             // Attendance Marking Workflow
             DOM.openAttendanceCalendarBtn.addEventListener('click', () => {
-                currentCalendarDate = new Date();
+                currentCalendarDate = new Date(todayGlobal.getFullYear(), todayGlobal.getMonth(), 1);
                 renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
                 DOM.calendarModal.style.display = 'flex';
             });
@@ -1920,8 +3985,8 @@
                     DOM.attendanceDateInput.value = selectedMarkingDate;
                     DOM.modalDateDisplay.textContent = selectedMarkingDate;
                     populateModalAttendanceTable();
-                    DOM.calendarModal.style.display = 'none';
-                    DOM.attendanceMarkingModal.style.display = 'flex';
+                    DOM.calendarModal.style.display = 'none'; // Close calendar
+                    DOM.attendanceMarkingModal.style.display = 'flex'; // Open attendance modal
                 } else {
                     alert('Please select a date from the calendar.');
                 }
@@ -1932,8 +3997,8 @@
             DOM.closeCalendarModal.addEventListener('click', () => DOM.calendarModal.style.display = 'none');
             DOM.cancelCalendarSelection.addEventListener('click', () => {
                 DOM.calendarModal.style.display = 'none';
-                selectedMarkingDate = null;
-                DOM.attendanceDateInput.value = '';
+                selectedMarkingDate = null; // Clear selected date if cancelled
+                DOM.attendanceDateInput.value = ''; // Clear date input
             });
             DOM.prevMonthBtn.addEventListener('click', () => {
                 currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
@@ -1952,6 +4017,31 @@
             // Attendance Overview Table
             DOM.deleteAttendanceDataBtn.addEventListener('click', deleteAttendanceData);
             DOM.exportAttendanceDataBtn.addEventListener('click', exportAttendanceDataToCSV);
+
+            // Leave Tracker
+            DOM.prevMonthLeaveBtn.addEventListener('click', () => {
+                currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() - 1);
+                fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+            });
+            DOM.nextMonthLeaveBtn.addEventListener('click', () => {
+                currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() + 1);
+                fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+            });
+
+            // Shift Schedule Page - Removed add shift form listeners
+            // DOM.newShiftAgentName.addEventListener('change', autoFillAgentDetailsForShiftForm);
+            // DOM.newShiftTime.addEventListener('change', autoFillShiftTimesForShiftForm);
+            // Removed DOM.addShiftForm listener
+
+            // Shift Schedule Page - Removed Monthly Navigation and Filters as data is static
+            // DOM.prevMonthShiftScheduleBtn.addEventListener('click', () => { ... });
+            // DOM.nextMonthShiftScheduleBtn.addEventListener('click', () => { ... });
+            // DOM.scheduleRoleFilter.addEventListener('change', renderShiftScheduleTable);
+
+            // Optional: Implement export functionality for PDF
+            DOM.exportSchedulePdfBtn.addEventListener('click', () => {
+                alert('Export to PDF functionality not yet implemented. This data is static and not dynamically generated.');
+            });
 
             // Individual Summary
             DOM.individualSelectSummary.addEventListener('change', (e) => updateIndividualSummary(e.target.value));
@@ -2007,7 +4097,11 @@
                     DOM.addMemberForm.reset();
 
                     await fetchAllUsersData();
-                    renderUserList();
+                    renderStaffList();
+                    populateEmployeeSelect();
+                    populateIndividualSummarySelect();
+                    updateHomeStatistics();
+                    updateDashboardData(DOM.employeeSelect.value);
                 } catch (error) {
                     let errorMessage = 'Error creating user.';
                     switch (error.code) {
@@ -2028,45 +4122,6 @@
                     DOM.addMemberMessage.style.color = '#dc3545';
                     DOM.addMemberMessage.style.display = 'block';
                     console.error("Add User Error:", error.code, error.message);
-                }
-            });
-
-            // New event listener for adding staff members
-            DOM.addStaffForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                DOM.addStaffMessage.style.display = 'none';
-                const fullName = DOM.staffFullNameInput.value.trim();
-                const role = DOM.staffRoleSelect.value;
-                const secondaryRole = DOM.staffSecondaryRoleSelect.value;
-
-                if (!fullName || !role) {
-                    DOM.addStaffMessage.textContent = 'Full Name and Role are required!';
-                    DOM.addStaffMessage.style.color = '#dc3545';
-                    DOM.addStaffMessage.style.display = 'block';
-                    return;
-                }
-
-                try {
-                    await db.collection('staff').add({
-                        fullName: fullName,
-                        role: role,
-                        secondaryRole: secondaryRole || 'None',
-                        isActive: true,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    DOM.addStaffMessage.textContent = `Staff member ${fullName} added successfully!`;
-                    DOM.addStaffMessage.style.color = '#28a745';
-                    DOM.addStaffMessage.style.display = 'block';
-                    DOM.addStaffForm.reset();
-
-                    await fetchAllStaffData();
-                    renderStaffRoster();
-                } catch (error) {
-                    console.error("Error adding staff member:", error);
-                    DOM.addStaffMessage.textContent = `Error adding staff member: ${error.message}`;
-                    DOM.addStaffMessage.style.color = '#dc3545';
-                    DOM.addStaffMessage.style.display = 'block';
                 }
             });
         }
@@ -2098,7 +4153,7 @@
 
                 attendancePage: document.getElementById('attendancePage'),
                 attendanceDateInput: document.getElementById('attendanceDateInput'),
-                openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'),
+                openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'), // Renamed
                 attendanceMarkingMessage: document.getElementById('attendanceMarkingMessage'),
                 attendanceOverviewTableContainer: document.getElementById('attendanceOverviewTableContainer'),
                 deleteAttendanceDataBtn: document.getElementById('deleteAttendanceDataBtn'),
@@ -2119,7 +4174,7 @@
                 currentMonthYear: document.getElementById('currentMonthYear'),
                 calendarDaysGrid: document.getElementById('calendarDaysGrid'),
                 cancelCalendarSelection: document.getElementById('cancelCalendarSelection'),
-                selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'),
+                selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'), // New button
 
                 leaveTrackerPage: document.getElementById('leaveTrackerPage'),
                 prevMonthLeaveBtn: document.getElementById('prevMonthLeaveBtn'),
@@ -2127,15 +4182,41 @@
                 currentLeaveMonthYear: document.getElementById('currentLeaveMonthYear'),
                 leaveTrackerTableContainer: document.getElementById('leaveTrackerTableContainer'),
 
+                // Shift Schedule DOM elements (adjusted for static data)
                 shiftSchedulePage: document.getElementById('shiftSchedulePage'),
-                prevMonthShiftScheduleBtn: document.getElementById('prevMonthShiftScheduleBtn'),
-                nextMonthShiftScheduleBtn: document.getElementById('nextMonthShiftScheduleBtn'),
-                currentShiftScheduleMonthYear: document.getElementById('currentShiftScheduleMonthYear'),
-                scheduleRoleFilter: document.getElementById('scheduleRoleFilter'),
+                // Removed addShiftForm related elements
+                // newShiftAgentName: document.getElementById('newShiftAgentName'),
+                // newShiftRole: document.getElementById('newShiftRole'),
+                // newShiftSecondaryRole: document.getElementById('newShiftSecondaryRole'),
+                // newShiftDate: document.getElementById('newShiftDate'),
+                // newShiftTime: document.getElementById('newShiftTime'),
+                // newShiftBreak: document.getElementById('newShiftBreak'),
+                // newShiftLunch: document.getElementById('newShiftLunch'),
+                // newShiftRemarks: document.getElementById('newShiftRemarks'),
+                // newShiftSwapStatus: document.getElementById('newShiftSwapStatus'),
+                // addShiftMessage: document.getElementById('addShiftMessage'),
+
+                // Removed month navigation for static data
+                // prevMonthShiftScheduleBtn: document.getElementById('prevMonthShiftScheduleBtn'),
+                // nextMonthShiftScheduleBtn: document.getElementById('nextMonthShiftScheduleBtn'),
+                // currentShiftScheduleMonthYear: document.getElementById('currentShiftScheduleMonthYear'),
+                // scheduleRoleFilter: document.getElementById('scheduleRoleFilter'),
+                exportSchedulePdfBtn: document.getElementById('exportSchedulePdfBtn'),
                 shiftScheduleTableBody: document.getElementById('shiftScheduleTableBody'),
-                shiftScheduleTableHead: document.getElementById('shiftScheduleTableHead'),
-                shiftCountsTable: document.getElementById('shiftCountsTable'),
-                shiftCountsTableBody: document.getElementById('shiftCountsTableBody'),
+                shiftScheduleTableHead: document.getElementById('shiftScheduleTableHead'), // New for dynamic headers
+
+                // Shift schedule dashboard elements (simplified)
+                staticRosterTotalStaff: document.getElementById('staticRosterTotalStaff'),
+                staticRosterTotalShifts: document.getElementById('staticRosterTotalShifts'),
+                avgHoursPerShift: document.getElementById('avgHoursPerShift'), // Will now show N/A
+                coverageSupervisors: document.getElementById('coverageSupervisors'), // Will now show N/A
+                coverageQAs: document.getElementById('coverageQAs'), // Will now show N/A
+                teaBreakSummary: document.getElementById('teaBreakSummary'), // Will now show N/A
+                lunchBreakSummary: document.getElementById('lunchBreakSummary'), // Will now show N/A
+                repetitionAlertsList: document.getElementById('repetitionAlertsList'), // Will now show N/A
+                pendingSwaps: document.getElementById('pendingSwaps'), // Will now show N/A
+                approvedSwaps: document.getElementById('approvedSwaps'), // Will now show N/A
+                declinedSwaps: document.getElementById('declinedSwaps'), // Will now show N/A
 
 
                 individualSummaryPage: document.getElementById('individualSummaryPage'),
@@ -2184,19 +4265,15 @@
                 newPasswordInput: document.getElementById('newPassword'),
                 memberRoleSelect: document.getElementById('memberRole'),
                 addMemberMessage: document.getElementById('addMemberMessage'),
-                userListTableBody: document.getElementById('userListTableBody'),
+                staffListTableBody: document.getElementById('staffListTableBody'),
 
-                addStaffForm: document.getElementById('addStaffForm'),
-                staffFullNameInput: document.getElementById('staffFullName'),
-                staffRoleSelect: document.getElementById('staffRole'),
-                staffSecondaryRoleSelect: document.getElementById('staffSecondaryRole'),
-                addStaffMessage: document.getElementById('addStaffMessage'),
-                staffRosterTableBody: document.getElementById('staffRosterTableBody'),
+                // For the schedule month dropdown - this element is removed from HTML
+                // scheduleMonth: document.getElementById('scheduleMonth')
             };
 
             initializeEventListeners();
-            initializeWorkforceEventListeners();
 
+            // Firebase Auth State Listener
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     console.log("Firebase Auth State Changed: User is logged in.", user.email);
@@ -2220,6 +4297,10 @@
                     setLoggedInState(false);
                 }
             });
+
+            // Initial load based on hash (if user refreshed while logged in)
+            // This is handled by setLoggedInState now which is called by onAuthStateChanged
+            // No need for a separate call here. The onAuthStateChanged listener handles the initial page display.
         });
     </script>
 </body>
