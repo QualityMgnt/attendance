@@ -982,6 +982,16 @@ export function showPage(pageId) {
     }
 }
 
+export function setLoggedInState(isLoggedIn) {
+    if (isLoggedIn) {
+        window.DOM.loginPage.style.display = 'none';
+        window.DOM.appContainer.style.display = 'flex';
+    } else {
+        window.DOM.loginPage.style.display = 'flex';
+        window.DOM.appContainer.style.display = 'none';
+    }
+}
+
 // --- DOMContentLoaded and Initial Setup ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Assign DOM elements to the DOM object
