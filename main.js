@@ -17,7 +17,6 @@ export const auth = firebase.auth();
 export const db = firebase.firestore();
 
 // --- Global Variables / Caches ---
-// EXPORT these global variables so other modules can access them
 export let loggedInUser = null;
 export let loggedInUserRole = 'Agent';
 export let usersData = {};
@@ -26,12 +25,13 @@ export const markedDates = new Set();
 export let activeAgents = [];
 export let currentLeaveTrackerDate = new Date();
 export const todayGlobal = new Date();
+export let selectedMarkingDate = null;
 
 // Helper to format date for Firestore document IDs
 export const formatDate = (date) => date.toISOString().split('T')[0];
 
 // --- Import functions from other modules ---
-import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus } from './leave_tracker.js';
+import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus, renderLeavePlannerTable } from './leave_tracker.js';
 import { initializeShiftSchedule, renderShiftScheduleTable, updateShiftScheduleDashboard } from './shift_schedule.js';
 
 // --- Core Helper Functions ---
@@ -97,22 +97,17 @@ export async function fetchAttendanceData() {
 }
 
 export function updateDashboardData() {
-    // This is a placeholder function that would be used by the dashboard page.
-    // It's exported so other modules (like leave_tracker.js if needed) can call it.
-    // The actual implementation should be here.
+    // Placeholder function, assuming implementation exists.
     console.log("Updating dashboard data...");
 }
 
-export function setLoggedInState(user) {
-    if (user) {
-        loggedInUser = user.email;
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'flex';
-        // Your logic to set loggedInUserName and loggedInUserRole
+export function setLoggedInState(isLoggedIn) {
+    if (isLoggedIn) {
+        window.DOM.loginPage.style.display = 'none';
+        window.DOM.appContainer.style.display = 'flex';
     } else {
-        loggedInUser = null;
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('appContainer').style.display = 'none';
+        window.DOM.loginPage.style.display = 'flex';
+        window.DOM.appContainer.style.display = 'none';
     }
 }
 
@@ -122,7 +117,7 @@ export function showPage(pageId) {
     });
     document.getElementById(pageId).classList.add('active');
     window.DOM.navLinks.forEach(link => {
-        if (link.dataset.page === pageId.replace('Page', '')) {
+        if (link.dataset.page + 'Page' === pageId) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
@@ -163,41 +158,42 @@ export function showPage(pageId) {
 
 // ... other core functions that need to be globally accessible
 export function updateHomeStatistics() {
-    // ... function logic ...
+    // Placeholder function, assuming implementation exists.
+    console.log("Updating home page statistics...");
 }
 
 export function populateIndividualSummarySelect() {
-    // ... function logic ...
+    // Placeholder function, assuming implementation exists.
+    console.log("Populating individual summary select dropdown...");
 }
 
 export function renderStaffListTable() {
-    // ... function logic ...
+    // Placeholder function, assuming implementation exists.
+    console.log("Rendering staff list table...");
 }
 
 export function generateAttendanceOverviewTable() {
-    // ... function logic ...
+    // Placeholder function, assuming implementation exists.
+    console.log("Generating attendance overview table...");
 }
+
 
 // --- DOMContentLoaded and Initial Setup ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Assign DOM elements to the DOM object
     window.DOM = {
-        // Login Page
+        // ... (all your DOM element assignments) ...
         loginPage: document.getElementById('loginPage'),
         loginForm: document.getElementById('loginForm'),
         loginEmail: document.getElementById('loginEmail'),
         loginPassword: document.getElementById('loginPassword'),
         loginError: document.getElementById('loginError'),
-
-        // App Shell
         appContainer: document.getElementById('appContainer'),
         loggedInUserName: document.getElementById('loggedInUserName'),
         loggedInUserRole: document.getElementById('loggedInUserRole'),
         logoutBtn: document.getElementById('logoutBtn'),
         navLinks: document.querySelectorAll('.main-nav a'),
         adminNavLink: document.getElementById('adminNavLink'),
-
-        // Home Page
         homePage: document.getElementById('homePage'),
         statTotalPresent: document.getElementById('statTotalPresent'),
         statTotalStaff: document.getElementById('statTotalStaff'),
@@ -205,8 +201,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         statAgentsOnSickOffWeek: document.getElementById('statAgentsOnSickOffWeek'),
         staffOnLeaveNames: document.getElementById('staffOnLeaveNames'),
         agentsOnSickOffNames: document.getElementById('agentsOnSickOffNames'),
-
-        // Attendance Page
         attendancePage: document.getElementById('attendancePage'),
         openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'),
         attendanceDateInput: document.getElementById('attendanceDateInput'),
@@ -214,23 +208,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteAttendanceDataBtn: document.getElementById('deleteAttendanceDataBtn'),
         exportAttendanceDataBtn: document.getElementById('exportAttendanceDataBtn'),
         attendanceOverviewTableContainer: document.getElementById('attendanceOverviewTableContainer'),
-
-        // Leave Tracker Page
         leaveTrackerPage: document.getElementById('leaveTrackerPage'),
         prevMonthLeaveBtn: document.getElementById('prevMonthLeaveBtn'),
         nextMonthLeaveBtn: document.getElementById('nextMonthLeaveBtn'),
         currentLeaveMonthYear: document.getElementById('currentLeaveMonthYear'),
         leaveTrackerTableContainer: document.getElementById('leaveTrackerTableContainer'),
-
-        // Shift Schedule Page
         shiftSchedulePage: document.getElementById('shiftSchedulePage'),
         exportSchedulePdfBtn: document.getElementById('exportSchedulePdfBtn'),
         shiftScheduleTableHead: document.getElementById('shiftScheduleTableHead'),
         shiftScheduleTableBody: document.getElementById('shiftScheduleTableBody'),
         staticRosterTotalStaff: document.getElementById('staticRosterTotalStaff'),
         staticRosterTotalShifts: document.getElementById('staticRosterTotalShifts'),
-
-        // Individual Summary Page
         individualSummaryPage: document.getElementById('individualSummaryPage'),
         individualSelectSummary: document.getElementById('individualSelectSummary'),
         summaryWFO: document.getElementById('summaryWFO'),
@@ -243,8 +231,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         summaryNCNS: document.getElementById('summaryNCNS'),
         summaryCompassionateLeave: document.getElementById('summaryCompassionateLeave'),
         monthlyWFHWFOChart: document.getElementById('monthlyWFHWFOChart'),
-
-        // Dashboard Page
         dashboardPage: document.getElementById('dashboardPage'),
         dashboardStartDate: document.getElementById('dashboardStartDate'),
         employeeSelect: document.getElementById('employeeSelect'),
@@ -261,8 +247,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         workingLocationDonutChart: document.getElementById('workingLocationDonutChart'),
         workingLocationDonutLabel: document.getElementById('workingLocationDonutLabel'),
         topEmployeesChart: document.getElementById('topEmployeesChart'),
-
-        // Reports Page
         reportsPage: document.getElementById('reportsPage'),
         reportType: document.getElementById('reportType'),
         startDate: document.getElementById('startDate'),
@@ -270,8 +254,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         generateReportBtn: document.getElementById('generateReportBtn'),
         exportReportCsvBtn: document.getElementById('exportReportCsvBtn'),
         reportsTableBody: document.getElementById('reportsTableBody'),
-
-        // Admin Page
         adminPage: document.getElementById('adminPage'),
         addMemberForm: document.getElementById('addMemberForm'),
         fullName: document.getElementById('fullName'),
@@ -280,8 +262,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         memberRole: document.getElementById('memberRole'),
         addMemberMessage: document.getElementById('addMemberMessage'),
         staffListTableBody: document.getElementById('staffListTableBody'),
-
-        // Modals
         attendanceMarkingModal: document.getElementById('attendanceMarkingModal'),
         closeAttendanceModal: document.getElementById('closeAttendanceModal'),
         modalDateDisplay: document.getElementById('modalDateDisplay'),
@@ -289,7 +269,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveAttendanceBtn: document.getElementById('saveAttendanceBtn'),
         cancelAttendanceBtn: document.getElementById('cancelAttendanceBtn'),
         modalErrorMessage: document.getElementById('modalErrorMessage'),
-
         calendarModal: document.getElementById('calendarModal'),
         closeCalendarModal: document.getElementById('closeCalendarModal'),
         prevMonthBtn: document.getElementById('prevMonthBtn'),
@@ -299,10 +278,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'),
         cancelCalendarSelection: document.getElementById('cancelCalendarSelection')
     };
-
     initializeEventListeners();
 
-    // Firebase Auth State Listener
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             console.log("User is logged in:", user.email);
@@ -319,8 +296,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     window.DOM.adminNavLink.style.display = 'none';
                 }
+                
+                // Fetch ALL user data ONLY for roles with permission.
+                if (loggedInUserRole === 'Admin' || loggedInUserRole === 'Team Leader' || loggedInUserRole === 'Supervisor') {
+                    await fetchAllUsersData();
+                } else {
+                    // For Agent role, just store their own data.
+                    usersData[loggedInUser] = {
+                        uid: userDoc.id,
+                        fullName: userData.fullName,
+                        role: userData.role,
+                        isActive: userData.isActive,
+                        email: userData.email,
+                        openingLeaveBalance: userData.openingLeaveBalance || 20,
+                        secondaryRole: userData.secondaryRole || '',
+                        period: userData.period || ''
+                    };
+                    updateActiveAgentsList();
+                }
 
-                await fetchAllUsersData();
                 await fetchAttendanceData();
                 setLoggedInState(true);
                 showPage('homePage');
@@ -338,7 +332,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function initializeEventListeners() {
-    // Login/Logout
     window.DOM.loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
@@ -353,7 +346,6 @@ function initializeEventListeners() {
         await auth.signOut();
     });
 
-    // Navigation
     window.DOM.navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -367,8 +359,7 @@ function initializeEventListeners() {
         });
     });
 
-    // Leave Tracker event listeners
-    // These should also be in `leave_tracker.js` in a function like `initializeLeaveTracker`
+    // Leave Tracker event listeners (initialization moved here)
     window.DOM.prevMonthLeaveBtn.addEventListener('click', () => {
         currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() - 1);
         fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
