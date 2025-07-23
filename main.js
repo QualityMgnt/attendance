@@ -17,6 +17,7 @@ export const auth = firebase.auth();
 export const db = firebase.firestore();
 
 // --- Global Variables / Caches ---
+// EXPORT these global variables so other modules can access them
 export let loggedInUser = null;
 export let loggedInUserRole = 'Agent';
 export let usersData = {};
@@ -30,7 +31,7 @@ export const todayGlobal = new Date();
 export const formatDate = (date) => date.toISOString().split('T')[0];
 
 // --- Import functions from other modules ---
-import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus, renderLeavePlannerTable } from './leave_tracker.js';
+import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus } from './leave_tracker.js';
 import { initializeShiftSchedule, renderShiftScheduleTable, updateShiftScheduleDashboard } from './shift_schedule.js';
 
 // --- Core Helper Functions ---
@@ -366,7 +367,14 @@ function initializeEventListeners() {
         });
     });
 
-    // Leave Tracker event listeners (move to leave_tracker.js if not already there)
-    // window.DOM.prevMonthLeaveBtn.addEventListener('click', () => { ... });
-    // window.DOM.nextMonthLeaveBtn.addEventListener('click', () => { ... });
+    // Leave Tracker event listeners
+    // These should also be in `leave_tracker.js` in a function like `initializeLeaveTracker`
+    window.DOM.prevMonthLeaveBtn.addEventListener('click', () => {
+        currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() - 1);
+        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+    });
+    window.DOM.nextMonthLeaveBtn.addEventListener('click', () => {
+        currentLeaveTrackerDate.setMonth(currentLeaveTrackerDate.getMonth() + 1);
+        fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
+    });
 }
