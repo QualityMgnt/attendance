@@ -17,7 +17,6 @@ export const auth = firebase.auth();
 export const db = firebase.firestore();
 
 // --- Global Variables / Caches ---
-// EXPORT these global variables so other modules can access them
 export let loggedInUser = null;
 export let loggedInUserRole = 'Agent';
 export let usersData = {};
@@ -31,14 +30,10 @@ export const todayGlobal = new Date();
 export const formatDate = (date) => date.toISOString().split('T')[0];
 
 // --- Import functions from other modules ---
-// This is correct as is, assuming the functions exist in those files.
-import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus } from './leave_tracker.js';
+import { initializeLeaveTracker, fetchLeaveData, updateLeaveStatus, renderLeavePlannerTable } from './leave_tracker.js';
 import { initializeShiftSchedule, renderShiftScheduleTable, updateShiftScheduleDashboard } from './shift_schedule.js';
 
-// ... (Keep the rest of the functions from your previous main.js) ...
-
-// --- Core Helper Functions (moved from index.html) ---
-// EXPORT these functions so other modules can call them
+// --- Core Helper Functions ---
 export function updateActiveAgentsList() {
     const sampleSecondaryRoles = ['Inbound / Email', 'Social Media', 'LiveChat', 'Sales', 'Onboarding', 'Level 1 Escalations'];
     const samplePeriods = ['July - December', 'Jan - June', 'Annual'];
@@ -100,75 +95,265 @@ export async function fetchAttendanceData() {
     }
 }
 
-// ... other core functions that need to be globally accessible ...
-// (e.g., setLoggedInState, showPage, updateHomeStatistics, etc.)
-// Make sure to `export` any functions needed by other modules.
+export function updateDashboardData() {
+    // This is a placeholder function that would be used by the dashboard page.
+    // It's exported so other modules (like leave_tracker.js if needed) can call it.
+    // The actual implementation should be here.
+    console.log("Updating dashboard data...");
+}
 
-// --- UI State Management (moved from index.html) ---
+export function setLoggedInState(user) {
+    if (user) {
+        loggedInUser = user.email;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
+        // Your logic to set loggedInUserName and loggedInUserRole
+    } else {
+        loggedInUser = null;
+        document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'none';
+    }
+}
+
 export function showPage(pageId) {
     document.querySelectorAll('.content-module').forEach(page => {
         page.classList.remove('active');
     });
     document.getElementById(pageId).classList.add('active');
-    DOM.navLinks.forEach(link => {
+    window.DOM.navLinks.forEach(link => {
         if (link.dataset.page === pageId.replace('Page', '')) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
         }
     });
+
     switch (pageId) {
         case 'homePage':
-            // ...
+            updateHomeStatistics();
             break;
         case 'attendancePage':
-            // ...
+            generateAttendanceOverviewTable();
+            window.DOM.attendanceDateInput.value = '';
+            window.DOM.openAttendanceCalendarBtn.disabled = false;
+            selectedMarkingDate = null;
             break;
         case 'leaveTrackerPage':
-            // Call the imported function from leave_tracker.js
             fetchLeaveData(currentLeaveTrackerDate.getFullYear(), currentLeaveTrackerDate.getMonth());
             break;
         case 'shiftSchedulePage':
-            // Call the imported function from shift_schedule.js
             renderShiftScheduleTable();
             updateShiftScheduleDashboard();
             break;
-        // ... other cases
+        case 'individualSummaryPage':
+            populateIndividualSummarySelect();
+            break;
+        case 'dashboardPage':
+            updateDashboardData();
+            break;
+        case 'reportsPage':
+            // ... reports logic ...
+            break;
+        case 'adminPage':
+            renderStaffListTable();
+            break;
     }
 }
 
-// ... other core functions
-// (e.g., updateHomeStatistics, populateEmployeeSelect, updateDashboardData, etc.)
+// ... other core functions that need to be globally accessible
+export function updateHomeStatistics() {
+    // ... function logic ...
+}
+
+export function populateIndividualSummarySelect() {
+    // ... function logic ...
+}
+
+export function renderStaffListTable() {
+    // ... function logic ...
+}
+
+export function generateAttendanceOverviewTable() {
+    // ... function logic ...
+}
 
 // --- DOMContentLoaded and Initial Setup ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Assign DOM elements to the DOM object
-    // You'll need to define the `DOM` object here or import it
     window.DOM = {
+        // Login Page
         loginPage: document.getElementById('loginPage'),
-        // ... other DOM elements
+        loginForm: document.getElementById('loginForm'),
+        loginEmail: document.getElementById('loginEmail'),
+        loginPassword: document.getElementById('loginPassword'),
+        loginError: document.getElementById('loginError'),
+
+        // App Shell
+        appContainer: document.getElementById('appContainer'),
+        loggedInUserName: document.getElementById('loggedInUserName'),
+        loggedInUserRole: document.getElementById('loggedInUserRole'),
+        logoutBtn: document.getElementById('logoutBtn'),
         navLinks: document.querySelectorAll('.main-nav a'),
+        adminNavLink: document.getElementById('adminNavLink'),
+
+        // Home Page
+        homePage: document.getElementById('homePage'),
+        statTotalPresent: document.getElementById('statTotalPresent'),
+        statTotalStaff: document.getElementById('statTotalStaff'),
+        statAgentsOnLeaveWeek: document.getElementById('statAgentsOnLeaveWeek'),
+        statAgentsOnSickOffWeek: document.getElementById('statAgentsOnSickOffWeek'),
+        staffOnLeaveNames: document.getElementById('staffOnLeaveNames'),
+        agentsOnSickOffNames: document.getElementById('agentsOnSickOffNames'),
+
+        // Attendance Page
+        attendancePage: document.getElementById('attendancePage'),
+        openAttendanceCalendarBtn: document.getElementById('openAttendanceCalendarBtn'),
+        attendanceDateInput: document.getElementById('attendanceDateInput'),
+        attendanceMarkingMessage: document.getElementById('attendanceMarkingMessage'),
+        deleteAttendanceDataBtn: document.getElementById('deleteAttendanceDataBtn'),
+        exportAttendanceDataBtn: document.getElementById('exportAttendanceDataBtn'),
+        attendanceOverviewTableContainer: document.getElementById('attendanceOverviewTableContainer'),
+
+        // Leave Tracker Page
+        leaveTrackerPage: document.getElementById('leaveTrackerPage'),
+        prevMonthLeaveBtn: document.getElementById('prevMonthLeaveBtn'),
+        nextMonthLeaveBtn: document.getElementById('nextMonthLeaveBtn'),
+        currentLeaveMonthYear: document.getElementById('currentLeaveMonthYear'),
+        leaveTrackerTableContainer: document.getElementById('leaveTrackerTableContainer'),
+
+        // Shift Schedule Page
+        shiftSchedulePage: document.getElementById('shiftSchedulePage'),
+        exportSchedulePdfBtn: document.getElementById('exportSchedulePdfBtn'),
+        shiftScheduleTableHead: document.getElementById('shiftScheduleTableHead'),
+        shiftScheduleTableBody: document.getElementById('shiftScheduleTableBody'),
+        staticRosterTotalStaff: document.getElementById('staticRosterTotalStaff'),
+        staticRosterTotalShifts: document.getElementById('staticRosterTotalShifts'),
+
+        // Individual Summary Page
+        individualSummaryPage: document.getElementById('individualSummaryPage'),
+        individualSelectSummary: document.getElementById('individualSelectSummary'),
+        summaryWFO: document.getElementById('summaryWFO'),
+        summaryWFH: document.getElementById('summaryWFH'),
+        summaryLeave: document.getElementById('summaryLeave'),
+        summarySickOff: document.getElementById('summarySickOff'),
+        summarySignedOff: document.getElementById('summarySignedOff'),
+        summaryDayOff: document.getElementById('summaryDayOff'),
+        summaryUnpaidLeave: document.getElementById('summaryUnpaidLeave'),
+        summaryNCNS: document.getElementById('summaryNCNS'),
+        summaryCompassionateLeave: document.getElementById('summaryCompassionateLeave'),
+        monthlyWFHWFOChart: document.getElementById('monthlyWFHWFOChart'),
+
+        // Dashboard Page
+        dashboardPage: document.getElementById('dashboardPage'),
+        dashboardStartDate: document.getElementById('dashboardStartDate'),
+        employeeSelect: document.getElementById('employeeSelect'),
+        dashboardTotalEmployees: document.getElementById('dashboardTotalEmployees'),
+        dashboardAbsenceDays: document.getElementById('dashboardAbsenceDays'),
+        dashboardUnapprovedLeave: document.getElementById('dashboardUnapprovedLeave'),
+        attendanceStatsChart: document.getElementById('attendanceStatsChart'),
+        overallAttendanceGaugeFill: document.getElementById('overallAttendanceGaugeFill'),
+        overallAttendanceGaugeLabel: document.getElementById('overallAttendanceGaugeLabel'),
+        leaveTakenSick: document.getElementById('leaveTakenSick'),
+        leaveTakenCasual: document.getElementById('leaveTakenCasual'),
+        leaveTakenAnnual: document.getElementById('leaveTakenAnnual'),
+        leaveTakenUnpaid: document.getElementById('leaveTakenUnpaid'),
+        workingLocationDonutChart: document.getElementById('workingLocationDonutChart'),
+        workingLocationDonutLabel: document.getElementById('workingLocationDonutLabel'),
+        topEmployeesChart: document.getElementById('topEmployeesChart'),
+
+        // Reports Page
+        reportsPage: document.getElementById('reportsPage'),
+        reportType: document.getElementById('reportType'),
+        startDate: document.getElementById('startDate'),
+        endDate: document.getElementById('endDate'),
+        generateReportBtn: document.getElementById('generateReportBtn'),
+        exportReportCsvBtn: document.getElementById('exportReportCsvBtn'),
+        reportsTableBody: document.getElementById('reportsTableBody'),
+
+        // Admin Page
+        adminPage: document.getElementById('adminPage'),
+        addMemberForm: document.getElementById('addMemberForm'),
+        fullName: document.getElementById('fullName'),
+        newEmail: document.getElementById('newEmail'),
+        newPassword: document.getElementById('newPassword'),
+        memberRole: document.getElementById('memberRole'),
+        addMemberMessage: document.getElementById('addMemberMessage'),
+        staffListTableBody: document.getElementById('staffListTableBody'),
+
+        // Modals
+        attendanceMarkingModal: document.getElementById('attendanceMarkingModal'),
+        closeAttendanceModal: document.getElementById('closeAttendanceModal'),
+        modalDateDisplay: document.getElementById('modalDateDisplay'),
+        modalAttendanceTableBody: document.getElementById('modalAttendanceTableBody'),
+        saveAttendanceBtn: document.getElementById('saveAttendanceBtn'),
+        cancelAttendanceBtn: document.getElementById('cancelAttendanceBtn'),
+        modalErrorMessage: document.getElementById('modalErrorMessage'),
+
+        calendarModal: document.getElementById('calendarModal'),
+        closeCalendarModal: document.getElementById('closeCalendarModal'),
+        prevMonthBtn: document.getElementById('prevMonthBtn'),
+        nextMonthBtn: document.getElementById('nextMonthBtn'),
+        currentMonthYear: document.getElementById('currentMonthYear'),
+        calendarDaysGrid: document.getElementById('calendarDaysGrid'),
+        selectDateFromCalendarBtn: document.getElementById('selectDateFromCalendarBtn'),
+        cancelCalendarSelection: document.getElementById('cancelCalendarSelection')
     };
 
     initializeEventListeners();
 
     // Firebase Auth State Listener
     auth.onAuthStateChanged(async (user) => {
-        // ... same logic as before ...
+        if (user) {
+            console.log("User is logged in:", user.email);
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                loggedInUser = userData.email;
+                loggedInUserRole = userData.role;
+                window.DOM.loggedInUserName.textContent = userData.fullName;
+                window.DOM.loggedInUserRole.textContent = userData.role;
+
+                if (userData.role === 'Admin' || userData.role === 'Team Leader') {
+                    window.DOM.adminNavLink.style.display = 'list-item';
+                } else {
+                    window.DOM.adminNavLink.style.display = 'none';
+                }
+
+                await fetchAllUsersData();
+                await fetchAttendanceData();
+                setLoggedInState(true);
+                showPage('homePage');
+            } else {
+                console.error("User document not found for:", user.uid);
+                auth.signOut();
+            }
+        } else {
+            console.log("No user is logged in.");
+            setLoggedInState(false);
+            window.DOM.loginError.textContent = '';
+            window.DOM.loginForm.reset();
+        }
     });
 });
 
 function initializeEventListeners() {
     // Login/Logout
-    DOM.loginForm.addEventListener('submit', async (e) => {
-        // ...
+    window.DOM.loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await auth.signInWithEmailAndPassword(window.DOM.loginEmail.value, window.DOM.loginPassword.value);
+            window.DOM.loginError.textContent = '';
+        } catch (error) {
+            console.error("Login failed:", error.code, error.message);
+            window.DOM.loginError.textContent = 'Invalid email or password.';
+        }
     });
-    DOM.logoutBtn.addEventListener('click', async () => {
-        // ...
+    window.DOM.logoutBtn.addEventListener('click', async () => {
+        await auth.signOut();
     });
 
     // Navigation
-    DOM.navLinks.forEach(link => {
+    window.DOM.navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             if (loggedInUser) {
@@ -181,5 +366,7 @@ function initializeEventListeners() {
         });
     });
 
-    // ... other event listeners from index.html that are not specific to leave or shifts ...
+    // Leave Tracker event listeners (move to leave_tracker.js if not already there)
+    // window.DOM.prevMonthLeaveBtn.addEventListener('click', () => { ... });
+    // window.DOM.nextMonthLeaveBtn.addEventListener('click', () => { ... });
 }
