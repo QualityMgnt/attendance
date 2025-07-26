@@ -29,6 +29,9 @@ const predefinedRoles = [
 // Global variable for the current month being viewed in the schedule
 let currentScheduleMonth = new Date();
 
+// Cache for monthly schedule data fetched from Firestore
+let monthlySchedulesCache = {};
+
 /**
  * Initializes the shift schedule module.
  * Sets up event listeners and renders the initial table.
@@ -36,12 +39,15 @@ let currentScheduleMonth = new Date();
 export function initializeShiftSchedule() {
     // Ensure DOM elements are available before adding listeners
     if (window.DOM.exportSchedulePdfBtn) {
+        window.DOM.exportSchedulePdfBtn.removeEventListener('click', exportScheduleToPdf); // Prevent duplicate listeners
         window.DOM.exportSchedulePdfBtn.addEventListener('click', exportScheduleToPdf);
     }
     if (window.DOM.prevMonthScheduleBtn) {
+        window.DOM.prevMonthScheduleBtn.removeEventListener('click', () => changeScheduleMonth(-1)); // Prevent duplicate listeners
         window.DOM.prevMonthScheduleBtn.addEventListener('click', () => changeScheduleMonth(-1));
     }
     if (window.DOM.nextMonthScheduleBtn) {
+        window.DOM.nextMonthScheduleBtn.removeEventListener('click', () => changeScheduleMonth(1)); // Prevent duplicate listeners
         window.DOM.nextMonthScheduleBtn.addEventListener('click', () => changeScheduleMonth(1));
     }
 
@@ -58,9 +64,8 @@ export function initializeShiftSchedule() {
 async function changeScheduleMonth(direction) {
     currentScheduleMonth.setMonth(currentScheduleMonth.getMonth() + direction);
     updateCurrentScheduleMonthDisplay();
-    await fetchMonthlyScheduleData(currentScheduleMonth); // Fetch new month's data
-    renderShiftScheduleTable(); // Re-render table with new data
-    renderSummaryTable(); // Re-render summary table
+    // No need to explicitly fetch data here, renderShiftScheduleTable will do it
+    renderShiftScheduleTable(); // Re-render table with new data and implicitly fetch
 }
 
 /**
@@ -72,8 +77,6 @@ function updateCurrentScheduleMonthDisplay() {
     }
 }
 
-// Cache for monthly schedule data fetched from Firestore
-let monthlySchedulesCache = {};
 
 /**
  * Fetches the schedule data for a specific month from Firestore.
@@ -92,7 +95,8 @@ async function fetchMonthlyScheduleData(monthDate) {
 
     try {
         // Assuming appId is available globally or passed from main.js
-        const appId = db.app.options.projectId; // Get projectId as appId from Firebase app instance
+        // Access projectId from the initialized Firebase app instance
+        const appId = db.app.options.projectId;
         const scheduleDocRef = db.collection(`artifacts/${appId}/public/data/monthlySchedules`).doc(monthYearKey);
         const docSnap = await scheduleDocRef.get();
 
@@ -152,16 +156,18 @@ async function saveAgentScheduleToFirestore(agentName, field, value) {
 
     // Persist to Firestore
     try {
+        // Use update instead of set with merge if you only want to update existing fields
+        // For new agents/months, set with merge:true is fine.
         await scheduleDocRef.set({
             [agentName]: updatedAgentSchedule
-        }, { merge: true }); // Merge to update only the agent's data
+        }, { merge: true }); // Merge to update only the agent's data within the document
         console.log(`Updated ${agentName}'s ${field} for ${monthYearKey} in Firestore.`);
         // Re-render the table and summary to reflect changes
-        renderShiftScheduleTable();
-        renderSummaryTable();
+        renderShiftScheduleTable(); // This will re-fetch data and re-render
     } catch (error) {
         console.error(`Error updating ${agentName}'s ${field} in Firestore:`, error);
         // Optionally, revert local changes or show an error message to the user
+        alert(`Failed to save schedule for ${agentName}. Please try again.`);
     }
 }
 
@@ -189,9 +195,10 @@ export async function renderShiftScheduleTable() {
     }
 
     activeAgents.forEach((agentName, index) => {
-        const userProfile = usersData[agentName]; // Access userProfile directly from usersData
+        // Correctly get userProfile from usersData, which is keyed by fullName
+        const userProfile = usersData[agentName];
         if (!userProfile) {
-            console.warn(`User profile not found for agent: ${agentName}`);
+            console.warn(`User profile not found in usersData for agent: ${agentName}. Skipping row.`);
             return;
         }
 
@@ -202,7 +209,7 @@ export async function renderShiftScheduleTable() {
 
         // --- Role Select ---
         const roleSelect = document.createElement('select');
-        roleSelect.classList.add('shift-role-select', 'p-2', 'border', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500');
+        roleSelect.classList.add('shift-role-select', 'p-2', 'border', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500', 'w-full');
         predefinedRoles.forEach(role => {
             const option = document.createElement('option');
             option.value = role;
@@ -217,7 +224,7 @@ export async function renderShiftScheduleTable() {
 
         // --- Secondary Role Select ---
         const secondaryRoleSelect = document.createElement('select');
-        secondaryRoleSelect.classList.add('shift-secondary-role-select', 'p-2', 'border', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500');
+        secondaryRoleSelect.classList.add('shift-secondary-role-select', 'p-2', 'border', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500', 'w-full');
         predefinedRoles.forEach(role => {
             const option = document.createElement('option');
             option.value = role;
@@ -232,7 +239,7 @@ export async function renderShiftScheduleTable() {
 
         // --- Shift Time Select ---
         const shiftSelect = document.createElement('select');
-        shiftSelect.classList.add('shift-time-select', 'p-2', 'border', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500');
+        shiftSelect.classList.add('shift-time-select', 'p-2', 'border', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500', 'w-full');
         predefinedShifts.forEach(shift => {
             const option = document.createElement('option');
             option.value = shift.shift;
@@ -267,23 +274,35 @@ export async function renderShiftScheduleTable() {
         // Trigger initial update for break and lunch cells based on default/saved shift
         updateBreakLunchCells(shiftSelect.value);
 
-        // Construct the row HTML
-        newRow.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${userProfile.fullName}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td> <!-- Role dropdown will go here -->
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td> <!-- Secondary Role dropdown will go here -->
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td> <!-- Shift dropdown will go here -->
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td> <!-- Break will go here -->
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td> <!-- Lunch will go here -->
-        `;
+        // Create the individual cells for the row
+        const tdNo = document.createElement('td');
+        tdNo.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'font-medium', 'text-gray-900');
+        tdNo.textContent = index + 1;
 
-        // Append dropdowns and break/lunch cells to their respective <td> elements
-        newRow.children[2].appendChild(roleSelect);
-        newRow.children[3].appendChild(secondaryRoleSelect);
-        newRow.children[4].appendChild(shiftSelect);
-        newRow.children[5].appendChild(breakCell); // Append the actual td element
-        newRow.children[6].appendChild(lunchCell); // Append the actual td element
+        const tdName = document.createElement('td');
+        tdName.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+        tdName.textContent = userProfile.fullName;
+
+        const tdRole = document.createElement('td');
+        tdRole.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+        tdRole.appendChild(roleSelect);
+
+        const tdSecondaryRole = document.createElement('td');
+        tdSecondaryRole.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+        tdSecondaryRole.appendChild(secondaryRoleSelect);
+
+        const tdShiftTime = document.createElement('td');
+        tdShiftTime.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+        tdShiftTime.appendChild(shiftSelect);
+
+        // Append all created cells to the new row
+        newRow.appendChild(tdNo);
+        newRow.appendChild(tdName);
+        newRow.appendChild(tdRole);
+        newRow.appendChild(tdSecondaryRole);
+        newRow.appendChild(tdShiftTime);
+        newRow.appendChild(breakCell); // These are already td elements
+        newRow.appendChild(lunchCell); // These are already td elements
 
         tableBody.appendChild(newRow);
     });
@@ -417,9 +436,11 @@ export function updateShiftScheduleDashboard() {
  * Exports the shift schedule table and summary table to a PDF.
  */
 async function exportScheduleToPdf() {
-    const scheduleContent = document.getElementById('shiftSchedulePage'); // Capture the entire page or a specific section
+    // Target the specific container that holds the schedule content for PDF export
+    const scheduleContent = document.getElementById('shiftSchedulePageContent'); // New ID for a specific div to capture
     if (!scheduleContent) {
-        alert("Error: Schedule content not found for PDF export.");
+        alert("Error: Schedule content container (ID 'shiftSchedulePageContent') not found for PDF export. Please ensure your HTML has this element.");
+        console.error("PDF Export Error: Element with ID 'shiftSchedulePageContent' not found.");
         return;
     }
 
@@ -429,7 +450,14 @@ async function exportScheduleToPdf() {
     exportButton.disabled = true;
 
     try {
-        const canvas = await html2canvas(scheduleContent, { scale: 2 }); // Scale for better quality
+        // Ensure html2canvas and jspdf are loaded globally
+        if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined') {
+            alert("PDF export libraries (html2canvas, jspdf) are not loaded. Please check your HTML script imports.");
+            console.error("PDF Export Error: html2canvas or jsPDF is undefined. Check script tags in HTML.");
+            return;
+        }
+
+        const canvas = await html2canvas(scheduleContent, { scale: 2, useCORS: true }); // Scale for better quality, useCORS for images
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, millimeters, A4 size
 
@@ -453,7 +481,7 @@ async function exportScheduleToPdf() {
         alert('PDF generated successfully!');
     } catch (error) {
         console.error("Error generating PDF:", error);
-        alert("Failed to generate PDF. Please check the console for details.");
+        alert("Failed to generate PDF. Please check the console for details. Common issues: large content, external images not loaded with CORS enabled.");
     } finally {
         exportButton.textContent = originalButtonText;
         exportButton.disabled = false;
