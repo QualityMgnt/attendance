@@ -1,7 +1,6 @@
 // shift_schedule.js
 
 // Import necessary variables from main.js
-// Ensure main.js exports db, activeAgents, usersData, and showPage
 import { db, activeAgents, usersData, showPage } from './main.js';
 
 // Predefined shift times and their corresponding break/lunch values
@@ -64,8 +63,8 @@ export function initializeShiftSchedule() {
 async function changeScheduleMonth(direction) {
     currentScheduleMonth.setMonth(currentScheduleMonth.getMonth() + direction);
     updateCurrentScheduleMonthDisplay();
-    // No need to explicitly fetch data here, renderShiftScheduleTable will do it
-    renderShiftScheduleTable(); // Re-render table with new data and implicitly fetch
+    // Re-render table with new data and implicitly fetch
+    renderShiftScheduleTable();
 }
 
 /**
@@ -94,7 +93,6 @@ async function fetchMonthlyScheduleData(monthDate) {
     }
 
     try {
-        // Assuming appId is available globally or passed from main.js
         // Access projectId from the initialized Firebase app instance
         const appId = db.app.options.projectId;
         const scheduleDocRef = db.collection(`artifacts/${appId}/public/data/monthlySchedules`).doc(monthYearKey);
@@ -118,7 +116,7 @@ async function fetchMonthlyScheduleData(monthDate) {
 /**
  * Saves an agent's schedule details to Firestore for the current month.
  * @param {string} agentName - The full name of the agent.
- * @param {string} field - The field to update ('shift', 'role', 'secondaryRole').
+ * @param {string} field - The field to update ('shift', 'role', 'secondaryRole', 'lunch').
  * @param {string} value - The new value for the field.
  */
 async function saveAgentScheduleToFirestore(agentName, field, value) {
@@ -137,12 +135,18 @@ async function saveAgentScheduleToFirestore(agentName, field, value) {
     let updatedAgentSchedule = { ...agentSchedule, [field]: value };
 
     // If it's a shift change, also update break and lunch based on predefined shifts
+    // ONLY if the field is 'shift'. If it's 'lunch', we take the direct value.
     if (field === 'shift') {
         const shiftDetails = predefinedShifts.find(s => s.shift === value);
         if (shiftDetails) {
             updatedAgentSchedule.break = shiftDetails.break;
-            updatedAgentSchedule.lunch = shiftDetails.lunch;
+            // Only update lunch if it was derived from the shift, not if it was manually edited
+            if (!agentSchedule.manualLunchEdit) { // Assuming a flag for manual edit
+                 updatedAgentSchedule.lunch = shiftDetails.lunch;
+            }
         }
+    } else if (field === 'lunch') {
+        updatedAgentSchedule.manualLunchEdit = true; // Mark lunch as manually edited
     }
 
     // Update the local cache immediately for responsiveness
@@ -156,8 +160,6 @@ async function saveAgentScheduleToFirestore(agentName, field, value) {
 
     // Persist to Firestore
     try {
-        // Use update instead of set with merge if you only want to update existing fields
-        // For new agents/months, set with merge:true is fine.
         await scheduleDocRef.set({
             [agentName]: updatedAgentSchedule
         }, { merge: true }); // Merge to update only the agent's data within the document
@@ -166,7 +168,6 @@ async function saveAgentScheduleToFirestore(agentName, field, value) {
         renderShiftScheduleTable(); // This will re-fetch data and re-render
     } catch (error) {
         console.error(`Error updating ${agentName}'s ${field} in Firestore:`, error);
-        // Optionally, revert local changes or show an error message to the user
         alert(`Failed to save schedule for ${agentName}. Please try again.`);
     }
 }
@@ -179,6 +180,11 @@ export async function renderShiftScheduleTable() {
     const tableBody = window.DOM.shiftScheduleTableBody;
     const tableHead = window.DOM.shiftScheduleTableHead;
     const currentMonthSchedule = await fetchMonthlyScheduleData(currentScheduleMonth); // Fetch current month's data
+
+    // Fetch previous month's schedule for consecutive shift highlighting
+    const prevMonthDate = new Date(currentScheduleMonth);
+    prevMonthDate.setMonth(currentScheduleMonth.getMonth() - 1);
+    const prevMonthSchedule = await fetchMonthlyScheduleData(prevMonthDate);
 
     if (!tableBody || !tableHead) return;
 
@@ -195,17 +201,33 @@ export async function renderShiftScheduleTable() {
     }
 
     activeAgents.forEach((agentName, index) => {
-        // Correctly get userProfile from usersData, which is keyed by fullName
-        const userProfile = usersData[agentName];
+        const userProfile = usersData[agentName]; // Get userProfile from usersData (keyed by fullName)
         if (!userProfile) {
             console.warn(`User profile not found in usersData for agent: ${agentName}. Skipping row.`);
             return;
         }
 
         const agentCurrentSchedule = currentMonthSchedule[agentName] || {};
+        const agentPrevSchedule = prevMonthSchedule[agentName] || {};
 
         const newRow = document.createElement('tr');
         newRow.dataset.agentName = agentName; // Store agent name for easy lookup
+
+        // Determine initial values for dropdowns
+        const initialShift = agentCurrentSchedule.shift || predefinedShifts[0].shift;
+        const initialRole = agentCurrentSchedule.role || userProfile.role || predefinedRoles[0];
+        const initialSecondaryRole = agentCurrentSchedule.secondaryRole || userProfile.secondaryRole || predefinedRoles[predefinedRoles.length - 1]; // Default to "N/A"
+
+        // Get break and lunch based on the selected shift (or manually entered lunch)
+        const selectedShiftDetails = predefinedShifts.find(s => s.shift === initialShift);
+        const displayBreak = selectedShiftDetails ? selectedShiftDetails.break : '-';
+        const displayLunch = agentCurrentSchedule.lunch || (selectedShiftDetails ? selectedShiftDetails.lunch : '-'); // Use saved lunch, else derived
+
+        // Check for consecutive shifts
+        let isConsecutiveShift = false;
+        if (agentCurrentSchedule.shift && agentPrevSchedule.shift && agentCurrentSchedule.shift === agentPrevSchedule.shift) {
+            isConsecutiveShift = true;
+        }
 
         // --- Role Select ---
         const roleSelect = document.createElement('select');
@@ -216,8 +238,7 @@ export async function renderShiftScheduleTable() {
             option.textContent = role;
             roleSelect.appendChild(option);
         });
-        // Set initial value from current month's schedule or user profile default
-        roleSelect.value = agentCurrentSchedule.role || userProfile.role || predefinedRoles[0];
+        roleSelect.value = initialRole;
         roleSelect.addEventListener('change', (e) => {
             saveAgentScheduleToFirestore(agentName, 'role', e.target.value);
         });
@@ -231,8 +252,7 @@ export async function renderShiftScheduleTable() {
             option.textContent = role;
             secondaryRoleSelect.appendChild(option);
         });
-        // Set initial value from current month's schedule or user profile default
-        secondaryRoleSelect.value = agentCurrentSchedule.secondaryRole || userProfile.secondaryRole || predefinedRoles[predefinedRoles.length - 1]; // Default to "N/A"
+        secondaryRoleSelect.value = initialSecondaryRole;
         secondaryRoleSelect.addEventListener('change', (e) => {
             saveAgentScheduleToFirestore(agentName, 'secondaryRole', e.target.value);
         });
@@ -246,33 +266,57 @@ export async function renderShiftScheduleTable() {
             option.textContent = shift.shift;
             shiftSelect.appendChild(option);
         });
-        // Set initial value from current month's schedule
-        shiftSelect.value = agentCurrentSchedule.shift || predefinedShifts[0].shift;
-
-        // Create cells for break and lunch
-        const breakCell = document.createElement('td');
-        const lunchCell = document.createElement('td');
-        breakCell.classList.add('break-cell', 'px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
-        lunchCell.classList.add('lunch-cell', 'px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
-
-        // Function to update break and lunch cells based on selected shift
-        const updateBreakLunchCells = (selectedShiftValue) => {
-            const shiftDetails = predefinedShifts.find(s => s.shift === selectedShiftValue);
-            if (shiftDetails) {
-                breakCell.textContent = shiftDetails.break;
-                lunchCell.textContent = shiftDetails.lunch;
-            }
-        };
+        shiftSelect.value = initialShift;
 
         // Add event listener to the shift dropdown
         shiftSelect.addEventListener('change', (e) => {
             const selectedShift = e.target.value;
-            updateBreakLunchCells(selectedShift); // Update display
-            saveAgentScheduleToFirestore(agentName, 'shift', selectedShift); // Persist to Firestore
+            // When shift changes, reset manualLunchEdit flag and update break/lunch from predefined
+            const shiftDetails = predefinedShifts.find(s => s.shift === selectedShift);
+            const updatedBreak = shiftDetails ? shiftDetails.break : '-';
+            const updatedLunch = shiftDetails ? shiftDetails.lunch : '-';
+
+            // Update local cache for immediate display before saving
+            const currentMonthScheduleCopy = { ...monthlySchedulesCache[currentScheduleMonth.getFullYear() + '-' + (currentScheduleMonth.getMonth() + 1).toString().padStart(2, '0')] };
+            currentMonthScheduleCopy[agentName] = {
+                ...currentMonthScheduleCopy[agentName],
+                shift: selectedShift,
+                break: updatedBreak,
+                lunch: updatedLunch,
+                manualLunchEdit: false // Reset manual edit flag
+            };
+            monthlySchedulesCache[currentScheduleMonth.getFullYear() + '-' + (currentScheduleMonth.getMonth() + 1).toString().padStart(2, '0')] = currentMonthScheduleCopy;
+
+            // Save the shift, break, and (reset) lunch to Firestore
+            saveAgentScheduleToFirestore(agentName, 'shift', selectedShift);
+            saveAgentScheduleToFirestore(agentName, 'break', updatedBreak); // Ensure break is also saved
+            saveAgentScheduleToFirestore(agentName, 'lunch', updatedLunch); // Ensure lunch is also saved if not manually edited
         });
 
-        // Trigger initial update for break and lunch cells based on default/saved shift
-        updateBreakLunchCells(shiftSelect.value);
+
+        // Create cells for break and lunch
+        const breakCell = document.createElement('td');
+        breakCell.classList.add('break-cell', 'px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+        breakCell.textContent = displayBreak;
+
+        const lunchCell = document.createElement('td');
+        lunchCell.classList.add('lunch-cell', 'px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900', 'editable-lunch-cell');
+        lunchCell.setAttribute('contenteditable', 'true'); // Make it editable
+        lunchCell.textContent = displayLunch;
+
+        // Add event listener for editable lunch cell
+        lunchCell.addEventListener('blur', (e) => {
+            // Save the new value when the user blurs out of the cell
+            saveAgentScheduleToFirestore(agentName, 'lunch', e.target.textContent.trim());
+        });
+        // Optional: Listen for 'Enter' key to save and blur
+        lunchCell.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent new line
+                e.target.blur(); // Trigger blur to save
+            }
+        });
+
 
         // Create the individual cells for the row
         const tdNo = document.createElement('td');
@@ -294,6 +338,11 @@ export async function renderShiftScheduleTable() {
         const tdShiftTime = document.createElement('td');
         tdShiftTime.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
         tdShiftTime.appendChild(shiftSelect);
+
+        // Apply consecutive shift highlighting class
+        if (isConsecutiveShift) {
+            tdShiftTime.classList.add('consecutive-shift');
+        }
 
         // Append all created cells to the new row
         newRow.appendChild(tdNo);
@@ -332,6 +381,7 @@ async function renderSummaryTable() {
     predefinedShifts.forEach(shift => {
         shiftCounts[shift.shift] = 0;
         if (shift.break && shift.break !== '-') breakCounts[shift.break] = 0;
+        // Collect all possible lunch times, including those manually entered
         if (shift.lunch && shift.lunch !== '-') lunchCounts[shift.lunch] = 0;
     });
 
@@ -343,7 +393,12 @@ async function renderSummaryTable() {
         if (agentSchedule.break && agentSchedule.break !== '-' && breakCounts.hasOwnProperty(agentSchedule.break)) {
             breakCounts[agentSchedule.break]++;
         }
-        if (agentSchedule.lunch && agentSchedule.lunch !== '-' && lunchCounts.hasOwnProperty(agentSchedule.lunch)) {
+        // Use the actual lunch time from the schedule, which might be custom
+        if (agentSchedule.lunch && agentSchedule.lunch !== '-') {
+            // Ensure the lunch time exists in lunchCounts, add if new
+            if (!lunchCounts.hasOwnProperty(agentSchedule.lunch)) {
+                lunchCounts[agentSchedule.lunch] = 0;
+            }
             lunchCounts[agentSchedule.lunch]++;
         }
     });
@@ -351,6 +406,7 @@ async function renderSummaryTable() {
     // Sort breaks and lunches for consistent display
     const sortedBreaks = Object.keys(breakCounts).sort();
     const sortedLunches = Object.keys(lunchCounts).sort();
+    const sortedShifts = Object.keys(shiftCounts).sort(); // Sort shifts for display
 
     // Create the table HTML
     let tableHtml = `
@@ -359,7 +415,7 @@ async function renderSummaryTable() {
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th rowspan="2" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider align-bottom">Schedule Count</th>
+                    <th rowspan="2" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider align-bottom">Shift Time</th> <!-- Changed header -->
                     <th colspan="2" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Break</th>
                     <th colspan="2" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Lunch</th>
                 </tr>
@@ -373,8 +429,8 @@ async function renderSummaryTable() {
             <tbody class="bg-white divide-y divide-gray-200">
     `;
 
-    // Combine all unique break and lunch times for rows
-    const allUniqueTimes = Array.from(new Set([...sortedBreaks, ...sortedLunches])).sort();
+    // Combine all unique break and lunch times for rows, and also include shift times
+    const allUniqueTimes = Array.from(new Set([...sortedBreaks, ...sortedLunches, ...sortedShifts])).sort();
 
     if (allUniqueTimes.length === 0) {
         tableHtml += `
@@ -386,14 +442,10 @@ async function renderSummaryTable() {
         allUniqueTimes.forEach((time, index) => {
             tableHtml += `
                 <tr class="hover:bg-gray-50">
-                    ${index === 0 ? `<td rowspan="${allUniqueTimes.length}" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 align-top">
-                        <div class="flex items-center justify-center h-full">
-                            <span class="transform -rotate-90 origin-center text-lg font-bold">Schedule Count</span>
-                        </div>
-                    </td>` : ''}
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${time}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${time}</td> <!-- Shift Time in first column -->
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${breakCounts[time] || 0}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${time}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${lunchCounts[time] || 0}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${breakCounts[time] || 0}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${lunchCounts[time] || 0}</td>
                 </tr>
             `;
@@ -406,7 +458,7 @@ async function renderSummaryTable() {
 
     tableHtml += `
             <tr class="bg-gray-100 font-bold">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Total</td>
                 <td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">Total Breaks: ${totalBreaks}</td>
                 <td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">Total Lunches: ${totalLunches}</td>
             </tr>
