@@ -7,14 +7,14 @@ import {
     loggedInUserRole,
     todayGlobal,
     showPage,
-    fetchAttendanceData,
-    fetchAllUsersData,
-    updateHomeStatistics,
-    updateDashboardData,
+    fetchAttendanceData, // Not used directly in this version, but kept for consistency
+    fetchAllUsersData, // Not used directly in this version, but kept for consistency
+    updateHomeStatistics, // Not used directly in this version, but kept for consistency
+    updateDashboardData, // Not used directly in this version, but kept for consistency
     currentLeaveTrackerDate,
-    formatDate,
-    markedDates,
-    attendanceData
+    formatDate, // Not used directly in this version, but kept for consistency
+    markedDates, // Not used directly in this version, but kept for consistency
+    attendanceData // Not used directly in this version, but kept for consistency
 } from './main.js';
 
 // --- Google Sheets Configuration ---
@@ -22,6 +22,22 @@ const GOOGLE_SHEET_ID = '1JeegsczWoerBT4VggHY7Kcb-F13wsdnh_iZfQX0sh5Y'; // Your 
 // IMPORTANT: This is your actual Google API key.
 // Ensure Google Sheets API is enabled in your Google Cloud Console for this key.
 const GOOGLE_API_KEY = 'AIzaSyA7OCKMGchDQPCbwEkAZS-cU-aii_s8oWI'; // <<< YOUR API KEY IS HERE
+
+// Define ATTENDANCE_STATUSES directly in this module for robustness
+// This avoids potential ReferenceError if main.js is not fully loaded/exported yet
+const ATTENDANCE_STATUSES = [
+    { value: '', text: 'Select Status', colorClass: '' },
+    { value: 'WFO', text: 'Work From Office', colorClass: 'status-WFO' },
+    { value: 'WFH', text: 'Work From Home', colorClass: 'status-WFH' },
+    { value: 'SO', text: 'Signed Off', colorClass: 'status-SO' },
+    { value: 'L', text: 'Leave (Annual)', colorClass: 'status-L' },
+    { value: 'DO', text: 'Day Off', colorClass: 'status-DO' },
+    { value: 'UL', text: 'Unpaid Leave', colorClass: 'status-UL' },
+    { value: 'NCNS', text: 'No Call No Show', colorClass: 'status-NCNS' },
+    { value: 'CL', text: 'Compassionate Leave', colorClass: 'status-CL' },
+    { value: 'SOF', text: 'Sick Off', colorClass: 'status-SOF' }
+];
+
 
 // Cache for leave planner data fetched from Google Sheets
 let leavePlannerData = {};
