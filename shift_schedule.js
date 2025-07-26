@@ -360,7 +360,7 @@ export async function renderShiftScheduleTable() {
 }
 
 /**
- * Renders the summary table for shifts, breaks, and lunches.
+ * Renders the summary table for shifts, breaks, and lunches in the new format.
  */
 async function renderSummaryTable() {
     const summaryTableContainer = window.DOM.shiftScheduleSummaryTableContainer;
@@ -377,12 +377,16 @@ async function renderSummaryTable() {
     const breakCounts = {};
     const lunchCounts = {};
 
-    // Initialize counts for all predefined shifts, breaks, and lunches
+    // Initialize counts for all predefined shifts
     predefinedShifts.forEach(shift => {
         shiftCounts[shift.shift] = 0;
-        if (shift.break && shift.break !== '-') breakCounts[shift.break] = 0;
-        // Collect all possible lunch times, including those manually entered
-        if (shift.lunch && shift.lunch !== '-') lunchCounts[shift.lunch] = 0;
+        // Initialize break and lunch counts for each predefined shift's associated break/lunch time
+        if (shift.break && shift.break !== '-') {
+            breakCounts[shift.break] = 0;
+        }
+        if (shift.lunch && shift.lunch !== '-') {
+            lunchCounts[shift.lunch] = 0;
+        }
     });
 
     // Populate counts based on current month's schedule
@@ -403,65 +407,100 @@ async function renderSummaryTable() {
         }
     });
 
-    // Sort breaks and lunches for consistent display
-    const sortedBreaks = Object.keys(breakCounts).sort();
-    const sortedLunches = Object.keys(lunchCounts).sort();
-    const sortedShifts = Object.keys(shiftCounts).sort(); // Sort shifts for display
+    // Sort shifts for consistent column order
+    const sortedPredefinedShifts = predefinedShifts.map(s => s.shift).sort();
 
-    // Create the table HTML
+    // Create the table HTML for the new format
     let tableHtml = `
         <h2 class="text-xl font-semibold text-gray-800 p-4 bg-gray-50 border-b rounded-t-lg">Schedule Summary</h2>
         <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th rowspan="2" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider align-bottom">Shift Time</th> <!-- Changed header -->
-                    <th colspan="2" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Break</th>
-                    <th colspan="2" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Lunch</th>
-                </tr>
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th> <!-- Empty top-left cell -->
+    `;
+
+    // Add Shift Time headers
+    sortedPredefinedShifts.forEach(shiftTime => {
+        tableHtml += `<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">${shiftTime}</th>`;
+    });
+    tableHtml += `
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
     `;
 
-    // Combine all unique break and lunch times for rows, and also include shift times
-    const allUniqueTimes = Array.from(new Set([...sortedBreaks, ...sortedLunches, ...sortedShifts])).sort();
+    // Row: Shift Count
+    tableHtml += `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Shift Count</td>
+    `;
+    sortedPredefinedShifts.forEach(shiftTime => {
+        tableHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${shiftCounts[shiftTime] || 0}</td>`;
+    });
+    tableHtml += `
+                </tr>
+    `;
 
-    if (allUniqueTimes.length === 0) {
-        tableHtml += `
-            <tr>
-                <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">No schedule data available for summary.</td>
-            </tr>
-        `;
-    } else {
-        allUniqueTimes.forEach((time, index) => {
+    // Row: Break (Time) & Break Count
+    // Iterate through predefined shifts to get their break times
+    predefinedShifts.forEach(predefinedShift => {
+        if (predefinedShift.break !== '-') {
             tableHtml += `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${time}</td> <!-- Shift Time in first column -->
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${breakCounts[time] || 0}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${lunchCounts[time] || 0}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${breakCounts[time] || 0}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${lunchCounts[time] || 0}</td>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Break</td>
+            `;
+            sortedPredefinedShifts.forEach(shiftTime => {
+                const shiftDetail = predefinedShifts.find(s => s.shift === shiftTime);
+                tableHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${shiftDetail ? shiftDetail.break : '-'}</td>`;
+            });
+            tableHtml += `
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Break Count</td>
+            `;
+            sortedPredefinedShifts.forEach(shiftTime => {
+                const shiftDetail = predefinedShifts.find(s => s.shift === shiftTime);
+                const breakTime = shiftDetail ? shiftDetail.break : '';
+                tableHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${breakCounts[breakTime] || 0}</td>`;
+            });
+            tableHtml += `
                 </tr>
             `;
-        });
-    }
+        }
+    });
 
-    // Add total row
-    const totalBreaks = Object.values(breakCounts).reduce((sum, count) => sum + count, 0);
-    const totalLunches = Object.values(lunchCounts).reduce((sum, count) => sum + count, 0);
+
+    // Row: Lunch (Time) & Lunch Count
+    // Iterate through predefined shifts to get their lunch times
+    predefinedShifts.forEach(predefinedShift => {
+        if (predefinedShift.lunch !== '-') {
+            tableHtml += `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Lunch</td>
+            `;
+            sortedPredefinedShifts.forEach(shiftTime => {
+                const shiftDetail = predefinedShifts.find(s => s.shift === shiftTime);
+                tableHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${shiftDetail ? shiftDetail.lunch : '-'}</td>`;
+            });
+            tableHtml += `
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Lunch Count</td>
+            `;
+            sortedPredefinedShifts.forEach(shiftTime => {
+                const shiftDetail = predefinedShifts.find(s => s.shift === shiftTime);
+                const lunchTime = shiftDetail ? shiftDetail.lunch : '';
+                tableHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${lunchCounts[lunchTime] || 0}</td>`;
+            });
+            tableHtml += `
+                </tr>
+            `;
+        }
+    });
+
 
     tableHtml += `
-            <tr class="bg-gray-100 font-bold">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Total</td>
-                <td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">Total Breaks: ${totalBreaks}</td>
-                <td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">Total Lunches: ${totalLunches}</td>
-            </tr>
             </tbody>
         </table>
         </div>
