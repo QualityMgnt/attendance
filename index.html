@@ -6,7 +6,20 @@
     <title>AMS - Contact Center Attendance</title>
     <link href="https://fonts.googleapis.com/css2?family=Garamond:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
+    <!-- Tailwind CSS CDN for quick testing. Replace with your compiled CSS if you're using local Tailwind setup. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Firebase SDKs - Using a more recent compat version (e.g., 10.x.x) -->
+    <!-- Ensure these are loaded BEFORE your main.js -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <!-- PDF Export Libraries - MUST BE LOADED BEFORE shift_schedule.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         /* Basic styles for demonstration, ideally these would be in style.css */
         body {
@@ -26,7 +39,7 @@
         }
 
         /* Re-apply Poppins to specific elements where it enhances readability (e.g., buttons, smaller text) */
-        .btn, .main-nav a, .input-group label, .input-group input, .input-group select, .stat-card h3, .user-role, .dashboard-header-card .label, .dashboard-header-card .value, .dashboard-section-title, .dashboard-card-new h3, .gauge-label, .bar-chart-month-labels div, .chart-grid .label, .donut-chart-label, .donut-legend-item, .employee-bar-item, .summary-stat-card h4, .summary-stat-card .count, .monthly-bar-label, .chart-legend {
+        .btn, .main-nav a, .input-group label, .input-group input, .input-group select, .input-group input[type="date"], .input-group input[type="time"], .stat-card h3, .user-role, .dashboard-header-card .label, .dashboard-header-card .value, .dashboard-section-title, .dashboard-card-new h3, .gauge-label, .bar-chart-month-labels div, .chart-grid .label, .donut-chart-label, .donut-legend-item, .employee-bar-item, .summary-stat-card h4, .summary-stat-card .count, .monthly-bar-label, .chart-legend {
             font-family: 'Poppins', sans-serif;
         }
 
@@ -1276,9 +1289,10 @@
         .monthly-bar-chart {
             display: flex;
             align-items: flex-end;
+            flex-grow: 1; /* Allow chart to take available height */
             justify-content: space-around;
             width: 100%;
-            height: 200px;
+            height: 200px; /* Fixed height for chart area */
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
             gap: 10px;
@@ -1376,6 +1390,7 @@
         }
 
         /* Shift Schedule Specific Styles */
+        /* These Tailwind-like classes are applied directly in JS now */
         .shift-schedule-controls { /* Renamed from filters */
             display: flex;
             align-items: flex-end;
@@ -1596,10 +1611,12 @@
                     <div class="stat-card">
                         <h3>Agents on Leave (Week)</h3>
                         <p id="statAgentsOnLeaveWeek" class="stat-value">0</p>
+                        <p id="staffOnLeaveNames" class="text-sm text-gray-500 mt-2"></p>
                     </div>
                     <div class="stat-card">
                         <h3>Agents on Sick Off (Week)</h3>
                         <p id="statAgentsOnSickOffWeek" class="stat-value">0</p>
+                        <p id="agentsOnSickOffNames" class="text-sm text-gray-500 mt-2"></p>
                     </div>
                 </div>
 
@@ -1664,33 +1681,55 @@
                 </div>
             </div>
 
+            <!-- Shift Schedule Page (UPDATED STRUCTURE) -->
             <div id="shiftSchedulePage" class="content-module">
                 <h2>Shift Schedule Overview</h2>
                 <hr>
                 <p>This table displays the static shift schedule as provided in the image. This data is not dynamic or editable within the application.</p>
                 <div class="shift-schedule-controls" style="justify-content: flex-start;">
                     <h3 style="display:inline-block; margin: 0 15px;">Predefined Shift Roster</h3>
-                    <button id="exportSchedulePdfBtn" class="btn btn-secondary" style="margin-left: auto;"><i class="fas fa-file-pdf"></i> Export PDF (Coming Soon)</button>
-                </div>
-
-                <div class="shift-schedule-table-container">
-                    <table class="shift-schedule-table">
-                        <thead id="shiftScheduleTableHead">
-                            </thead>
-                        <tbody id="shiftScheduleTableBody">
-                            </tbody>
-                    </table>
-                </div>
-
-                <h3 style="margin-top: 40px;">Shift Overview Dashboard</h3>
-                <hr>
-                <div class="shift-schedule-dashboard">
-                    <div class="dashboard-card-new" style="grid-column: span 2;">
-                        <h3>Shift Data Insights</h3>
-                        <p>This dashboard is temporarily simplified due to static shift data. It would normally show dynamic calculations like average hours, break distribution, and repetition alerts if shifts were managed persistently.</p>
-                        <p>Total Staff in Roster: <span id="staticRosterTotalStaff"></span></p>
-                        <p>Total Shift Times Defined: <span id="staticRosterTotalShifts"></span></p>
+                    <!-- Month Navigation and Display for Shift Schedule -->
+                    <div class="flex justify-center items-center space-x-4">
+                        <button id="prevMonthScheduleBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 shadow-sm">
+                            &lt; Previous Month
+                        </button>
+                        <span id="currentScheduleMonthYear" class="text-xl font-semibold text-gray-700"></span>
+                        <button id="nextMonthScheduleBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 shadow-sm">
+                            Next Month &gt;
+                        </button>
                     </div>
+                </div>
+
+                <!-- THIS IS THE NEW/UPDATED DIV YOU NEED TO ADD/ENSURE IS CORRECT -->
+                <!-- Content to be captured for PDF -->
+                <div id="shiftSchedulePageContent" class="p-4 bg-white rounded-lg shadow-md">
+                    <!-- Main Shift Schedule Table -->
+                    <div class="overflow-x-auto mb-8 border border-gray-200 rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead id="shiftScheduleTableHead" class="bg-gray-50">
+                                <!-- Headers will be dynamically generated by JS -->
+                            </thead>
+                            <tbody id="shiftScheduleTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Table rows will be dynamically generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Shift Schedule Summary Table -->
+                    <div id="shiftScheduleSummaryTableContainer" class="mt-8 border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <!-- Summary table content will be dynamically generated by JS -->
+                    </div>
+                </div>
+                <!-- END OF NEW/UPDATED DIV -->
+
+                <!-- Export Button - Moved outside shiftSchedulePageContent to avoid being part of PDF capture if not desired -->
+                <div class="mt-8 flex justify-center">
+                    <button
+                        id="exportSchedulePdfBtn"
+                        class="px-6 py-3 bg-red-600 text-white font-semibold rounded-md shadow-lg hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105"
+                    >
+                        Export Schedule to PDF
+                    </button>
                 </div>
             </div>
 
@@ -1821,6 +1860,7 @@
                             </div>
                             <div class="gauge-label" id="overallAttendanceGaugeLabel">0%</div>
                         </div>
+                        <p class="text-sm text-gray-500 mt-2">Data from <span id="dashboardStartDate"></span> to Today</p>
                     </div>
 
                     <div class="dashboard-card-new">
@@ -1983,7 +2023,7 @@
                     </thead>
                     <tbody id="modalAttendanceTableBody">
                     </tbody>
-</table>
+                </table>
             </div>
             <div class="modal-buttons">
                 <button id="saveAttendanceBtn" class="btn btn-primary">Save Attendance</button>
@@ -2011,7 +2051,7 @@
                 <div>Sat</div>
             </div>
             <div class="calendar-days" id="calendarDaysGrid">
-                </div>
+            </div>
             <div class="modal-buttons">
                 <button id="selectDateFromCalendarBtn" class="btn btn-primary">Select Date</button>
                 <button id="cancelCalendarSelection" class="btn btn-secondary">Cancel</button>
@@ -2019,10 +2059,11 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    
+    <!-- Your main.js script - MUST BE TYPE="MODULE" -->
     <script type="module" src="main.js"></script>
+    <!-- Your other module scripts - MUST BE TYPE="MODULE" -->
+    <script type="module" src="leave_tracker.js"></script>
+    <script type="module" src="shift_schedule.js"></script>
+
 </body>
 </html>
