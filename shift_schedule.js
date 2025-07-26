@@ -90,8 +90,6 @@ const App = () => {
     useEffect(() => {
         if (!isAuthReady || !db || !currentUser) return;
 
-        const userId = currentUser.uid || crypto.randomUUID(); // Use UID if authenticated, else random
-
         // Listener for activeAgents
         const activeAgentsRef = collection(db, `artifacts/${appId}/public/data/agents`);
         const unsubscribeAgents = onSnapshot(activeAgentsRef, (snapshot) => {
