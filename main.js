@@ -17,12 +17,12 @@ export const auth = firebase.auth();
 export const db = firebase.firestore();
 
 // --- Global Variables / Caches ---
-export let loggedInUser = null;
+export let loggedInUser = null; // Stores email of logged-in user
 export let loggedInUserRole = 'Agent';
-export let usersData = {};
+export let usersData = {}; // This will be keyed by fullName for easier lookup in shift_schedule
 export const attendanceData = {};
 export const markedDates = new Set();
-export let activeAgents = [];
+export let activeAgents = []; // Stores fullNames of active agents
 export let currentLeaveTrackerDate = new Date();
 export const todayGlobal = new Date();
 export let selectedMarkingDate = null;
@@ -50,14 +50,16 @@ import { initializeShiftSchedule, renderShiftScheduleTable, updateShiftScheduleD
 export function updateActiveAgentsList() {
     const sampleSecondaryRoles = ['Inbound / Email', 'Social Media', 'LiveChat', 'Sales', 'Onboarding', 'Level 1 Escalations'];
     const samplePeriods = ['July - December', 'Jan - June', 'Annual'];
-    Object.keys(usersData).forEach(email => {
-        if (!usersData[email].secondaryRole) {
-            usersData[email].secondaryRole = sampleSecondaryRoles[Math.floor(Math.random() * sampleSecondaryRoles.length)];
+    // Ensure secondaryRole and period are set for all users in usersData
+    Object.values(usersData).forEach(user => {
+        if (!user.secondaryRole) {
+            user.secondaryRole = sampleSecondaryRoles[Math.floor(Math.random() * sampleSecondaryRoles.length)];
         }
-        if (!usersData[email].period) {
-            usersData[email].period = samplePeriods[Math.floor(Math.random() * samplePeriods.length)];
+        if (!user.period) {
+            user.period = samplePeriods[Math.floor(Math.random() * samplePeriods.length)];
         }
     });
+
     activeAgents = Object.values(usersData)
         .filter(user => user.isActive)
         .map(user => user.fullName)
@@ -66,12 +68,13 @@ export function updateActiveAgentsList() {
 }
 
 export async function fetchAllUsersData() {
-    usersData = {};
+    usersData = {}; // Clear existing data
     try {
         const usersSnapshot = await db.collection('users').get();
         usersSnapshot.forEach(doc => {
             const userData = doc.data();
-            usersData[userData.email] = {
+            // Key usersData by fullName for easier lookup in shift_schedule.js
+            usersData[userData.fullName] = { // CHANGED: Keying by fullName
                 uid: doc.id,
                 fullName: userData.fullName,
                 role: userData.role,
@@ -647,7 +650,7 @@ export async function saveAttendance() {
         window.DOM.attendanceDateInput.value = '';
         selectedMarkingDate = null;
         await fetchAttendanceData();
-        await fetchAllUsersData();
+        await fetchAllUsersData(); // Re-fetch all users to update activeAgents and usersData
         updateHomeStatistics();
         updateDashboardData(window.DOM.employeeSelect.value);
         populateIndividualSummarySelect();
@@ -873,7 +876,7 @@ export function renderStaffListTable() {
 }
 
 export async function toggleUserStatus(email, isActive) {
-    const userToUpdate = usersData[email];
+    const userToUpdate = Object.values(usersData).find(user => user.email === email); // Find by email
     if (userToUpdate && userToUpdate.uid) {
         if (loggedInUser === email && !isActive) {
             alert("You cannot deactivate your own account while logged in.");
@@ -892,6 +895,7 @@ export async function toggleUserStatus(email, isActive) {
             populateIndividualSummarySelect();
             updateHomeStatistics();
             updateDashboardData(window.DOM.employeeSelect.value);
+            renderShiftScheduleTable(); // Re-render shift schedule to reflect active agents
         } catch (error) {
             console.error("Error toggling user status:", error);
             alert(`Failed to change status for ${userToUpdate.fullName}: ${error.message}`);
@@ -902,7 +906,7 @@ export async function toggleUserStatus(email, isActive) {
 }
 
 export async function deleteUser(email) {
-    const userToDelete = usersData[email];
+    const userToDelete = Object.values(usersData).find(user => user.email === email); // Find by email
     if (!userToDelete) {
         alert("User not found.");
         return;
@@ -974,7 +978,7 @@ export async function deleteUser(email) {
                 }
             });
             await batch.commit();
-            delete usersData[email];
+            delete usersData[userToDelete.fullName]; // Delete from usersData cache by fullName
             updateActiveAgentsList();
             renderStaffListTable();
             generateAttendanceOverviewTable();
@@ -982,6 +986,7 @@ export async function deleteUser(email) {
             populateIndividualSummarySelect();
             updateHomeStatistics();
             updateDashboardData(window.DOM.employeeSelect.value);
+            renderShiftScheduleTable(); // Re-render shift schedule to reflect deleted agent
             alert(`User ${userToDelete.fullName} and their related data deleted from Firestore.`); // Replaced with a simple alert for now
             console.warn(`Firebase Auth user for ${email} was NOT deleted client-side. Please delete it manually in Firebase Console or via a Cloud Function.`);
         } catch (error) {
@@ -1194,23 +1199,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.DOM.adminNavLink.style.display = 'none';
                 }
                 
+                // Always fetch all users data if an admin/team leader/supervisor is logged in
                 if (loggedInUserRole === 'Admin' || loggedInUserRole === 'Team Leader' || loggedInUserRole === 'Supervisor') {
                     await fetchAllUsersData();
                 } else {
-                    // For non-admin roles, only load their own data into usersData if not already there
-                    if (!usersData[loggedInUser]) {
-                         usersData[loggedInUser] = {
-                            uid: userDoc.id,
-                            fullName: userData.fullName,
-                            role: userData.role,
-                            isActive: userData.isActive,
-                            email: userData.email,
-                            openingLeaveBalance: userData.openingLeaveBalance || 20,
-                            secondaryRole: userData.secondaryRole || '',
-                            period: userData.period || ''
-                        };
-                    }
-                    updateActiveAgentsList(); // Update active agents based on the single user if not admin
+                    // For non-admin roles, ensure only their own data is in usersData and activeAgents
+                    // This prevents non-admins from seeing all staff in dropdowns/tables they shouldn't
+                    usersData = {}; // Clear previous usersData
+                    usersData[userData.fullName] = { // Key by fullName
+                        uid: userDoc.id,
+                        fullName: userData.fullName,
+                        role: userData.role,
+                        isActive: userData.isActive,
+                        email: userData.email,
+                        openingLeaveBalance: userData.openingLeaveBalance || 20,
+                        secondaryRole: userData.secondaryRole || '',
+                        period: userData.period || ''
+                    };
+                    updateActiveAgentsList(); // Update active agents based on the single user
                 }
 
                 await fetchAttendanceData();
@@ -1352,12 +1358,13 @@ function initializeEventListeners() {
             window.DOM.addMemberMessage.style.color = '#28a745';
             window.DOM.addMemberMessage.style.display = 'block';
             window.DOM.addMemberForm.reset();
-            await fetchAllUsersData();
+            await fetchAllUsersData(); // Re-fetch all users data to include the new user
             renderStaffListTable();
             populateEmployeeSelect();
             populateIndividualSummarySelect();
             updateHomeStatistics();
             updateDashboardData(window.DOM.employeeSelect.value);
+            renderShiftScheduleTable(); // Re-render shift schedule to show the new agent
         } catch (error) {
             let errorMessage = 'Error creating user.';
             switch (error.code) {
